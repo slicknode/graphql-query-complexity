@@ -1,0 +1,18 @@
+{
+  "sourceRoot": "./packages/core/src",
+  "parserOpts": {
+    "allowReturnOutsideFunction": true
+  },
+  "presets": ["es2015", "stage-0"],
+  "plugins": [
+    "syntax-async-functions",
+    "transform-class-properties",
+    "transform-flow-strip-types",
+    "transform-object-rest-spread",
+    "transform-regenerator",
+    "transform-runtime",
+    ["babel-plugin-transform-builtin-extend", {
+      "globals": ["Error"]
+    }]
+  ]
+}

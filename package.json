@@ -1,0 +1,58 @@
+{
+  "name": "graphql-query-complexity",
+  "version": "0.1.0",
+  "description": "Validation rule for GraphQL query complexity analysis",
+  "main": "dist/index.js",
+  "options": {
+    "mocha": "--check-leaks --full-trace src/**/__tests__/**/*-test.js",
+    "mochacoverage": "-t 100000 --check-leaks --full-trace src/**/__*__/**/*-test.js"
+  },
+  "scripts": {
+    "lint": "eslint src",
+    "check": "flow check",
+    "clean": "rimraf dist/*",
+    "test": "npm run lint && npm run check && npm run testonly",
+    "testonly": "NODE_PATH=src babel-node ./node_modules/.bin/_mocha $npm_package_options_mocha",
+    "dist": "npm run clean && babel --ignore __tests__ -d dist src && npm run build-dot-flow",
+    "build-dot-flow": "find ./src -name '*.js' -not -path '*/__tests__*' | while read filepath; do cp $filepath `echo $filepath | sed 's/\\/src\\//\\/dist\\//g'`.flow; done",
+    "prepublish": "npm run clean && npm run dist"
+  },
+  "directories": {
+    "lib": "./dist"
+  },
+  "dependencies": {
+    "graphql": ">=0.9.5"
+  },
+  "peerDependencies": {},
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "author": "Ivo Meißner",
+  "license": "MIT",
+  "devDependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-core": "^6.25.0",
+    "babel-eslint": "^7.2.3",
+    "babel-plugin-syntax-async-functions": "^6.13.0",
+    "babel-plugin-syntax-flow": "^6.18.0",
+    "babel-plugin-transform-builtin-extend": "^1.1.2",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-plugin-transform-flow-strip-types": "^6.22.0",
+    "babel-plugin-transform-object-rest-spread": "^6.23.0",
+    "babel-plugin-transform-regenerator": "^6.24.1",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-stage-0": "^6.24.1",
+    "chai": "^4.1.0",
+    "eslint": "^4.0.0",
+    "eslint-plugin-babel": "^4.1.1",
+    "eslint-plugin-flowtype": "^2.34.0",
+    "eslint-plugin-flowtype-errors": "^3.3.0",
+    "flow": "^0.2.3",
+    "flow-bin": "^0.48.0",
+    "mocha": "^3.4.2",
+    "rimraf": "^2.6.1"
+  }
+}
