@@ -29,6 +29,11 @@
     "README.md",
     "LICENSE"
   ],
+  "repository": "ivome/graphql-query-complexity",
+  "keywords": [
+    "graphql",
+    "query complexity"
+  ],
   "author": "Ivo Meißner",
   "license": "MIT",
   "devDependencies": {
