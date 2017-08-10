@@ -76,7 +76,7 @@ This function will provide the complexity of the child nodes as well as the fiel
 
 That way you can make a more realistic estimation of individual field complexity values:
 
-```
+```javascript
 const Query = new GraphQLObjectType({
   name: 'Query',
   fields: () => ({

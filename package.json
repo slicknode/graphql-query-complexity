@@ -1,6 +1,6 @@
 {
   "name": "graphql-query-complexity",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Validation rule for GraphQL query complexity analysis",
   "main": "dist/index.js",
   "options": {
@@ -20,10 +20,10 @@
   "directories": {
     "lib": "./dist"
   },
-  "dependencies": {
+  "dependencies": {},
+  "peerDependencies": {
     "graphql": ">=0.9.5"
   },
-  "peerDependencies": {},
   "files": [
     "dist",
     "README.md",
@@ -58,6 +58,7 @@
     "flow": "^0.2.3",
     "flow-bin": "^0.48.0",
     "mocha": "^3.4.2",
-    "rimraf": "^2.6.1"
+    "rimraf": "^2.6.1",
+    "graphql": ">=0.9.5"
   }
 }
