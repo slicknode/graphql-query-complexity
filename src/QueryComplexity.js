@@ -138,7 +138,12 @@ export default class QueryComplexity {
               const fieldType = getNamedType(field.type);
               
               // Get arguments
-              const args = getArgumentValues(field, childNode, this.options.variables || {});
+              let args;
+              try {
+                args = getArgumentValues(field, childNode, this.options.variables || {});
+              } catch (e) {
+                return this.context.reportError(e);
+              }
               
               // Check if we have child complexity
               let childComplexity = 0;

@@ -223,4 +223,19 @@ describe('QueryComplexity analysis', () => {
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
     expect(visitor.complexity).to.equal(1);
   });
+
+  it('should error on a missing non-null argument', () => {
+    const ast = parse(`
+        query {
+            requiredArgs(notcount: 0)
+        }
+      `);
+    const context = new ValidationContext(schema, ast, typeInfo);
+    const visitor = new ComplexityVisitor(context, {
+      maximumComplexity: 100
+    });
+    visit(ast, visitWithTypeInfo(typeInfo, visitor));
+    expect(context.getErrors().length).to.equal(1);
+    expect(context.getErrors()[0].message).to.equal('Argument "count" of required type "Int!" was not provided.');
+  });
 });

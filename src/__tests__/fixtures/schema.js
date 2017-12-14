@@ -119,6 +119,14 @@ const Query = new GraphQLObjectType({
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(Item))),
       resolve: () => [],
     },
+    requiredArgs: {
+      type: Item,
+      args: {
+        count: {
+          type: new GraphQLNonNull(GraphQLInt)
+        }
+      }
+    }
   }),
 });
 
