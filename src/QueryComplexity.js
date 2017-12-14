@@ -59,22 +59,11 @@ export default class QueryComplexity {
     this.context = context;
     this.complexity = 0;
     this.options = options;
-    this.fragments = this.getFragments(context);
     
     this.OperationDefinition = {
       enter: this.onOperationDefinitionEnter,
       leave: this.onOperationDefinitionLeave
     };
-  }
-  
-  getFragments(context: ValidationContext): {[name: string]: FragmentDefinitionNode} {
-    return context.getDocument().definitions.reduce((map, definition) => {
-      if (definition.kind === Kind.FRAGMENT_DEFINITION) {
-        map[definition.name.value] = definition;
-      }
-      
-      return map;
-    }, {});
   }
   
   onOperationDefinitionEnter(operation: OperationDefinitionNode) {
@@ -166,7 +155,7 @@ export default class QueryComplexity {
               break;
             }
             case Kind.FRAGMENT_SPREAD: {
-              const fragment = this.fragments[childNode.name.value];
+              const fragment = this.context.getFragment(childNode.name.value);
               const fragmentType = this.context.getSchema().getType(fragment.typeCondition.name.value);
               nodeComplexity = this.nodeComplexity(fragment, fragmentType);
               break;
