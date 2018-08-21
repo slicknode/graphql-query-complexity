@@ -20,7 +20,9 @@
   "directories": {
     "lib": "./dist"
   },
-  "dependencies": {},
+  "dependencies": {
+    "babel-runtime": "^6.26.0"
+  },
   "peerDependencies": {
     "graphql": ">=0.9.5"
   },
