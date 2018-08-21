@@ -39,13 +39,13 @@ const Item = new GraphQLObjectType({
         }
       }
     },
-    list: { type: new GraphQLList(Item) },
+    list: { type: GraphQLList(Item) },
     nonNullItem: {
-      type: new GraphQLNonNull(Item),
+      type: GraphQLNonNull(Item),
       resolve: () => ({}),
     },
     nonNullList: {
-      type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(Item))),
+      type: GraphQLNonNull(GraphQLList(GraphQLNonNull(Item))),
       resolve: () => [],
     },
   }),
@@ -110,20 +110,20 @@ const Query = new GraphQLObjectType({
         }
       }
     },
-    list: { type: new GraphQLList(Item) },
+    list: { type: GraphQLList(Item) },
     nonNullItem: {
-      type: new GraphQLNonNull(Item),
+      type: GraphQLNonNull(Item),
       resolve: () => ({}),
     },
     nonNullList: {
-      type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(Item))),
+      type: GraphQLNonNull(GraphQLList(GraphQLNonNull(Item))),
       resolve: () => [],
     },
     requiredArgs: {
       type: Item,
       args: {
         count: {
-          type: new GraphQLNonNull(GraphQLInt)
+          type: GraphQLNonNull(GraphQLInt)
         }
       }
     }
