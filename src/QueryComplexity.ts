@@ -14,7 +14,7 @@ import {
   FragmentSpreadNode,
   InlineFragmentNode,
   assertCompositeType,
-  GraphQLField,
+  GraphQLField, isCompositeType, GraphQLCompositeType,
 } from 'graphql';
 import {
   GraphQLUnionType,
@@ -24,11 +24,24 @@ import {
   getNamedType,
   GraphQLError
 } from 'graphql';
+import {simpleEstimator} from './estimators';
 
-type ComplexityResolver = (args: any, complexity: number) => number;
+/**
+ * @deprecated Use new complexity resolver
+ */
+type SimpleComplexityEstimator = (args: any, complexity: number) => number;
+
+export type ComplexityEstimatorArgs = {
+  type: GraphQLCompositeType,
+  field: GraphQLField<any, any>,
+  args: {[key: string]: any},
+  childComplexity: number
+}
+
+export type ComplexityEstimator = (options: ComplexityEstimatorArgs) => number | void;
 
 type ComplexityGraphQLField<TSource, TContext> = GraphQLField<TSource, TContext> & {
-  complexity?: ComplexityResolver | number | undefined
+  complexity?: SimpleComplexityEstimator | number | undefined
 }
 
 type ComplexityGraphQLFieldMap<TSource, TContext> = {
@@ -36,10 +49,24 @@ type ComplexityGraphQLFieldMap<TSource, TContext> = {
 }
 
 export interface QueryComplexityOptions {
+  // The maximum allowed query complexity, queries above this threshold will be rejected
   maximumComplexity: number,
+
+  // The query variables. This is needed because the variables are not available
+  // in the visitor of the graphql-js library
   variables?: Object,
+
+  // Optional callback function to retrieve the determined query complexity
+  // Will be invoked whether the query is rejected or not
+  // This can be used for logging or to implement rate limiting
   onComplete?: (complexity: number) => void,
-  createError?: (max: number, actual: number) => GraphQLError
+
+  // Optional function to create a custom error
+  createError?: (max: number, actual: number) => GraphQLError,
+
+  // An array of complexity estimators to use if no estimator or value is defined
+  // in the field configuration
+  estimators?: Array<ComplexityEstimator>;
 }
 
 function queryComplexityMessage(max: number, actual: number): string {
@@ -53,8 +80,8 @@ export default class QueryComplexity {
   context: ValidationContext;
   complexity: number;
   options: QueryComplexityOptions;
-  fragments: {[name: string]: FragmentDefinitionNode};
   OperationDefinition: Object;
+  estimators: Array<ComplexityEstimator>;
 
   constructor(
     context: ValidationContext,
@@ -67,6 +94,9 @@ export default class QueryComplexity {
     this.context = context;
     this.complexity = 0;
     this.options = options;
+    this.estimators = options.estimators || [
+      simpleEstimator()
+    ];
 
     this.OperationDefinition = {
       enter: this.onOperationDefinitionEnter,
@@ -135,7 +165,7 @@ export default class QueryComplexity {
               const fieldType = getNamedType(field.type);
 
               // Get arguments
-              let args;
+              let args: {[key: string]: any};
               try {
                 args = getArgumentValues(field, childNode, this.options.variables || {});
               } catch (e) {
@@ -144,11 +174,7 @@ export default class QueryComplexity {
 
               // Check if we have child complexity
               let childComplexity = 0;
-              if (
-                fieldType instanceof GraphQLObjectType ||
-                fieldType instanceof GraphQLInterfaceType ||
-                fieldType instanceof GraphQLUnionType
-              ) {
+              if (isCompositeType(fieldType)) {
                 childComplexity = this.nodeComplexity(childNode, fieldType);
               }
 
@@ -158,7 +184,31 @@ export default class QueryComplexity {
               } else if (typeof field.complexity === 'function') {
                 nodeComplexity = field.complexity(args, childComplexity);
               } else {
-                nodeComplexity = this.getDefaultComplexity(args, childComplexity);
+                // Run estimators one after another and return first valid complexity
+                // score
+                const estimatorArgs: ComplexityEstimatorArgs = {
+                  childComplexity,
+                  args,
+                  field,
+                  type: typeDef
+                };
+                const validScore = this.estimators.find(estimator => {
+                  const tmpComplexity = estimator(estimatorArgs);
+
+                  if (typeof tmpComplexity === 'number') {
+                    nodeComplexity = tmpComplexity;
+                    return true;
+                  }
+
+                  return false;
+                });
+                if (!validScore) {
+                  throw new Error(
+                    `No complexity could be calculated for field ${typeDef.astNode}.${field.name}. ` +
+                    'Make sure you always have at least one estimator configured that returns a value.'
+                  );
+                }
+                // nodeComplexity = this.getDefaultComplexity(args, childComplexity);
               }
               break;
             }
@@ -204,9 +254,5 @@ export default class QueryComplexity {
       this.options.maximumComplexity,
       this.complexity
     ));
-  }
-
-  getDefaultComplexity(args: Object, childScore: number): number {
-    return 1 + childScore;
   }
 }

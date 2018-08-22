@@ -28,7 +28,7 @@ const rule = queryComplexity({
   variables: {},
   
   // Optional callback function to retrieve the determined query complexity
-  // Will be invoked weather the query is rejected or not
+  // Will be invoked whether the query is rejected or not
   // This can be used for logging or to implement rate limiting
   onComplete: (complexity: number) => {console.log('Determined query complexity: ', complexity)},
   
@@ -119,7 +119,9 @@ app.use('/api', graphqlHTTP(async (request, response, {variables}) => ({
 })));
 ```
 
-## Credits
+## Prior Art
 
-This project is heavily inspired by the query complexity analysis in the 
-[Sangria GraphQL](http://sangria-graphql.org/) implementation.
+This project is inspired by the following prior projects: 
+
+-   Query complexity analysis in the [Sangria GraphQL](http://sangria-graphql.org/) implementation.
+
