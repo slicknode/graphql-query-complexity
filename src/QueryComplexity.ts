@@ -1,21 +1,20 @@
 /**
  * Created by Ivo Meißner on 28.07.17.
- *
- * @flow
  */
 
 import {
   getArgumentValues,
 } from 'graphql/execution/values';
-import assert from 'assert';
 
-import type {
+import {
   ValidationContext,
   FragmentDefinitionNode,
   OperationDefinitionNode,
   FieldNode,
   FragmentSpreadNode,
   InlineFragmentNode,
+  assertCompositeType,
+  GraphQLField,
 } from 'graphql';
 import {
   GraphQLUnionType,
@@ -26,7 +25,17 @@ import {
   GraphQLError
 } from 'graphql';
 
-export type QueryComplexityOptions = {
+type ComplexityResolver = (args: any, complexity: number) => number;
+
+type ComplexityGraphQLField<TSource, TContext> = GraphQLField<TSource, TContext> & {
+  complexity?: ComplexityResolver | number | undefined
+}
+
+type ComplexityGraphQLFieldMap<TSource, TContext> = {
+  [key: string]: ComplexityGraphQLField<TSource, TContext>
+}
+
+export interface QueryComplexityOptions {
   maximumComplexity: number,
   variables?: Object,
   onComplete?: (complexity: number) => void,
@@ -46,26 +55,25 @@ export default class QueryComplexity {
   options: QueryComplexityOptions;
   fragments: {[name: string]: FragmentDefinitionNode};
   OperationDefinition: Object;
-  
+
   constructor(
     context: ValidationContext,
     options: QueryComplexityOptions
   ) {
-    assert(
-      typeof options.maximumComplexity === 'number' && options.maximumComplexity > 0,
-      'Maximum query complexity must be a positive number'
-    );
-    
+    if (!(typeof options.maximumComplexity === 'number' && options.maximumComplexity > 0)) {
+      throw new Error('Maximum query complexity must be a positive number');
+    }
+
     this.context = context;
     this.complexity = 0;
     this.options = options;
-    
+
     this.OperationDefinition = {
       enter: this.onOperationDefinitionEnter,
       leave: this.onOperationDefinitionLeave
     };
   }
-  
+
   onOperationDefinitionEnter(operation: OperationDefinitionNode) {
     switch (operation.operation) {
       case 'query':
@@ -90,33 +98,33 @@ export default class QueryComplexity {
         throw new Error(`Query complexity could not be calculated for operation of type ${operation.operation}`);
     }
   }
-  
-  onOperationDefinitionLeave(): ?GraphQLError {
+
+  onOperationDefinitionLeave(): GraphQLError | undefined {
     if (this.options.onComplete) {
       this.options.onComplete(this.complexity);
     }
-    
+
     if (this.complexity > this.options.maximumComplexity) {
       return this.context.reportError(
         this.createError()
       );
     }
   }
-  
+
   nodeComplexity(
     node: FieldNode | FragmentDefinitionNode | InlineFragmentNode | OperationDefinitionNode,
     typeDef: GraphQLObjectType | GraphQLInterfaceType | GraphQLUnionType,
     complexity: number = 0
   ): number {
     if (node.selectionSet) {
-      let fields = {};
+      let fields:ComplexityGraphQLFieldMap<any, any> = {};
       if (typeDef instanceof GraphQLObjectType || typeDef instanceof GraphQLInterfaceType) {
         fields = typeDef.getFields();
       }
       return complexity + node.selectionSet.selections.reduce(
         (total: number, childNode: FieldNode | FragmentSpreadNode | InlineFragmentNode) => {
           let nodeComplexity = 0;
-          
+
           switch (childNode.kind) {
             case Kind.FIELD: {
               const field = fields[childNode.name.value];
@@ -125,7 +133,7 @@ export default class QueryComplexity {
                 break;
               }
               const fieldType = getNamedType(field.type);
-              
+
               // Get arguments
               let args;
               try {
@@ -133,7 +141,7 @@ export default class QueryComplexity {
               } catch (e) {
                 return this.context.reportError(e);
               }
-              
+
               // Check if we have child complexity
               let childComplexity = 0;
               if (
@@ -143,25 +151,22 @@ export default class QueryComplexity {
               ) {
                 childComplexity = this.nodeComplexity(childNode, fieldType);
               }
-              
+
               // Calculate complexity score
-              // $FlowFixMe: Complexity not defined in field config of graphql library
-              switch (typeof field.complexity) {
-                case 'function':
-                  nodeComplexity = field.complexity(args, childComplexity);
-                  break;
-                case 'number':
-                  nodeComplexity = childComplexity + field.complexity;
-                  break;
-                default:
-                  nodeComplexity = this.getDefaultComplexity(args, childComplexity);
-                  break;
+              if (typeof field.complexity === 'number') {
+                nodeComplexity = childComplexity + field.complexity;
+              } else if (typeof field.complexity === 'function') {
+                nodeComplexity = field.complexity(args, childComplexity);
+              } else {
+                nodeComplexity = this.getDefaultComplexity(args, childComplexity);
               }
               break;
             }
             case Kind.FRAGMENT_SPREAD: {
               const fragment = this.context.getFragment(childNode.name.value);
-              const fragmentType = this.context.getSchema().getType(fragment.typeCondition.name.value);
+              const fragmentType = assertCompositeType(
+                this.context.getSchema().getType(fragment.typeCondition.name.value)
+              );
               nodeComplexity = this.nodeComplexity(fragment, fragmentType);
               break;
             }
@@ -169,9 +174,11 @@ export default class QueryComplexity {
               let inlineFragmentType = typeDef;
               if (childNode.typeCondition && childNode.typeCondition.name) {
                 // $FlowFixMe: Not sure why flow thinks this can still be NULL
-                inlineFragmentType = this.context.getSchema().getType(childNode.typeCondition.name.value);
+                inlineFragmentType = assertCompositeType(
+                  this.context.getSchema().getType(childNode.typeCondition.name.value)
+                );
               }
-              
+
               nodeComplexity = this.nodeComplexity(childNode, inlineFragmentType);
               break;
             }
@@ -185,7 +192,7 @@ export default class QueryComplexity {
     }
     return complexity;
   }
-  
+
   createError(): GraphQLError {
     if (typeof this.options.createError === 'function') {
       return this.options.createError(
@@ -198,7 +205,7 @@ export default class QueryComplexity {
       this.complexity
     ));
   }
-  
+
   getDefaultComplexity(args: Object, childScore: number): number {
     return 1 + childScore;
   }

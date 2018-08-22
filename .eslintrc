@@ -1,15 +1,12 @@
 {
-    "parser": "babel-eslint",
+    "parser": "typescript-eslint-parser",
 
     "plugins": [
-        "babel",
-        "flowtype",
-        "flowtype-errors"
+        "typescript"
     ],
 
     "extends": [
-        "eslint:recommended",
-        "plugin:flowtype/recommended"
+        "eslint:recommended"
     ],
 
     "env": {
@@ -58,7 +55,6 @@
     },
 
     "rules": {
-        "flowtype-errors/show-errors": 2,
         "arrow-parens": [2, "as-needed"],
         "array-bracket-spacing": [2, "always"],
         "generator-star-spacing": [2, {"before": true, "after": false}],

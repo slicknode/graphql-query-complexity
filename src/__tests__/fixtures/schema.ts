@@ -1,7 +1,5 @@
 /**
  * Created by Ivo Meißner on 28.07.17.
- *
- * @flow
  */
 
 import {
@@ -16,12 +14,12 @@ import {
   GraphQLInterfaceType,
 } from 'graphql';
 
-const Item = new GraphQLObjectType({
+const Item: GraphQLObjectType = new GraphQLObjectType({
   name: 'Item',
   fields: () => ({
     variableList: {
       type: Item,
-      complexity: (args, childComplexity) => childComplexity * (args.count || 10),
+      complexity: (args: any, childComplexity: number) => childComplexity * (args.count || 10),
       args: {
         count: {
           type: GraphQLInt
@@ -32,7 +30,7 @@ const Item = new GraphQLObjectType({
     complexScalar: { type: GraphQLString, complexity: 20 },
     variableScalar: {
       type: Item,
-      complexity: args => 10 * (args.count || 10),
+      complexity: (args: {[key: string]: any}) => 10 * (args.count || 10),
       args: {
         count: {
           type: GraphQLInt
@@ -89,7 +87,7 @@ const Query = new GraphQLObjectType({
     name: { type: GraphQLString },
     variableList: {
       type: Item,
-      complexity: (args, childComplexity) => childComplexity * (args.count || 10),
+      complexity: (args: {[key: string]: any}, childComplexity: number) => childComplexity * (args.count || 10),
       args: {
         count: {
           type: GraphQLInt
@@ -103,7 +101,7 @@ const Query = new GraphQLObjectType({
     union: { type: Union },
     variableScalar: {
       type: Item,
-      complexity: args => 10 * (args.count || 10),
+      complexity: (args: {[key: string]: any}) => 10 * (args.count || 10),
       args: {
         count: {
           type: GraphQLInt
