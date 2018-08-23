@@ -24,16 +24,14 @@ import {
   getNamedType,
   GraphQLError
 } from 'graphql';
-import {simpleEstimator} from './estimators';
-
-/**
- * @deprecated Use new complexity resolver
- */
-type SimpleComplexityEstimator = (args: any, complexity: number) => number;
+import {
+  simpleEstimator,
+  legacyEstimator
+} from './estimators';
 
 export type ComplexityEstimatorArgs = {
   type: GraphQLCompositeType,
-  field: GraphQLField<any, any>,
+  field: ComplexityGraphQLField<any, any>,
   args: {[key: string]: any},
   childComplexity: number
 }
@@ -41,7 +39,7 @@ export type ComplexityEstimatorArgs = {
 export type ComplexityEstimator = (options: ComplexityEstimatorArgs) => number | void;
 
 type ComplexityGraphQLField<TSource, TContext> = GraphQLField<TSource, TContext> & {
-  complexity?: SimpleComplexityEstimator | number | undefined
+  complexity?: any
 }
 
 type ComplexityGraphQLFieldMap<TSource, TContext> = {
@@ -95,6 +93,7 @@ export default class QueryComplexity {
     this.complexity = 0;
     this.options = options;
     this.estimators = options.estimators || [
+      legacyEstimator(),
       simpleEstimator()
     ];
 
@@ -178,37 +177,29 @@ export default class QueryComplexity {
                 childComplexity = this.nodeComplexity(childNode, fieldType);
               }
 
-              // Calculate complexity score
-              if (typeof field.complexity === 'number') {
-                nodeComplexity = childComplexity + field.complexity;
-              } else if (typeof field.complexity === 'function') {
-                nodeComplexity = field.complexity(args, childComplexity);
-              } else {
-                // Run estimators one after another and return first valid complexity
-                // score
-                const estimatorArgs: ComplexityEstimatorArgs = {
-                  childComplexity,
-                  args,
-                  field,
-                  type: typeDef
-                };
-                const validScore = this.estimators.find(estimator => {
-                  const tmpComplexity = estimator(estimatorArgs);
+              // Run estimators one after another and return first valid complexity
+              // score
+              const estimatorArgs: ComplexityEstimatorArgs = {
+                childComplexity,
+                args,
+                field,
+                type: typeDef
+              };
+              const validScore = this.estimators.find(estimator => {
+                const tmpComplexity = estimator(estimatorArgs);
 
-                  if (typeof tmpComplexity === 'number') {
-                    nodeComplexity = tmpComplexity;
-                    return true;
-                  }
-
-                  return false;
-                });
-                if (!validScore) {
-                  throw new Error(
-                    `No complexity could be calculated for field ${typeDef.astNode}.${field.name}. ` +
-                    'Make sure you always have at least one estimator configured that returns a value.'
-                  );
+                if (typeof tmpComplexity === 'number') {
+                  nodeComplexity = tmpComplexity;
+                  return true;
                 }
-                // nodeComplexity = this.getDefaultComplexity(args, childComplexity);
+
+                return false;
+              });
+              if (!validScore) {
+                throw new Error(
+                  `No complexity could be calculated for field ${typeDef.astNode}.${field.name}. ` +
+                  'At least one complexity estimator has to return a complexity score.'
+                );
               }
               break;
             }
