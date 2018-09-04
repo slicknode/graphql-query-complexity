@@ -19,6 +19,10 @@ npm install -S graphql-query-complexity
 Create the rule with a maximum query complexity:
 
 ```javascript
+import queryComplexity, {
+  simpleEstimator
+} from 'graphql-query-complexity';
+
 const rule = queryComplexity({
   // The maximum allowed query complexity, queries above this threshold will be rejected
   maximumComplexity: 1000,
@@ -35,9 +39,68 @@ const rule = queryComplexity({
   // Optional function to create a custom error
   createError: (max: number, actual: number) => {
     return new GraphQLError(`Query is too complex: ${actual}. Maximum allowed complexity: ${max}`);
-  }
+  },
+  
+  // Add any number of estimators. The estimators are invoked in order, the first
+  // numeric value that is being returned by an estimator is used as the field complexity.
+  // If no estimator returns a value, an exception is raised. 
+  estimators: [
+    // Add more estimators here...
+    
+    // This will assign each field a complexity of 1 if no other estimator
+    // returned a value. 
+    simpleEstimator({
+      defaultComplexity: 1
+    })
+  ]
 });
 ```
+
+## Configuration / Complexity Estimators
+
+The complexity calculation of a GraphQL query can be customized with so called complexity estimators.
+A complexity estimator is a simple function that calculates the complexity for a field. You can add
+any number of complexity estimators to the rule, which are then executed one after another. 
+The first estimator that returns a numeric complexity value determines the complexity for that field. 
+
+At least one estimator has to return a complexity value, otherwise an exception is raised. You can
+for example use the [simpleEstimator](./src/estimators/simple/README.md) as the last estimator
+in your chain to define a default value. 
+
+You can use any of the available estimators to calculate the complexity of a field
+or write your own:
+
+*   **[`simpleEstimator`](src/estimators/simple/README.md):** The simple estimator returns a fixed complexity for each field. Can be used as
+    last estimator in the chain for a default value.
+*   **[`fieldConfigEstimator`](src/estimators/simple/README.md):** The field config estimator lets you set a numeric value or a custom estimator
+    function in the field config of your schema. 
+*   **[`legacyEstimator`](src/estimators/legacy/README.md):** The legacy estimator implements the logic of previous versions. Can be used
+    to gradually migrate your codebase to new estimators. 
+*   PR welcome...
+
+
+## Creating Custom Estimators
+
+An estimator has the following function signature: 
+
+```typescript
+type ComplexityEstimatorArgs = {
+  // The composite type (interface, object, union) that the evaluated field belongs to
+  type: GraphQLCompositeType,
+  
+  // The GraphQLField that is being evaluated
+  field: GraphQLField<any, any>,
+  
+  // The input arguments of the field
+  args: {[key: string]: any},
+  
+  // The complexity of all child selections for that field
+  childComplexity: number
+}
+
+type ComplexityEstimator = (options: ComplexityEstimatorArgs) => number | void;
+```
+
 
 ## Customizing complexity calculation
 

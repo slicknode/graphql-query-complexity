@@ -3,6 +3,7 @@
   "version": "0.1.2",
   "description": "Validation rule for GraphQL query complexity analysis",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "lint": "eslint src/**/*.ts",
     "clean": "rimraf dist/*",

@@ -14,7 +14,7 @@ import {
   FragmentSpreadNode,
   InlineFragmentNode,
   assertCompositeType,
-  GraphQLField, isCompositeType, GraphQLCompositeType,
+  GraphQLField, isCompositeType, GraphQLCompositeType, GraphQLFieldMap,
 } from 'graphql';
 import {
   GraphQLUnionType,
@@ -29,22 +29,23 @@ import {
   legacyEstimator
 } from './estimators';
 
+declare module 'graphql/type/definition' {
+  export interface GraphQLField<TSource, TContext, TArgs = { [argName: string]: any }> {
+    complexity?: Complexity;
+  }
+}
+
 export type ComplexityEstimatorArgs = {
   type: GraphQLCompositeType,
-  field: ComplexityGraphQLField<any, any>,
+  field: GraphQLField<any, any>,
   args: {[key: string]: any},
   childComplexity: number
 }
 
 export type ComplexityEstimator = (options: ComplexityEstimatorArgs) => number | void;
 
-type ComplexityGraphQLField<TSource, TContext> = GraphQLField<TSource, TContext> & {
-  complexity?: any
-}
-
-type ComplexityGraphQLFieldMap<TSource, TContext> = {
-  [key: string]: ComplexityGraphQLField<TSource, TContext>
-}
+// Complexity can be anything that is supported by the configured estimators
+export type Complexity = any;
 
 export interface QueryComplexityOptions {
   // The maximum allowed query complexity, queries above this threshold will be rejected
@@ -62,8 +63,7 @@ export interface QueryComplexityOptions {
   // Optional function to create a custom error
   createError?: (max: number, actual: number) => GraphQLError,
 
-  // An array of complexity estimators to use if no estimator or value is defined
-  // in the field configuration
+  // An array of complexity estimators to use for estimating the complexity
   estimators?: Array<ComplexityEstimator>;
 }
 
@@ -146,7 +146,7 @@ export default class QueryComplexity {
     complexity: number = 0
   ): number {
     if (node.selectionSet) {
-      let fields:ComplexityGraphQLFieldMap<any, any> = {};
+      let fields:GraphQLFieldMap<any, any> = {};
       if (typeDef instanceof GraphQLObjectType || typeDef instanceof GraphQLInterfaceType) {
         fields = typeDef.getFields();
       }
