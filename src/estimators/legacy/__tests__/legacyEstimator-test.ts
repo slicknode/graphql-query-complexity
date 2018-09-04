@@ -15,6 +15,8 @@ import {expect} from 'chai';
 import schema from './fixtures/schema';
 
 import ComplexityVisitor from '../../../QueryComplexity';
+import legacyEstimator from '../index';
+import simpleEstimator from '../../simple';
 
 describe('legacy estimator', () => {
   const typeInfo = new TypeInfo(schema);
@@ -29,6 +31,10 @@ describe('legacy estimator', () => {
     const context = new ValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
+      estimators: [
+        legacyEstimator(),
+        simpleEstimator()
+      ]
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -44,7 +50,11 @@ describe('legacy estimator', () => {
 
     const context = new ValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
-      maximumComplexity: 100
+      maximumComplexity: 100,
+      estimators: [
+        legacyEstimator(),
+        simpleEstimator()
+      ]
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -60,7 +70,11 @@ describe('legacy estimator', () => {
 
     const context = new ValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
-      maximumComplexity: 100
+      maximumComplexity: 100,
+      estimators: [
+        legacyEstimator(),
+        simpleEstimator()
+      ]
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -76,7 +90,11 @@ describe('legacy estimator', () => {
 
     const context = new ValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
-      maximumComplexity: 100
+      maximumComplexity: 100,
+      estimators: [
+        legacyEstimator(),
+        simpleEstimator()
+      ]
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -92,7 +110,11 @@ describe('legacy estimator', () => {
 
     const context = new ValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
-      maximumComplexity: 100
+      maximumComplexity: 100,
+      estimators: [
+        legacyEstimator(),
+        simpleEstimator()
+      ]
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -116,7 +138,11 @@ describe('legacy estimator', () => {
 
     const context = new ValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
-      maximumComplexity: 100
+      maximumComplexity: 100,
+      estimators: [
+        legacyEstimator(),
+        simpleEstimator()
+      ]
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -137,7 +163,11 @@ describe('legacy estimator', () => {
 
     const context = new ValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
-      maximumComplexity: 100
+      maximumComplexity: 100,
+      estimators: [
+        legacyEstimator(),
+        simpleEstimator()
+      ]
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -158,7 +188,11 @@ describe('legacy estimator', () => {
 
     const context = new ValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
-      maximumComplexity: 100
+      maximumComplexity: 100,
+      estimators: [
+        legacyEstimator(),
+        simpleEstimator()
+      ]
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -179,7 +213,11 @@ describe('legacy estimator', () => {
 
     const context = new ValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
-      maximumComplexity: 100
+      maximumComplexity: 100,
+      estimators: [
+        legacyEstimator(),
+        simpleEstimator()
+      ]
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -199,7 +237,11 @@ describe('legacy estimator', () => {
 
     const context = new ValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
-      maximumComplexity: 100
+      maximumComplexity: 100,
+      estimators: [
+        legacyEstimator(),
+        simpleEstimator()
+      ]
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -215,7 +257,11 @@ describe('legacy estimator', () => {
 
     const context = new ValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
-      maximumComplexity: 100
+      maximumComplexity: 100,
+      estimators: [
+        legacyEstimator(),
+        simpleEstimator()
+      ]
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -230,7 +276,11 @@ describe('legacy estimator', () => {
       `);
     const context = new ValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
-      maximumComplexity: 100
+      maximumComplexity: 100,
+      estimators: [
+        legacyEstimator(),
+        simpleEstimator()
+      ]
     });
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
     expect(context.getErrors().length).to.equal(1);

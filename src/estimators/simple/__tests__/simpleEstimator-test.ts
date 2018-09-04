@@ -13,6 +13,7 @@ import {
 import {expect} from 'chai';
 
 import schema from './fixtures/schema';
+import simpleEstimator from '../index';
 
 import ComplexityVisitor from '../../../QueryComplexity';
 
@@ -29,54 +30,47 @@ describe('simple estimator', () => {
     const context = new ValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
+      estimators: [
+        simpleEstimator({defaultComplexity: 1})
+      ]
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
     expect(visitor.complexity).to.equal(1);
   });
 
-  it('should consider custom scalar cost', () => {
+  it('should consider default scalar cost + defaultComplexity', () => {
     const ast = parse(`
       query {
-        complexScalar
+        scalar
       }
     `);
 
     const context = new ValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
-      maximumComplexity: 100
+      maximumComplexity: 100,
+      estimators: [
+        simpleEstimator({defaultComplexity: 10})
+      ]
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
-    expect(visitor.complexity).to.equal(20);
-  });
-
-  it('should consider variable scalar cost', () => {
-    const ast = parse(`
-      query {
-        variableScalar(count: 100)
-      }
-    `);
-
-    const context = new ValidationContext(schema, ast, typeInfo);
-    const visitor = new ComplexityVisitor(context, {
-      maximumComplexity: 100
-    });
-
-    visit(ast, visitWithTypeInfo(typeInfo, visitor));
-    expect(visitor.complexity).to.equal(1000);
+    expect(visitor.complexity).to.equal(10);
   });
 
   it('should not allow negative cost', () => {
     const ast = parse(`
       query {
-        variableScalar(count: -100)
+        scalar
       }
     `);
 
     const context = new ValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
-      maximumComplexity: 100
+      maximumComplexity: 100,
+      estimators: [
+        simpleEstimator({defaultComplexity: -10})
+      ]
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -86,13 +80,16 @@ describe('simple estimator', () => {
   it('should report error above threshold', () => {
     const ast = parse(`
       query {
-        variableScalar(count: 100)
+        scalar
       }
     `);
 
     const context = new ValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
-      maximumComplexity: 100
+      maximumComplexity: 100,
+      estimators: [
+        simpleEstimator({defaultComplexity: 1000})
+      ]
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -116,11 +113,14 @@ describe('simple estimator', () => {
 
     const context = new ValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
-      maximumComplexity: 100
+      maximumComplexity: 100,
+      estimators: [
+        simpleEstimator({defaultComplexity: 1})
+      ]
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
-    expect(visitor.complexity).to.equal(52);
+    expect(visitor.complexity).to.equal(3);
   });
 
   it('should add fragments', () => {
@@ -137,11 +137,14 @@ describe('simple estimator', () => {
 
     const context = new ValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
-      maximumComplexity: 100
+      maximumComplexity: 100,
+      estimators: [
+        simpleEstimator({defaultComplexity: 1})
+      ]
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
-    expect(visitor.complexity).to.equal(21);
+    expect(visitor.complexity).to.equal(2);
   });
 
   it('should add complexity for union types', () => {
@@ -150,7 +153,6 @@ describe('simple estimator', () => {
         union {
           ...on Item {
             scalar
-            complexScalar
           }
         }
       }
@@ -158,11 +160,14 @@ describe('simple estimator', () => {
 
     const context = new ValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
-      maximumComplexity: 100
+      maximumComplexity: 100,
+      estimators: [
+        simpleEstimator({defaultComplexity: 1})
+      ]
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
-    expect(visitor.complexity).to.equal(22);
+    expect(visitor.complexity).to.equal(2);
   });
 
   it('should add complexity for interface types', () => {
@@ -179,7 +184,10 @@ describe('simple estimator', () => {
 
     const context = new ValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
-      maximumComplexity: 100
+      maximumComplexity: 100,
+      estimators: [
+        simpleEstimator({defaultComplexity: 1})
+      ]
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -199,7 +207,10 @@ describe('simple estimator', () => {
 
     const context = new ValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
-      maximumComplexity: 100
+      maximumComplexity: 100,
+      estimators: [
+        simpleEstimator({defaultComplexity: 1})
+      ]
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -215,7 +226,10 @@ describe('simple estimator', () => {
 
     const context = new ValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
-      maximumComplexity: 100
+      maximumComplexity: 100,
+      estimators: [
+        simpleEstimator({defaultComplexity: 1})
+      ]
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));

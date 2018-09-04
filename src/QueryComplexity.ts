@@ -92,6 +92,13 @@ export default class QueryComplexity {
     this.context = context;
     this.complexity = 0;
     this.options = options;
+
+    if (!options.estimators) {
+      console.warn(
+        'DEPRECATION WARNING: Estimators should be configured in the queryComplexity options.'
+      );
+    }
+
     this.estimators = options.estimators || [
       legacyEstimator(),
       simpleEstimator()
@@ -196,9 +203,11 @@ export default class QueryComplexity {
                 return false;
               });
               if (!validScore) {
-                throw new Error(
-                  `No complexity could be calculated for field ${typeDef.astNode}.${field.name}. ` +
-                  'At least one complexity estimator has to return a complexity score.'
+                return this.context.reportError(
+                  new GraphQLError(
+                    `No complexity could be calculated for field ${typeDef.astNode}.${field.name}. ` +
+                    'At least one complexity estimator has to return a complexity score.'
+                  )
                 );
               }
               break;

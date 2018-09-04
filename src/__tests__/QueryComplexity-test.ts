@@ -15,57 +15,13 @@ import {expect} from 'chai';
 import schema from './fixtures/schema';
 
 import ComplexityVisitor from '../QueryComplexity';
+import {
+  simpleEstimator,
+  fieldConfigEstimator,
+} from '../index';
 
 describe('QueryComplexity analysis', () => {
   const typeInfo = new TypeInfo(schema);
-
-  it('should consider default scalar cost', () => {
-    const ast = parse(`
-      query {
-        scalar
-      }
-    `);
-
-    const context = new ValidationContext(schema, ast, typeInfo);
-    const visitor = new ComplexityVisitor(context, {
-      maximumComplexity: 100
-    });
-
-    visit(ast, visitWithTypeInfo(typeInfo, visitor));
-    expect(visitor.complexity).to.equal(1);
-  });
-
-  it('should consider custom scalar cost', () => {
-    const ast = parse(`
-      query {
-        complexScalar
-      }
-    `);
-
-    const context = new ValidationContext(schema, ast, typeInfo);
-    const visitor = new ComplexityVisitor(context, {
-      maximumComplexity: 100
-    });
-
-    visit(ast, visitWithTypeInfo(typeInfo, visitor));
-    expect(visitor.complexity).to.equal(20);
-  });
-
-  it('should consider variable scalar cost', () => {
-    const ast = parse(`
-      query {
-        variableScalar(count: 100)
-      }
-    `);
-
-    const context = new ValidationContext(schema, ast, typeInfo);
-    const visitor = new ComplexityVisitor(context, {
-      maximumComplexity: 100
-    });
-
-    visit(ast, visitWithTypeInfo(typeInfo, visitor));
-    expect(visitor.complexity).to.equal(1000);
-  });
 
   it('should not allow negative cost', () => {
     const ast = parse(`
@@ -76,7 +32,10 @@ describe('QueryComplexity analysis', () => {
 
     const context = new ValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
-      maximumComplexity: 100
+      maximumComplexity: 100,
+      estimators: [
+        simpleEstimator({defaultComplexity: -100})
+      ]
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -92,7 +51,13 @@ describe('QueryComplexity analysis', () => {
 
     const context = new ValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
-      maximumComplexity: 100
+      maximumComplexity: 100,
+      estimators: [
+        fieldConfigEstimator(),
+        simpleEstimator({
+          defaultComplexity: 1
+        })
+      ]
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -116,7 +81,13 @@ describe('QueryComplexity analysis', () => {
 
     const context = new ValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
-      maximumComplexity: 100
+      maximumComplexity: 100,
+      estimators: [
+        fieldConfigEstimator(),
+        simpleEstimator({
+          defaultComplexity: 1
+        })
+      ]
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -137,7 +108,13 @@ describe('QueryComplexity analysis', () => {
 
     const context = new ValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
-      maximumComplexity: 100
+      maximumComplexity: 100,
+      estimators: [
+        fieldConfigEstimator(),
+        simpleEstimator({
+          defaultComplexity: 1
+        })
+      ]
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -158,7 +135,13 @@ describe('QueryComplexity analysis', () => {
 
     const context = new ValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
-      maximumComplexity: 100
+      maximumComplexity: 100,
+      estimators: [
+        fieldConfigEstimator(),
+        simpleEstimator({
+          defaultComplexity: 1
+        })
+      ]
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -179,7 +162,13 @@ describe('QueryComplexity analysis', () => {
 
     const context = new ValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
-      maximumComplexity: 100
+      maximumComplexity: 100,
+      estimators: [
+        fieldConfigEstimator(),
+        simpleEstimator({
+          defaultComplexity: 1
+        })
+      ]
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -199,7 +188,13 @@ describe('QueryComplexity analysis', () => {
 
     const context = new ValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
-      maximumComplexity: 100
+      maximumComplexity: 100,
+      estimators: [
+        fieldConfigEstimator(),
+        simpleEstimator({
+          defaultComplexity: 1
+        })
+      ]
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -215,14 +210,20 @@ describe('QueryComplexity analysis', () => {
 
     const context = new ValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
-      maximumComplexity: 100
+      maximumComplexity: 100,
+      estimators: [
+        fieldConfigEstimator(),
+        simpleEstimator({
+          defaultComplexity: 1
+        })
+      ]
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
     expect(visitor.complexity).to.equal(1);
   });
 
-  it('should error on a missing non-null argument', () => {
+  it('should report error on a missing non-null argument', () => {
     const ast = parse(`
         query {
             requiredArgs
@@ -230,10 +231,56 @@ describe('QueryComplexity analysis', () => {
       `);
     const context = new ValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
-      maximumComplexity: 100
+      maximumComplexity: 100,
+      estimators: [
+        fieldConfigEstimator(),
+        simpleEstimator({
+          defaultComplexity: 1
+        })
+      ]
     });
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
     expect(context.getErrors().length).to.equal(1);
     expect(context.getErrors()[0].message).to.equal('Argument "count" of required type "Int!" was not provided.');
+  });
+
+  it('should report error when no estimator is configured', () => {
+    const ast = parse(`
+        query {
+            scalar
+        }
+      `);
+    const context = new ValidationContext(schema, ast, typeInfo);
+    const visitor = new ComplexityVisitor(context, {
+      maximumComplexity: 100,
+      estimators: []
+    });
+    visit(ast, visitWithTypeInfo(typeInfo, visitor));
+    expect(context.getErrors().length).to.equal(1);
+    expect(context.getErrors()[0].message).to.equal(
+      'No complexity could be calculated for field undefined.scalar. ' +
+      'At least one complexity estimator has to return a complexity score.'
+    );
+  });
+
+  it('should report error when no estimator returns value', () => {
+    const ast = parse(`
+        query {
+            scalar
+        }
+      `);
+    const context = new ValidationContext(schema, ast, typeInfo);
+    const visitor = new ComplexityVisitor(context, {
+      maximumComplexity: 100,
+      estimators: [
+        fieldConfigEstimator()
+      ]
+    });
+    visit(ast, visitWithTypeInfo(typeInfo, visitor));
+    expect(context.getErrors().length).to.equal(1);
+    expect(context.getErrors()[0].message).to.equal(
+      'No complexity could be calculated for field undefined.scalar. ' +
+      'At least one complexity estimator has to return a complexity score.'
+    );
   });
 });

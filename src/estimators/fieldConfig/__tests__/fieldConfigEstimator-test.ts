@@ -255,7 +255,13 @@ describe('fieldConfig estimator', () => {
 
     const context = new ValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
-      maximumComplexity: 100
+      maximumComplexity: 100,
+      estimators: [
+        fieldConfigEstimator(),
+        simpleEstimator({
+          defaultComplexity: 1
+        })
+      ]
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));

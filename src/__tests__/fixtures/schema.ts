@@ -14,12 +14,14 @@ import {
   GraphQLInterfaceType,
 } from 'graphql';
 
+import {ComplexityEstimatorArgs} from '../../QueryComplexity';
+
 const Item: GraphQLObjectType = new GraphQLObjectType({
   name: 'Item',
   fields: () => ({
     variableList: {
       type: Item,
-      complexity: (args: any, childComplexity: number) => childComplexity * (args.count || 10),
+      complexity: (args: ComplexityEstimatorArgs) => args.childComplexity * (args.args.count || 10),
       args: {
         count: {
           type: GraphQLInt
@@ -30,7 +32,7 @@ const Item: GraphQLObjectType = new GraphQLObjectType({
     complexScalar: { type: GraphQLString, complexity: 20 },
     variableScalar: {
       type: Item,
-      complexity: (args: {[key: string]: any}) => 10 * (args.count || 10),
+      complexity: (args: ComplexityEstimatorArgs) => 10 * (args.args.count || 10),
       args: {
         count: {
           type: GraphQLInt
@@ -87,7 +89,7 @@ const Query = new GraphQLObjectType({
     name: { type: GraphQLString },
     variableList: {
       type: Item,
-      complexity: (args: {[key: string]: any}, childComplexity: number) => childComplexity * (args.count || 10),
+      complexity: (args: ComplexityEstimatorArgs) => args.childComplexity * (args.args.count || 10),
       args: {
         count: {
           type: GraphQLInt
@@ -101,7 +103,7 @@ const Query = new GraphQLObjectType({
     union: { type: Union },
     variableScalar: {
       type: Item,
-      complexity: (args: {[key: string]: any}) => 10 * (args.count || 10),
+      complexity: (args: ComplexityEstimatorArgs) => 10 * (args.args.count || 10),
       args: {
         count: {
           type: GraphQLInt

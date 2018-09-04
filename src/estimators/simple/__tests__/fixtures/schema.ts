@@ -19,7 +19,6 @@ const Item: GraphQLObjectType = new GraphQLObjectType({
   fields: () => ({
     variableList: {
       type: Item,
-      complexity: (args: any, childComplexity: number) => childComplexity * (args.count || 10),
       args: {
         count: {
           type: GraphQLInt
@@ -27,16 +26,6 @@ const Item: GraphQLObjectType = new GraphQLObjectType({
       }
     },
     scalar: { type: GraphQLString },
-    complexScalar: { type: GraphQLString, complexity: 20 },
-    variableScalar: {
-      type: Item,
-      complexity: (args: {[key: string]: any}) => 10 * (args.count || 10),
-      args: {
-        count: {
-          type: GraphQLInt
-        }
-      }
-    },
     list: { type: new GraphQLList(Item) },
     nonNullItem: {
       type: new GraphQLNonNull(Item),
@@ -87,7 +76,6 @@ const Query = new GraphQLObjectType({
     name: { type: GraphQLString },
     variableList: {
       type: Item,
-      complexity: (args: {[key: string]: any}, childComplexity: number) => childComplexity * (args.count || 10),
       args: {
         count: {
           type: GraphQLInt
@@ -97,11 +85,9 @@ const Query = new GraphQLObjectType({
     interface: {type: NameInterface},
     enum: {type: EnumType},
     scalar: { type: GraphQLString },
-    complexScalar: { type: GraphQLString, complexity: 20 },
     union: { type: Union },
     variableScalar: {
       type: Item,
-      complexity: (args: {[key: string]: any}) => 10 * (args.count || 10),
       args: {
         count: {
           type: GraphQLInt
