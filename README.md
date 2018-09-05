@@ -74,10 +74,13 @@ or write your own:
     last estimator in the chain for a default value.
 *   **[`fieldConfigEstimator`](src/estimators/simple/README.md):** The field config estimator lets you set a numeric value or a custom estimator
     function in the field config of your schema. 
+*   **[`directiveEstimator`](src/estimators/directive/README.md):** Set the complexity via a directive in your 
+    schema definition (for example via GraphQL SDL)
 *   **[`legacyEstimator`](src/estimators/legacy/README.md):** The legacy estimator implements the logic of previous versions. Can be used
     to gradually migrate your codebase to new estimators. 
 *   PR welcome...
 
+Consult the documentation of each estimator for information about how to use them. 
 
 ## Creating Custom Estimators
 
@@ -100,65 +103,6 @@ type ComplexityEstimatorArgs = {
 
 type ComplexityEstimator = (options: ComplexityEstimatorArgs) => number | void;
 ```
-
-
-## Customizing complexity calculation
-
-By default, every field gets a complexity of 1. Let's look at the following example query: 
-
-```graphql
-query {
-  posts(count: 10) {
-    title
-    text
-  }
-}
-```
-
-This would result in a complexity of 3. The fields `posts`, `title` and `text` each add a complexity of 1.
-If we assume that the posts field returns a list of 10 posts, the complexity estimation is pretty inaccurate. 
-
-When defining your fields, you have a two options to customize the calculation.
-
-You can set a custom complexity in the field config:
-
-```javascript
-const Post = new GraphQLObjectType({
-  name: 'Post',
-  fields: () => ({
-    title: { type: GraphQLString },
-    text: { type: GraphQLString, complexity: 5 },
-  }),
-});
-```
-The same query would now result in a complexity of 7. 
-5 for the `text` field and 1 for each of the other fields. 
-
-You can also pass a calculation function in the field config to determine a custom complexity. 
-This function will provide the complexity of the child nodes as well as the field input arguments.
-
-That way you can make a more realistic estimation of individual field complexity values:
-
-```javascript
-const Query = new GraphQLObjectType({
-  name: 'Query',
-  fields: () => ({
-    posts: {
-      type: new GraphQLList(Post),
-      complexity: (args, childComplexity) => childComplexity * args.count,
-      args: {
-        count: {
-          type: GraphQLInt,
-          defaultValue: 10
-        }
-      }
-    },
-  }),
-});
-```
-
-This would result in a complexity of 60 since the `childComplexity` of posts (`text` 5, `title` 1) is multiplied by the
-number of posts (`args.count`).
 
 ## Usage with express-graphql
 

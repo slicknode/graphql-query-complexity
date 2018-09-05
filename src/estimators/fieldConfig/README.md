@@ -6,7 +6,7 @@ the estimator does not return any value and the next estimator in the chain is e
 
 ## Usage
 
-````typescript
+```typescript
 import queryComplexity, {fieldConfigEstimator} from 'graphql-query-complexity';
 
 const rule = queryComplexity({
@@ -15,7 +15,7 @@ const rule = queryComplexity({
   ]
   // ... other config
 });
-````
+```
 
 You can set a custom complexity as a numeric value in the field config:
 
