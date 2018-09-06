@@ -74,7 +74,7 @@ or write your own:
     last estimator in the chain for a default value.
 *   **[`directiveEstimator`](src/estimators/directive/README.md):** Set the complexity via a directive in your 
     schema definition (for example via GraphQL SDL)
-*   **[`fieldConfigEstimator`](src/estimators/simple/README.md):** The field config estimator lets you set a numeric value or a custom estimator
+*   **[`fieldConfigEstimator`](src/estimators/fieldConfig/README.md):** The field config estimator lets you set a numeric value or a custom estimator
     function in the field config of your schema. 
 *   **[`legacyEstimator`](src/estimators/legacy/README.md):** The legacy estimator implements the logic of previous versions. Can be used
     to gradually migrate your codebase to new estimators. 
