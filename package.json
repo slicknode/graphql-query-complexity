@@ -16,7 +16,9 @@
   "directories": {
     "lib": "./dist"
   },
-  "dependencies": {},
+  "dependencies": {
+    "lodash.get": "^4.4.2"
+  },
   "peerDependencies": {
     "graphql": "^0.13.2"
   },
@@ -25,7 +27,7 @@
     "README.md",
     "LICENSE"
   ],
-  "repository": "ivome/graphql-query-complexity",
+  "repository": "slicknode/graphql-query-complexity",
   "keywords": [
     "graphql",
     "query complexity"
@@ -36,6 +38,7 @@
     "@types/assert": "^0.0.31",
     "@types/chai": "^4.1.4",
     "@types/graphql": "^0.13.4",
+    "@types/lodash.get": "^4.4.4",
     "@types/mocha": "^5.2.5",
     "chai": "^4.1.0",
     "eslint": "^5.4.0",

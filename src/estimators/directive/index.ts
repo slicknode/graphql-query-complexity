@@ -2,6 +2,7 @@ import {ComplexityEstimator, ComplexityEstimatorArgs} from '../../QueryComplexit
 import {getDirectiveValues, GraphQLInt, GraphQLList, GraphQLNonNull, GraphQLString} from 'graphql';
 import { GraphQLDirective } from 'graphql/type/directives';
 import { DirectiveLocation } from 'graphql/language/directiveLocation';
+import get from 'lodash.get';
 
 export default function (options?: {}): ComplexityEstimator {
   const mergedOptions = {
@@ -28,6 +29,23 @@ export default function (options?: {}): ComplexityEstimator {
 
   return (args: ComplexityEstimatorArgs) => {
     const values = getDirectiveValues(directive, args.field.astNode);
-    return values.value + args.childComplexity;
+
+    // Get multipliers
+    let totalMultiplier = 1;
+    if (values.multipliers) {
+      totalMultiplier = values.multipliers.reduce((aggregated: number, multiplier: string) => {
+        const multiplierValue = get(args.args, multiplier);
+
+        if (typeof multiplierValue === 'number') {
+          return aggregated * multiplierValue;
+        }
+        if (Array.isArray(multiplierValue)) {
+          return aggregated * multiplierValue.length;
+        }
+        return aggregated;
+      }, totalMultiplier);
+    }
+
+    return (values.value + args.childComplexity) * totalMultiplier;
   };
 }

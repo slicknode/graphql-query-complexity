@@ -7,11 +7,18 @@ the estimator does not return any value and the next estimator in the chain is e
 ## Usage
 
 ```typescript
-import queryComplexity, {fieldConfigEstimator} from 'graphql-query-complexity';
+import queryComplexity, {
+  fieldConfigEstimator,
+  simpleEstimator
+} from 'graphql-query-complexity';
 
 const rule = queryComplexity({
   estimators: [
-    fieldConfigEstimator()
+    fieldConfigEstimator(),
+    
+    // We use the simpleEstimator as fallback so we only need to 
+    // define the complexity for non 1 values (this is not required...)
+    simpleEstimator({defaultComplexity: 1})
   ]
   // ... other config
 });
