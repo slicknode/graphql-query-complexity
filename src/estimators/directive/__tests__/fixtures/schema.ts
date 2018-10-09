@@ -7,6 +7,16 @@ import {
 } from 'graphql';
 
 export default buildSchema(`
+directive @cost(
+  value: Int!,
+  multipliers: [String!]
+) on FIELD_DEFINITION
+
+directive @complexity(
+  value: Int!,
+  multipliers: [String!]
+) on FIELD_DEFINITION
+
 type Query {
   scalar: String @complexity(value: 5)
   negativeCostScalar: String @complexity(value: -20)

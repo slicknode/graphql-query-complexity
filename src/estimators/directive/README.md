@@ -25,6 +25,15 @@ const rule = queryComplexity({
 Define your schema and add the complexity directive: 
 
 ```graphql
+directive @complexity(
+  # The complexity value for the field
+  value: Int!,
+  
+  # Optional multipliers
+  multipliers: [String!]
+) on FIELD_DEFINITION
+
+
 type Query {
   # Fixed complexity of 5
   someField: String @complexity(value: 5)
