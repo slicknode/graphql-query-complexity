@@ -30,7 +30,11 @@
   "repository": "slicknode/graphql-query-complexity",
   "keywords": [
     "graphql",
-    "query complexity"
+    "query",
+    "validation",
+    "cost",
+    "complexity",
+    "analysis"
   ],
   "author": "Ivo Meißner",
   "license": "MIT",
