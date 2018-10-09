@@ -24,7 +24,7 @@
   version "4.1.6"
   resolved "https://registry.yarnpkg.com/@types/chai/-/chai-4.1.6.tgz#1eb26c040e3a84205b1008ad55c800e5e8a94e34"
 
-"@types/graphql@^14.0.0":
+"@types/graphql@^0.13.0 || ^14.0.0":
   version "14.0.2"
   resolved "https://registry.yarnpkg.com/@types/graphql/-/graphql-14.0.2.tgz#415e3779718c1e0805e418e3a798cb39dccc58ab"
 
@@ -439,7 +439,7 @@ graceful-fs@^4.1.2:
   version "4.1.11"
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.1.11.tgz#0e8bdfe4d1ddb8854d64e04ea7c00e2a026e5658"
 
-graphql@^14.0.0:
+"graphql@^0.13.0 || ^14.0.0":
   version "14.0.2"
   resolved "https://registry.yarnpkg.com/graphql/-/graphql-14.0.2.tgz#7dded337a4c3fd2d075692323384034b357f5650"
   dependencies:
