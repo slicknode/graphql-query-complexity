@@ -223,4 +223,26 @@ describe('directiveEstimator analysis', () => {
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
     expect(visitor.complexity).to.equal(10);
   });
+
+  it('ignores fields without compexity directive', () => {
+    const ast = parse(`
+      query {
+        noDirective
+      }
+    `);
+
+    const context = new ValidationContext(schema, ast, typeInfo);
+    const visitor = new ComplexityVisitor(context, {
+      maximumComplexity: 100,
+      estimators: [
+        directiveEstimator()
+      ]
+    });
+
+    visit(ast, visitWithTypeInfo(typeInfo, visitor));
+    expect(visitor.context.getErrors().length).to.equal(1);
+    expect(visitor.context.getErrors()[0].message).to.include(
+      'No complexity could be calculated for field Query.noDirective',
+    );
+  });
 });

@@ -22,6 +22,8 @@ type Query {
   negativeCostScalar: String @complexity(value: -20)
   multiDirective: String @cost(value: 1) @complexity(value: 2)
   
+  noDirective: Boolean
+  
   childList(
     limit: Int, 
     ids: [ID],

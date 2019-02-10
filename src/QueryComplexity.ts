@@ -195,7 +195,7 @@ export default class QueryComplexity {
               const validScore = this.estimators.find(estimator => {
                 const tmpComplexity = estimator(estimatorArgs);
 
-                if (typeof tmpComplexity === 'number') {
+                if (typeof tmpComplexity === 'number' && !isNaN(tmpComplexity)) {
                   nodeComplexity = tmpComplexity;
                   return true;
                 }
@@ -205,7 +205,7 @@ export default class QueryComplexity {
               if (!validScore) {
                 return this.context.reportError(
                   new GraphQLError(
-                    `No complexity could be calculated for field ${typeDef.astNode}.${field.name}. ` +
+                    `No complexity could be calculated for field ${typeDef.name}.${field.name}. ` +
                     'At least one complexity estimator has to return a complexity score.'
                   )
                 );

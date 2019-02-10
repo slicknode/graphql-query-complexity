@@ -30,6 +30,11 @@ export default function (options?: {}): ComplexityEstimator {
   return (args: ComplexityEstimatorArgs) => {
     const values = getDirectiveValues(directive, args.field.astNode);
 
+    // Ignore if no directive set
+    if (!values) {
+      return;
+    }
+
     // Get multipliers
     let totalMultiplier = 1;
     if (values.multipliers) {

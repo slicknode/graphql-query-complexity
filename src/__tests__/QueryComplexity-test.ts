@@ -258,7 +258,7 @@ describe('QueryComplexity analysis', () => {
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
     expect(context.getErrors().length).to.equal(1);
     expect(context.getErrors()[0].message).to.equal(
-      'No complexity could be calculated for field undefined.scalar. ' +
+      'No complexity could be calculated for field Query.scalar. ' +
       'At least one complexity estimator has to return a complexity score.'
     );
   });
@@ -279,7 +279,7 @@ describe('QueryComplexity analysis', () => {
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
     expect(context.getErrors().length).to.equal(1);
     expect(context.getErrors()[0].message).to.equal(
-      'No complexity could be calculated for field undefined.scalar. ' +
+      'No complexity could be calculated for field Query.scalar. ' +
       'At least one complexity estimator has to return a complexity score.'
     );
   });
