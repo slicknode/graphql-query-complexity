@@ -26,18 +26,18 @@ describe('QueryComplexity analysis', () => {
   it('should calculate complexity', () => {
     const ast = parse(`
       query {
-        variableScalar(count: -100)
+        variableScalar(count: 10)
       }
     `);
 
     const complexity = calculateComplexity({
       estimators: [
-        simpleEstimator({defaultComplexity: -100})
+        simpleEstimator({defaultComplexity: 1})
       ],
       schema,
       query: ast
     });
-    expect(complexity).to.equal(0);
+    expect(complexity).to.equal(1);
   });
 
   it('should not allow negative cost', () => {
