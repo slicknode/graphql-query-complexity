@@ -14,7 +14,7 @@ import {expect} from 'chai';
 
 import schema from './fixtures/schema';
 
-import ComplexityVisitor from '../QueryComplexity';
+import ComplexityVisitor, {calculateComplexity} from '../QueryComplexity';
 import {
   simpleEstimator,
   fieldConfigEstimator,
@@ -22,6 +22,23 @@ import {
 
 describe('QueryComplexity analysis', () => {
   const typeInfo = new TypeInfo(schema);
+
+  it('should calculate complexity', () => {
+    const ast = parse(`
+      query {
+        variableScalar(count: -100)
+      }
+    `);
+
+    const complexity = calculateComplexity({
+      estimators: [
+        simpleEstimator({defaultComplexity: -100})
+      ],
+      schema: schema,
+      query: ast
+    });
+    expect(complexity).to.equal(0);
+  });
 
   it('should not allow negative cost', () => {
     const ast = parse(`
