@@ -34,7 +34,7 @@ describe('QueryComplexity analysis', () => {
       estimators: [
         simpleEstimator({defaultComplexity: -100})
       ],
-      schema: schema,
+      schema,
       query: ast
     });
     expect(complexity).to.equal(0);
