@@ -40,6 +40,27 @@ describe('QueryComplexity analysis', () => {
     expect(complexity).to.equal(1);
   });
 
+  it('should calculate complexity with variables', () => {
+    const ast = parse(`
+      query Q($count: Int) {
+        variableScalar(count: $count)
+      }
+    `);
+
+    const complexity = getComplexity({
+      estimators: [
+        fieldConfigEstimator(),
+        simpleEstimator({defaultComplexity: 1})
+      ],
+      schema,
+      query: ast,
+      variables: {
+        count: 5,
+      },
+    });
+    expect(complexity).to.equal(50);
+  });
+
   it('should not allow negative cost', () => {
     const ast = parse(`
       query {
