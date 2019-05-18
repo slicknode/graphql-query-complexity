@@ -104,32 +104,6 @@ type ComplexityEstimatorArgs = {
 type ComplexityEstimator = (options: ComplexityEstimatorArgs) => number | void;
 ```
 
-## Calculate query complexity
-```javascript
-import { calculateComplexity, simpleEstimator } from "graphql-query-complexity/dist/QueryComplexity";
-import { parse } from 'graphql';
-
-// In a resolver the schema can be retrieved from the info argument.
-const schema = undefined; 
-const query = parse(`
-  query {
-    some_value
-    some_list(count: 10) {
-      some_child_value
-    }
-  }
-`);
-
-const complexity = calculateComplexity({
-  estimators: [
-    simpleEstimator({defaultComplexity: 1})
-  ],
-  schema,
-  query
-});
-
-console.log(complexity); // Output: 3
-```
 
 ## Usage with express-graphql
 
@@ -152,6 +126,43 @@ app.use('/api', graphqlHTTP(async (request, response, {variables}) => ({
   }) ]
 })));
 ```
+
+## Calculate query complexity
+
+If you want to calculate the complexity of a GraphQL query outside of the validation phase, for example to
+return the complexity value in a resolver, you can calculate the complexity via `getComplexity`:
+
+```javascript
+import { getComplexity, simpleEstimator } from 'graphql-query-complexity';
+import { parse } from 'graphql';
+
+// Import your schema or get it form the info object in your resolver
+import schema from './schema';
+
+// You can also use gql template tag to get the parsed query
+const query = parse(`
+  query Q($count: Int) {
+    some_value
+    some_list(count: $count) {
+      some_child_value
+    }
+  }
+`);
+
+const complexity = getComplexity({
+  estimators: [
+    simpleEstimator({defaultComplexity: 1})
+  ],
+  schema,
+  query,
+  variables: {
+    count: 10,
+  },
+});
+
+console.log(complexity); // Output: 3
+```
+
 
 ## Prior Art
 

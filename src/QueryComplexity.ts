@@ -76,7 +76,7 @@ function queryComplexityMessage(max: number, actual: number): string {
   );
 }
 
-export function calculateComplexity(options: {
+export function getComplexity(options: {
   estimators: ComplexityEstimator[],
   schema: GraphQLSchema,
   query: DocumentNode,

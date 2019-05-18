@@ -14,7 +14,7 @@ import {expect} from 'chai';
 
 import schema from './fixtures/schema';
 
-import ComplexityVisitor, {calculateComplexity} from '../QueryComplexity';
+import ComplexityVisitor, {getComplexity} from '../QueryComplexity';
 import {
   simpleEstimator,
   fieldConfigEstimator,
@@ -30,7 +30,7 @@ describe('QueryComplexity analysis', () => {
       }
     `);
 
-    const complexity = calculateComplexity({
+    const complexity = getComplexity({
       estimators: [
         simpleEstimator({defaultComplexity: 1})
       ],
