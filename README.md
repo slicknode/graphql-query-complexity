@@ -104,6 +104,33 @@ type ComplexityEstimatorArgs = {
 type ComplexityEstimator = (options: ComplexityEstimatorArgs) => number | void;
 ```
 
+## Calculate query complexity
+```javascript
+import { calculateComplexity, simpleEstimator } from "graphql-query-complexity/dist/QueryComplexity";
+import { parse } from 'graphql';
+
+// In a resolver the schema can be retrieved from the info argument.
+const schema = undefined; 
+const query = parse(`
+  query {
+    some_value
+    some_list(count: 10) {
+      some_child_value
+    }
+  }
+`);
+
+const complexity = calculateComplexity({
+  estimators: [
+    simpleEstimator({defaultComplexity: 1})
+  ],
+  schema,
+  query
+});
+
+console.log(complexity); // Output: 3
+```
+
 ## Usage with express-graphql
 
 To use the query complexity analysis validation rule with express-graphql, use something like the

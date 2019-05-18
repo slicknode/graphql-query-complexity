@@ -15,6 +15,8 @@ import {
   InlineFragmentNode,
   assertCompositeType,
   GraphQLField, isCompositeType, GraphQLCompositeType, GraphQLFieldMap,
+  GraphQLSchema, DocumentNode, TypeInfo,
+  visit, visitWithTypeInfo
 } from 'graphql';
 import {
   GraphQLUnionType,
@@ -72,6 +74,26 @@ function queryComplexityMessage(max: number, actual: number): string {
     `The query exceeds the maximum complexity of ${max}. ` +
     `Actual complexity is ${actual}`
   );
+}
+
+export function calculateComplexity(options: {
+  estimators: ComplexityEstimator[],
+  schema: GraphQLSchema,
+  query: DocumentNode,
+  variables?: Object
+}): number {
+  const typeInfo = new TypeInfo(options.schema);
+
+  const context = new ValidationContext(options.schema, options.query, typeInfo);
+  const visitor = new QueryComplexity(context, {
+    // Maximum complexity does not matter since we're only interested in the calculated complexity.
+    maximumComplexity: Infinity,
+    estimators: options.estimators,
+    variables: options.variables
+  });
+
+  visit(options.query, visitWithTypeInfo(typeInfo, visitor));
+  return visitor.complexity;
 }
 
 export default class QueryComplexity {
