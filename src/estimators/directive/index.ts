@@ -28,6 +28,11 @@ export default function (options?: {}): ComplexityEstimator {
   });
 
   return (args: ComplexityEstimatorArgs) => {
+    // Ignore if astNode is undefined
+    if (!args.field.astNode) {
+      return;
+    }
+
     const values = getDirectiveValues(directive, args.field.astNode);
 
     // Ignore if no directive set
