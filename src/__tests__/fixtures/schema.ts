@@ -83,6 +83,14 @@ const Union = new GraphQLUnionType({
   resolveType: () => Item
 });
 
+const SDLInterface = new GraphQLInterfaceType({
+  name: 'SDLInterface',
+  fields: {
+    sdl: { type: GraphQLString }
+  },
+  resolveType: () => '"SDL"'
+});
+
 const Query = new GraphQLObjectType({
   name: 'Query',
   fields: () => ({
@@ -126,7 +134,8 @@ const Query = new GraphQLObjectType({
           type: new GraphQLNonNull(GraphQLInt)
         }
       }
-    }
+    },
+    _service: {type: SDLInterface},
   }),
 });
 

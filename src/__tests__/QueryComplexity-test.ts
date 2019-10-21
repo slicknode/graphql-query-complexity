@@ -17,6 +17,7 @@ import schema from './fixtures/schema';
 import ComplexityVisitor, {getComplexity} from '../QueryComplexity';
 import {
   simpleEstimator,
+  directiveEstimator,
   fieldConfigEstimator,
 } from '../index';
 
@@ -320,5 +321,46 @@ describe('QueryComplexity analysis', () => {
       'No complexity could be calculated for field Query.scalar. ' +
       'At least one complexity estimator has to return a complexity score.'
     );
+  });
+
+  it('should return NaN when no astNode available on field when use directiveEstimator', () => {
+    const ast = parse(`
+      query {
+        _service {
+          sdl
+        }
+      }
+    `);
+
+    const complexity = getComplexity({
+      estimators: [
+        directiveEstimator(),
+      ],
+      schema,
+      query: ast
+    });
+    expect(Number.isNaN(complexity)).to.equal(true);
+  });
+  
+  it('should skip complexity calculation by directiveEstimator when no astNode available on field', () => {
+    const ast = parse(`
+      query {
+        _service {
+          sdl
+        }
+      }
+    `);
+
+    const complexity = getComplexity({
+      estimators: [
+        directiveEstimator(),
+        simpleEstimator({
+          defaultComplexity: 1
+        })
+      ],
+      schema,
+      query: ast
+    });
+    expect(complexity).to.equal(2);
   });
 });
