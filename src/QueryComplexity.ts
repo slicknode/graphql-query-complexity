@@ -4,19 +4,22 @@
 
 import {
   getArgumentValues,
+  getDirectiveValues,
 } from 'graphql/execution/values';
 
 import {
   ValidationContext,
   FragmentDefinitionNode,
   OperationDefinitionNode,
+  DirectiveNode,
   FieldNode,
   FragmentSpreadNode,
   InlineFragmentNode,
   assertCompositeType,
   GraphQLField, isCompositeType, GraphQLCompositeType, GraphQLFieldMap,
   GraphQLSchema, DocumentNode, TypeInfo,
-  visit, visitWithTypeInfo
+  visit, visitWithTypeInfo,
+  GraphQLDirective,
 } from 'graphql';
 import {
   GraphQLUnionType,
@@ -102,6 +105,8 @@ export default class QueryComplexity {
   options: QueryComplexityOptions;
   OperationDefinition: Object;
   estimators: Array<ComplexityEstimator>;
+  includeDirectiveDef: GraphQLDirective;
+  skipDirectiveDef: GraphQLDirective;
 
   constructor(
     context: ValidationContext,
@@ -114,6 +119,9 @@ export default class QueryComplexity {
     this.context = context;
     this.complexity = 0;
     this.options = options;
+
+    this.includeDirectiveDef = this.context.getSchema().getDirective('include');
+    this.skipDirectiveDef = this.context.getSchema().getDirective('skip');
 
     if (!options.estimators) {
       console.warn(
@@ -182,6 +190,29 @@ export default class QueryComplexity {
       return complexity + node.selectionSet.selections.reduce(
         (total: number, childNode: FieldNode | FragmentSpreadNode | InlineFragmentNode) => {
           let nodeComplexity = 0;
+
+          let includeNode = true;
+          let skipNode = false;
+
+          childNode.directives.forEach((directive: DirectiveNode) => {
+            const directiveName = directive.name.value;
+            switch (directiveName) {
+              case 'include': {
+                const values = getDirectiveValues(this.includeDirectiveDef, childNode, this.options.variables || {});
+                includeNode = values.if;
+                break;
+              }
+              case 'skip': {
+                const values = getDirectiveValues(this.skipDirectiveDef, childNode, this.options.variables || {});
+                skipNode = values.if;
+                break;
+              }
+            }
+          });
+
+          if (!includeNode || skipNode) {
+            return total;
+          }
 
           switch (childNode.kind) {
             case Kind.FIELD: {
