@@ -41,6 +41,91 @@ describe('QueryComplexity analysis', () => {
     expect(complexity).to.equal(1);
   });
 
+  it('should respect @include(if: false)', () => {
+    const ast = parse(`
+      query {
+        variableScalar(count: 10) @include(if: false)
+      }
+    `);
+
+    const complexity = getComplexity({
+      estimators: [
+        simpleEstimator({defaultComplexity: 1})
+      ],
+      schema,
+      query: ast
+    });
+    expect(complexity).to.equal(0);
+  });
+
+  it('should respect @include(if: true)', () => {
+    const ast = parse(`
+      query {
+        variableScalar(count: 10) @include(if: true)
+      }
+    `);
+
+    const complexity = getComplexity({
+      estimators: [
+        simpleEstimator({defaultComplexity: 1})
+      ],
+      schema,
+      query: ast
+    });
+    expect(complexity).to.equal(1);
+  });
+
+  it('should respect @skip(if: true)', () => {
+    const ast = parse(`
+      query {
+        variableScalar(count: 10) @skip(if: true)
+      }
+    `);
+
+    const complexity = getComplexity({
+      estimators: [
+        simpleEstimator({defaultComplexity: 1})
+      ],
+      schema,
+      query: ast
+    });
+    expect(complexity).to.equal(0);
+  });
+
+  it('should respect @skip(if: false)', () => {
+    const ast = parse(`
+      query {
+        variableScalar(count: 10) @skip(if: false)
+      }
+    `);
+
+    const complexity = getComplexity({
+      estimators: [
+        simpleEstimator({defaultComplexity: 1})
+      ],
+      schema,
+      query: ast
+    });
+    expect(complexity).to.equal(1);
+  });
+
+  it('should respect @skip(if: false) @include(if: true)', () => {
+    const ast = parse(`
+      query {
+        variableScalar(count: 10) @skip(if: false) @include(if: true)
+      }
+    `);
+
+    const complexity = getComplexity({
+      estimators: [
+        simpleEstimator({defaultComplexity: 1})
+      ],
+      schema,
+      query: ast
+    });
+    expect(complexity).to.equal(1);
+  });
+
   it('should calculate complexity with variables', () => {
     const ast = parse(`
       query Q($count: Int) {
@@ -341,7 +426,7 @@ describe('QueryComplexity analysis', () => {
     });
     expect(Number.isNaN(complexity)).to.equal(true);
   });
-  
+
   it('should skip complexity calculation by directiveEstimator when no astNode available on field', () => {
     const ast = parse(`
       query {
