@@ -448,4 +448,38 @@ describe('QueryComplexity analysis', () => {
     });
     expect(complexity).to.equal(2);
   });
+
+  it('should calculate complexity for specific operation', () => {
+    const ast = parse(`
+      query Primary {
+        scalar
+        complexScalar
+      }
+
+      query Secondary {
+        complexScalar
+      }
+    `);
+
+    const complexity1 = getComplexity({
+      estimators: [
+        fieldConfigEstimator(),
+        simpleEstimator({defaultComplexity: 1})
+      ],
+      schema,
+      query: ast
+    });
+    expect(complexity1).to.equal(41);
+
+    const complexity2 = getComplexity({
+      estimators: [
+        fieldConfigEstimator(),
+        simpleEstimator({defaultComplexity: 1})
+      ],
+      schema,
+      query: ast,
+      operationName: 'Secondary'
+    });
+    expect(complexity2).to.equal(20);
+  });
 });
