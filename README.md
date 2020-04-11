@@ -34,6 +34,9 @@ const rule = queryComplexity({
   // The query variables. This is needed because the variables are not available
   // in the visitor of the graphql-js library
   variables: {},
+
+  // specify operation name only when pass multi-operation documents
+  operationName?: string,
   
   // Optional callback function to retrieve the determined query complexity
   // Will be invoked whether the query is rejected or not

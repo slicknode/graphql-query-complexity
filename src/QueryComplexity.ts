@@ -60,6 +60,9 @@ export interface QueryComplexityOptions {
   // in the visitor of the graphql-js library
   variables?: Object,
 
+  // specify operation name only when pass multi-operation documents
+  operationName?: string,
+
   // Optional callback function to retrieve the determined query complexity
   // Will be invoked whether the query is rejected or not
   // This can be used for logging or to implement rate limiting
@@ -83,7 +86,8 @@ export function getComplexity(options: {
   estimators: ComplexityEstimator[],
   schema: GraphQLSchema,
   query: DocumentNode,
-  variables?: Object
+  variables?: Object,
+  operationName?: string
 }): number {
   const typeInfo = new TypeInfo(options.schema);
 
@@ -92,7 +96,8 @@ export function getComplexity(options: {
     // Maximum complexity does not matter since we're only interested in the calculated complexity.
     maximumComplexity: Infinity,
     estimators: options.estimators,
-    variables: options.variables
+    variables: options.variables,
+    operationName: options.operationName
   });
 
   visit(options.query, visitWithTypeInfo(typeInfo, visitor));
@@ -141,6 +146,10 @@ export default class QueryComplexity {
   }
 
   onOperationDefinitionEnter(operation: OperationDefinitionNode) {
+    if (typeof this.options.operationName === 'string' && this.options.operationName !== operation.name.value) {
+      return;
+    }
+
     switch (operation.operation) {
       case 'query':
         this.complexity += this.nodeComplexity(
@@ -165,7 +174,11 @@ export default class QueryComplexity {
     }
   }
 
-  onOperationDefinitionLeave(): GraphQLError | undefined {
+  onOperationDefinitionLeave(operation: OperationDefinitionNode): GraphQLError | undefined {
+    if (typeof this.options.operationName === 'string' && this.options.operationName !== operation.name.value) {
+      return;
+    }
+    
     if (this.options.onComplete) {
       this.options.onComplete(this.complexity);
     }
