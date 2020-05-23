@@ -91,7 +91,7 @@ export function getComplexity(options: {
 }): number {
   const typeInfo = new TypeInfo(options.schema);
 
-  const context = new ValidationContext(options.schema, options.query, typeInfo);
+  const context = new ValidationContext(options.schema, options.query, typeInfo, () => null);
   const visitor = new QueryComplexity(context, {
     // Maximum complexity does not matter since we're only interested in the calculated complexity.
     maximumComplexity: Infinity,

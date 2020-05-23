@@ -3,6 +3,7 @@
  */
 
 import {
+  GraphQLError,
   parse,
   TypeInfo,
   ValidationContext,
@@ -28,7 +29,7 @@ describe('legacy estimator', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo);
+    const context = new ValidationContext(schema, ast, typeInfo, () => null);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -48,7 +49,7 @@ describe('legacy estimator', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo);
+    const context = new ValidationContext(schema, ast, typeInfo, () => null);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -68,7 +69,7 @@ describe('legacy estimator', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo);
+    const context = new ValidationContext(schema, ast, typeInfo, () => null);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -88,7 +89,7 @@ describe('legacy estimator', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo);
+    const context = new ValidationContext(schema, ast, typeInfo, () => null);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -108,7 +109,8 @@ describe('legacy estimator', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo);
+    const validationErrors: GraphQLError[] = []
+    const context = new ValidationContext(schema, ast, typeInfo, err => validationErrors.push(err));
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -119,8 +121,8 @@ describe('legacy estimator', () => {
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
     expect(visitor.complexity).to.equal(1000);
-    expect(context.getErrors().length).to.equal(1);
-    expect(context.getErrors()[0].message).to.equal(
+    expect(validationErrors.length).to.equal(1);
+    expect(validationErrors[0].message).to.equal(
       'The query exceeds the maximum complexity of 100. Actual complexity is 1000'
     );
   });
@@ -136,7 +138,7 @@ describe('legacy estimator', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo);
+    const context = new ValidationContext(schema, ast, typeInfo, () => null);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -161,7 +163,7 @@ describe('legacy estimator', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo);
+    const context = new ValidationContext(schema, ast, typeInfo, () => null);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -186,7 +188,7 @@ describe('legacy estimator', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo);
+    const context = new ValidationContext(schema, ast, typeInfo, () => null);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -211,7 +213,7 @@ describe('legacy estimator', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo);
+    const context = new ValidationContext(schema, ast, typeInfo, () => null);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -235,7 +237,7 @@ describe('legacy estimator', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo);
+    const context = new ValidationContext(schema, ast, typeInfo, () => null);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -255,7 +257,7 @@ describe('legacy estimator', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo);
+    const context = new ValidationContext(schema, ast, typeInfo, () => null);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -274,7 +276,9 @@ describe('legacy estimator', () => {
             requiredArgs
         }
       `);
-    const context = new ValidationContext(schema, ast, typeInfo);
+
+    const validationErrors: GraphQLError[] = []
+    const context = new ValidationContext(schema, ast, typeInfo, err => validationErrors.push(err));
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -283,7 +287,7 @@ describe('legacy estimator', () => {
       ]
     });
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
-    expect(context.getErrors().length).to.equal(1);
-    expect(context.getErrors()[0].message).to.equal('Argument "count" of required type "Int!" was not provided.');
+    expect(validationErrors.length).to.equal(1);
+    expect(validationErrors[0].message).to.equal('Argument "count" of required type "Int!" was not provided.');
   });
 });

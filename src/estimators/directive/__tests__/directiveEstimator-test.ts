@@ -3,6 +3,7 @@
  */
 
 import {
+  GraphQLError,
   parse,
   TypeInfo,
   ValidationContext,
@@ -27,7 +28,7 @@ describe('directiveEstimator analysis', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo);
+    const context = new ValidationContext(schema, ast, typeInfo, () => null);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -46,7 +47,7 @@ describe('directiveEstimator analysis', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo);
+    const context = new ValidationContext(schema, ast, typeInfo, () => null);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -65,7 +66,7 @@ describe('directiveEstimator analysis', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo);
+    const context = new ValidationContext(schema, ast, typeInfo, () => null);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -84,7 +85,7 @@ describe('directiveEstimator analysis', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo);
+    const context = new ValidationContext(schema, ast, typeInfo, () => null);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -107,7 +108,7 @@ describe('directiveEstimator analysis', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo);
+    const context = new ValidationContext(schema, ast, typeInfo, () => null);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -128,7 +129,7 @@ describe('directiveEstimator analysis', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo);
+    const context = new ValidationContext(schema, ast, typeInfo, () => null);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -149,7 +150,7 @@ describe('directiveEstimator analysis', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo);
+    const context = new ValidationContext(schema, ast, typeInfo, () => null);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -170,7 +171,7 @@ describe('directiveEstimator analysis', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo);
+    const context = new ValidationContext(schema, ast, typeInfo, () => null);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -191,7 +192,7 @@ describe('directiveEstimator analysis', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo);
+    const context = new ValidationContext(schema, ast, typeInfo, () => null);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -212,7 +213,7 @@ describe('directiveEstimator analysis', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo);
+    const context = new ValidationContext(schema, ast, typeInfo, () => null);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -231,7 +232,8 @@ describe('directiveEstimator analysis', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo);
+    const validationErrors: GraphQLError[] = [];
+    const context = new ValidationContext(schema, ast, typeInfo, err => validationErrors.push(err));
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -240,8 +242,8 @@ describe('directiveEstimator analysis', () => {
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
-    expect(visitor.context.getErrors().length).to.equal(1);
-    expect(visitor.context.getErrors()[0].message).to.include(
+    expect(validationErrors.length).to.equal(1);
+    expect(validationErrors[0].message).to.include(
       'No complexity could be calculated for field Query.noDirective',
     );
   });
