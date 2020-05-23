@@ -29,9 +29,6 @@ import {
   getNamedType,
   GraphQLError
 } from 'graphql';
-import {
-  simpleEstimator
-} from './estimators';
 
 declare module 'graphql/type/definition' {
   export interface GraphQLField<TSource, TContext, TArgs = { [argName: string]: any }> {
@@ -71,7 +68,7 @@ export interface QueryComplexityOptions {
   createError?: (max: number, actual: number) => GraphQLError,
 
   // An array of complexity estimators to use for estimating the complexity
-  estimators?: Array<ComplexityEstimator>;
+  estimators: Array<ComplexityEstimator>;
 }
 
 function queryComplexityMessage(max: number, actual: number): string {
@@ -126,16 +123,7 @@ export default class QueryComplexity {
 
     this.includeDirectiveDef = this.context.getSchema().getDirective('include');
     this.skipDirectiveDef = this.context.getSchema().getDirective('skip');
-
-    if (!options.estimators) {
-      console.warn(
-        'DEPRECATION WARNING: Estimators should be configured in the queryComplexity options.'
-      );
-    }
-
-    this.estimators = options.estimators || [
-      simpleEstimator()
-    ];
+    this.estimators = options.estimators
 
     this.OperationDefinition = {
       enter: this.onOperationDefinitionEnter,
