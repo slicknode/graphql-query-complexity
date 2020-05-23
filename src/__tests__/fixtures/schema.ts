@@ -21,7 +21,9 @@ const Item: GraphQLObjectType = new GraphQLObjectType({
   fields: () => ({
     variableList: {
       type: Item,
-      complexity: (args: ComplexityEstimatorArgs) => args.childComplexity * (args.args.count || 10),
+      extensions: {
+        complexity: (args: ComplexityEstimatorArgs) => args.childComplexity * (args.args.count || 10)
+      },
       args: {
         count: {
           type: GraphQLInt
@@ -29,10 +31,12 @@ const Item: GraphQLObjectType = new GraphQLObjectType({
       }
     },
     scalar: { type: GraphQLString },
-    complexScalar: { type: GraphQLString, complexity: 20 },
+    complexScalar: { type: GraphQLString, extensions: { complexity: 20 } },
     variableScalar: {
       type: Item,
-      complexity: (args: ComplexityEstimatorArgs) => 10 * (args.args.count || 10),
+      extensions: {
+        complexity: (args: ComplexityEstimatorArgs) => 10 * (args.args.count || 10)
+      },
       args: {
         count: {
           type: GraphQLInt
@@ -97,7 +101,9 @@ const Query = new GraphQLObjectType({
     name: { type: GraphQLString },
     variableList: {
       type: Item,
-      complexity: (args: ComplexityEstimatorArgs) => args.childComplexity * (args.args.count || 10),
+      extensions: {
+        complexity: (args: ComplexityEstimatorArgs) => args.childComplexity * (args.args.count || 10)
+      },
       args: {
         count: {
           type: GraphQLInt
@@ -107,11 +113,13 @@ const Query = new GraphQLObjectType({
     interface: {type: NameInterface},
     enum: {type: EnumType},
     scalar: { type: GraphQLString },
-    complexScalar: { type: GraphQLString, complexity: 20 },
+    complexScalar: { type: GraphQLString, extensions: { complexity: 20 } },
     union: { type: Union },
     variableScalar: {
       type: Item,
-      complexity: (args: ComplexityEstimatorArgs) => 10 * (args.args.count || 10),
+      extensions: {
+        complexity: (args: ComplexityEstimatorArgs) => 10 * (args.args.count || 10)
+      },
       args: {
         count: {
           type: GraphQLInt

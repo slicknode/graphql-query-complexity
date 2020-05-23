@@ -19,7 +19,7 @@ import ComplexityVisitor, {getComplexity} from '../QueryComplexity';
 import {
   simpleEstimator,
   directiveEstimator,
-  fieldConfigEstimator,
+  fieldExtensionsEstimator,
 } from '../index';
 
 describe('QueryComplexity analysis', () => {
@@ -136,7 +136,7 @@ describe('QueryComplexity analysis', () => {
 
     const complexity = getComplexity({
       estimators: [
-        fieldConfigEstimator(),
+        fieldExtensionsEstimator(),
         simpleEstimator({defaultComplexity: 1})
       ],
       schema,
@@ -179,7 +179,7 @@ describe('QueryComplexity analysis', () => {
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
-        fieldConfigEstimator(),
+        fieldExtensionsEstimator(),
         simpleEstimator({
           defaultComplexity: 1
         })
@@ -209,7 +209,7 @@ describe('QueryComplexity analysis', () => {
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
-        fieldConfigEstimator(),
+        fieldExtensionsEstimator(),
         simpleEstimator({
           defaultComplexity: 1
         })
@@ -236,7 +236,7 @@ describe('QueryComplexity analysis', () => {
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
-        fieldConfigEstimator(),
+        fieldExtensionsEstimator(),
         simpleEstimator({
           defaultComplexity: 1
         })
@@ -263,7 +263,7 @@ describe('QueryComplexity analysis', () => {
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
-        fieldConfigEstimator(),
+        fieldExtensionsEstimator(),
         simpleEstimator({
           defaultComplexity: 1
         })
@@ -290,7 +290,7 @@ describe('QueryComplexity analysis', () => {
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
-        fieldConfigEstimator(),
+        fieldExtensionsEstimator(),
         simpleEstimator({
           defaultComplexity: 1
         })
@@ -316,7 +316,7 @@ describe('QueryComplexity analysis', () => {
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
-        fieldConfigEstimator(),
+        fieldExtensionsEstimator(),
         simpleEstimator({
           defaultComplexity: 1
         })
@@ -338,7 +338,7 @@ describe('QueryComplexity analysis', () => {
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
-        fieldConfigEstimator(),
+        fieldExtensionsEstimator(),
         simpleEstimator({
           defaultComplexity: 1
         })
@@ -360,7 +360,7 @@ describe('QueryComplexity analysis', () => {
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
-        fieldConfigEstimator(),
+        fieldExtensionsEstimator(),
         simpleEstimator({
           defaultComplexity: 1
         })
@@ -402,7 +402,7 @@ describe('QueryComplexity analysis', () => {
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
-        fieldConfigEstimator()
+        fieldExtensionsEstimator()
       ]
     });
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -468,7 +468,7 @@ describe('QueryComplexity analysis', () => {
 
     const complexity1 = getComplexity({
       estimators: [
-        fieldConfigEstimator(),
+        fieldExtensionsEstimator(),
         simpleEstimator({defaultComplexity: 1})
       ],
       schema,
@@ -478,7 +478,7 @@ describe('QueryComplexity analysis', () => {
 
     const complexity2 = getComplexity({
       estimators: [
-        fieldConfigEstimator(),
+        fieldExtensionsEstimator(),
         simpleEstimator({defaultComplexity: 1})
       ],
       schema,

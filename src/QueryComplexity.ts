@@ -30,8 +30,7 @@ import {
   GraphQLError
 } from 'graphql';
 import {
-  simpleEstimator,
-  legacyEstimator
+  simpleEstimator
 } from './estimators';
 
 declare module 'graphql/type/definition' {
@@ -135,7 +134,6 @@ export default class QueryComplexity {
     }
 
     this.estimators = options.estimators || [
-      legacyEstimator(),
       simpleEstimator()
     ];
 
@@ -178,7 +176,7 @@ export default class QueryComplexity {
     if (typeof this.options.operationName === 'string' && this.options.operationName !== operation.name.value) {
       return;
     }
-    
+
     if (this.options.onComplete) {
       this.options.onComplete(this.complexity);
     }
