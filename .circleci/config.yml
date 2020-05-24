@@ -2,9 +2,28 @@
 #
 # Check https://circleci.com/docs/2.0/language-javascript/ for more details
 #
-version: 2
+version: 2.1
+
+workflows:
+  all-tests:
+    jobs:
+      - test-and-build:
+          # Override graphql-version to test against specific versions. Type checking is disabled due missing
+          # definitions for field extensions in older @types/graphql versions
+          matrix:
+            parameters:
+              graphql-version: ["~0.13", "~14.0", "~14.5", "~14.6"]
+      - test-and-build:
+          # Leave graphql-version unspecified to respect the lockfile and also run tsc
+          name: test-and-build-with-typecheck
+
 jobs:
-  build:
+  test-and-build:
+    parameters:
+      graphql-version:
+        type: string
+        default: ""
+
     docker:
       # specify the version you desire here
       - image: circleci/node:latest
@@ -17,16 +36,24 @@ jobs:
       # Download and cache dependencies
       - restore_cache:
           keys:
-          - v1-dependencies-{{ checksum "package.json" }}
+          - v1-dependencies-{{ checksum "package.json" }}-<< parameters.graphql-version >>
           # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
 
-      - run: yarn
+      - when:
+          condition: << parameters.graphql-version >>
+          steps:
+            - run: yarn install --ignore-scripts
+            - run: yarn --ignore-scripts add --dev graphql@<< parameters.graphql-version >>
+      - unless:
+          condition: << parameters.graphql-version >>
+          steps:
+            - run: yarn install --frozen-lockfile
 
       - save_cache:
           paths:
             - node_modules
-          key: v1-dependencies-{{ checksum "package.json" }}
+          key: v1-dependencies-{{ checksum "package.json" }}-<< parameters.graphql-version >>
 
       # run tests!
       - run: yarn test
