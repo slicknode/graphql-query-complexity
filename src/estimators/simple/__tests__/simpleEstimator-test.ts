@@ -5,7 +5,6 @@
 import {
   parse,
   TypeInfo,
-  ValidationContext,
   visit,
   visitWithTypeInfo,
 } from 'graphql';
@@ -16,6 +15,7 @@ import schema from './fixtures/schema';
 import simpleEstimator from '../index';
 
 import ComplexityVisitor from '../../../QueryComplexity';
+import { CompatibleValidationContext } from '../../../__tests__/fixtures/CompatibleValidationContext';
 
 describe('simple estimator', () => {
   const typeInfo = new TypeInfo(schema);
@@ -27,7 +27,7 @@ describe('simple estimator', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo);
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -46,7 +46,7 @@ describe('simple estimator', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo);
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -65,7 +65,7 @@ describe('simple estimator', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo);
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -84,7 +84,7 @@ describe('simple estimator', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo);
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -111,7 +111,7 @@ describe('simple estimator', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo);
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -135,7 +135,7 @@ describe('simple estimator', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo);
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -158,7 +158,7 @@ describe('simple estimator', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo);
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -182,7 +182,7 @@ describe('simple estimator', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo);
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -205,7 +205,7 @@ describe('simple estimator', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo);
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -224,7 +224,7 @@ describe('simple estimator', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo);
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [

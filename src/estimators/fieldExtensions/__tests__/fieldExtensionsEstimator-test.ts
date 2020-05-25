@@ -5,7 +5,6 @@
 import {
   parse,
   TypeInfo,
-  ValidationContext,
   visit,
   visitWithTypeInfo,
 } from 'graphql';
@@ -17,6 +16,7 @@ import schema from './fixtures/schema';
 import ComplexityVisitor from '../../../QueryComplexity';
 import simpleEstimator from '../../simple';
 import fieldExtensionsEstimator from '../index';
+import { CompatibleValidationContext } from '../../../__tests__/fixtures/CompatibleValidationContext';
 
 describe('fieldExtensions estimator', () => {
   const typeInfo = new TypeInfo(schema);
@@ -28,7 +28,7 @@ describe('fieldExtensions estimator', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo);
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -50,7 +50,7 @@ describe('fieldExtensions estimator', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo);
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -72,7 +72,7 @@ describe('fieldExtensions estimator', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo);
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -94,7 +94,7 @@ describe('fieldExtensions estimator', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo);
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -116,7 +116,7 @@ describe('fieldExtensions estimator', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo);
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -146,7 +146,7 @@ describe('fieldExtensions estimator', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo);
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -173,7 +173,7 @@ describe('fieldExtensions estimator', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo);
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -200,7 +200,7 @@ describe('fieldExtensions estimator', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo);
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -227,7 +227,7 @@ describe('fieldExtensions estimator', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo);
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -253,7 +253,7 @@ describe('fieldExtensions estimator', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo);
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -275,7 +275,7 @@ describe('fieldExtensions estimator', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo);
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -296,7 +296,7 @@ describe('fieldExtensions estimator', () => {
             requiredArgs
         }
       `);
-    const context = new ValidationContext(schema, ast, typeInfo);
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [

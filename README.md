@@ -83,10 +83,6 @@ or write your own:
     schema definition (for example via GraphQL SDL)
 *   **[`fieldExtensionsEstimator`](src/estimators/fieldExtensions/README.md):** The field extensions estimator lets you set a numeric value or a custom estimator
     function in the field config extensions of your schema. 
-*   **[`fieldConfigEstimator`](src/estimators/fieldConfig/README.md):** (DEPRECATED) The field config estimator lets you set a numeric value or a custom estimator
-    function in the field config of your schema. 
-*   **[`legacyEstimator`](src/estimators/legacy/README.md):** (DEPRECATED) The legacy estimator implements the logic of previous versions. Can be used
-    to gradually migrate your codebase to new estimators. 
 *   PRs welcome...
 
 Consult the documentation of each estimator for information about how to use them. 

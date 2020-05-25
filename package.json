@@ -20,7 +20,7 @@
     "lodash.get": "^4.4.2"
   },
   "peerDependencies": {
-    "graphql": "^0.13.0 || ^14.0.0"
+    "graphql": "^0.13.0 || ^14.0.0 || ^15.0.0"
   },
   "files": [
     "dist",
@@ -41,14 +41,13 @@
   "devDependencies": {
     "@types/assert": "^1.4.6",
     "@types/chai": "^4.2.11",
-    "@types/graphql": "^0.13.0 || ^14.0.0",
     "@types/lodash.get": "^4.4.6",
     "@types/mocha": "^7.0.2",
     "@typescript-eslint/eslint-plugin": "^2.27.0",
     "@typescript-eslint/parser": "^2.27.0",
     "chai": "^4.2.0",
     "eslint": "^6.8.0",
-    "graphql": "^0.13.0 || ^14.0.0",
+    "graphql": "^14.5.0 || ^15.0.0",
     "mocha": "^7.1.1",
     "rimraf": "^3.0.2",
     "ts-node": "^8.8.2",
