@@ -3,10 +3,8 @@
  */
 
 import {
-  GraphQLError,
   parse,
   TypeInfo,
-  ValidationContext,
   visit,
   visitWithTypeInfo,
 } from 'graphql';
@@ -17,6 +15,7 @@ import schema from './fixtures/schema';
 
 import ComplexityVisitor from '../../../QueryComplexity';
 import directiveEstimator from '../index';
+import { CompatibleValidationContext } from '../../../__tests__/fixtures/CompatibleValidationContext';
 
 describe('directiveEstimator analysis', () => {
   const typeInfo = new TypeInfo(schema);
@@ -28,7 +27,7 @@ describe('directiveEstimator analysis', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo, () => null);
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -47,7 +46,7 @@ describe('directiveEstimator analysis', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo, () => null);
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -66,7 +65,7 @@ describe('directiveEstimator analysis', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo, () => null);
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -85,7 +84,7 @@ describe('directiveEstimator analysis', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo, () => null);
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -108,7 +107,7 @@ describe('directiveEstimator analysis', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo, () => null);
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -129,7 +128,7 @@ describe('directiveEstimator analysis', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo, () => null);
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -150,7 +149,7 @@ describe('directiveEstimator analysis', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo, () => null);
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -171,7 +170,7 @@ describe('directiveEstimator analysis', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo, () => null);
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -192,7 +191,7 @@ describe('directiveEstimator analysis', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo, () => null);
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -213,7 +212,7 @@ describe('directiveEstimator analysis', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo, () => null);
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -232,8 +231,7 @@ describe('directiveEstimator analysis', () => {
       }
     `);
 
-    const validationErrors: GraphQLError[] = [];
-    const context = new ValidationContext(schema, ast, typeInfo, err => validationErrors.push(err));
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -242,8 +240,8 @@ describe('directiveEstimator analysis', () => {
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
-    expect(validationErrors.length).to.equal(1);
-    expect(validationErrors[0].message).to.include(
+    expect(context.getErrors().length).to.equal(1);
+    expect(context.getErrors()[0].message).to.include(
       'No complexity could be calculated for field Query.noDirective',
     );
   });

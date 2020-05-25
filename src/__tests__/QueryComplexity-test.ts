@@ -3,10 +3,8 @@
  */
 
 import {
-  GraphQLError,
   parse,
   TypeInfo,
-  ValidationContext,
   visit,
   visitWithTypeInfo,
 } from 'graphql';
@@ -21,6 +19,7 @@ import {
   directiveEstimator,
   fieldExtensionsEstimator,
 } from '../index';
+import { CompatibleValidationContext } from './fixtures/CompatibleValidationContext';
 
 describe('QueryComplexity analysis', () => {
   const typeInfo = new TypeInfo(schema);
@@ -155,7 +154,7 @@ describe('QueryComplexity analysis', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo, () => null);
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -174,8 +173,7 @@ describe('QueryComplexity analysis', () => {
       }
     `);
 
-    const validationErrors: GraphQLError[] = [];
-    const context = new ValidationContext(schema, ast, typeInfo, err => validationErrors.push(err));
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -188,8 +186,8 @@ describe('QueryComplexity analysis', () => {
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
     expect(visitor.complexity).to.equal(1000);
-    expect(validationErrors.length).to.equal(1);
-    expect(validationErrors[0].message).to.equal(
+    expect(context.getErrors().length).to.equal(1);
+    expect(context.getErrors()[0].message).to.equal(
       'The query exceeds the maximum complexity of 100. Actual complexity is 1000'
     );
   });
@@ -205,7 +203,7 @@ describe('QueryComplexity analysis', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo, () => null);
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -232,7 +230,7 @@ describe('QueryComplexity analysis', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo, () => null);
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -259,7 +257,7 @@ describe('QueryComplexity analysis', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo, () => null);
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -286,7 +284,7 @@ describe('QueryComplexity analysis', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo, () => null);
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -312,7 +310,7 @@ describe('QueryComplexity analysis', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo, () => null);
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -334,7 +332,7 @@ describe('QueryComplexity analysis', () => {
       }
     `);
 
-    const context = new ValidationContext(schema, ast, typeInfo, () => null);
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -355,8 +353,7 @@ describe('QueryComplexity analysis', () => {
             requiredArgs
         }
       `);
-    const validationErrors: GraphQLError[] = [];
-    const context = new ValidationContext(schema, ast, typeInfo, err => validationErrors.push(err));
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -367,8 +364,8 @@ describe('QueryComplexity analysis', () => {
       ]
     });
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
-    expect(validationErrors.length).to.equal(1);
-    expect(validationErrors[0].message).to.equal('Argument "count" of required type "Int!" was not provided.');
+    expect(context.getErrors().length).to.equal(1);
+    expect(context.getErrors()[0].message).to.equal('Argument "count" of required type "Int!" was not provided.');
   });
 
   it('should report error when no estimator is configured', () => {
@@ -377,15 +374,14 @@ describe('QueryComplexity analysis', () => {
             scalar
         }
       `);
-    const validationErrors: GraphQLError[] = [];
-    const context = new ValidationContext(schema, ast, typeInfo, err => validationErrors.push(err));
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: []
     });
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
-    expect(validationErrors.length).to.equal(1);
-    expect(validationErrors[0].message).to.equal(
+    expect(context.getErrors().length).to.equal(1);
+    expect(context.getErrors()[0].message).to.equal(
       'No complexity could be calculated for field Query.scalar. ' +
       'At least one complexity estimator has to return a complexity score.'
     );
@@ -397,8 +393,7 @@ describe('QueryComplexity analysis', () => {
             scalar
         }
       `);
-    const validationErrors: GraphQLError[] = [];
-    const context = new ValidationContext(schema, ast, typeInfo, err => validationErrors.push(err));
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
       estimators: [
@@ -406,8 +401,8 @@ describe('QueryComplexity analysis', () => {
       ]
     });
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
-    expect(validationErrors.length).to.equal(1);
-    expect(validationErrors[0].message).to.equal(
+    expect(context.getErrors().length).to.equal(1);
+    expect(context.getErrors()[0].message).to.equal(
       'No complexity could be calculated for field Query.scalar. ' +
       'At least one complexity estimator has to return a complexity score.'
     );
