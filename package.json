@@ -20,7 +20,7 @@
     "lodash.get": "^4.4.2"
   },
   "peerDependencies": {
-    "graphql": "^14.5.0 || ^15.0.0"
+    "graphql": "^0.13.0 || ^14.0.0 || ^15.0.0"
   },
   "files": [
     "dist",
