@@ -408,7 +408,7 @@ describe('QueryComplexity analysis', () => {
     );
   });
 
-  it('should return NaN when no astNode available on field when use directiveEstimator', () => {
+  it('should return NaN when no astNode available on field when using directiveEstimator', () => {
     const ast = parse(`
       query {
         _service {
@@ -509,5 +509,152 @@ describe('QueryComplexity analysis', () => {
       query,
     });
     expect(complexity).to.equal(3);
+  });
+
+  it('should calculate max complexity for nested fragment on union type', () => {
+    const query = parse(`
+      query Primary {
+        union {
+          ...on Union {
+            ...on Item {
+              complexScalar1: complexScalar
+            } 
+          }
+          ...on SecondItem {
+            scalar
+          }
+          ...on Item {
+            complexScalar2: complexScalar
+          }
+        }
+      }
+    `);
+
+    const complexity = getComplexity({
+      estimators: [
+        fieldExtensionsEstimator(),
+        simpleEstimator({defaultComplexity: 0})
+      ],
+      schema,
+      query,
+    });
+    expect(complexity).to.equal(40);
+  });
+
+  it('should calculate max complexity for nested fragment on union type + named fragment', () => {
+    const query = parse(`
+      query Primary {
+        union {
+          ...F
+          ...on SecondItem {
+            scalar
+          }
+          ...on Item {
+            complexScalar2: complexScalar
+          }
+        }
+      }
+      fragment F on Union {
+        ...on Item {
+          complexScalar1: complexScalar
+        } 
+      }
+    `);
+
+    const complexity = getComplexity({
+      estimators: [
+        fieldExtensionsEstimator(),
+        simpleEstimator({defaultComplexity: 0})
+      ],
+      schema,
+      query,
+    });
+    expect(complexity).to.equal(40);
+  });
+
+  it('should calculate max complexity for multiple interfaces', () => {
+    const query = parse(`
+      query Primary {
+        interface {
+          ...on Query {
+            complexScalar
+          }
+          ...on SecondItem {
+            name
+            name2: name
+          }
+        }
+      }
+    `);
+
+    const complexity = getComplexity({
+      estimators: [
+        fieldExtensionsEstimator(),
+        simpleEstimator({defaultComplexity: 1})
+      ],
+      schema,
+      query,
+    });
+    expect(complexity).to.equal(21);
+  });
+
+  it('should calculate max complexity for multiple interfaces with nesting', () => {
+    const query = parse(`
+      query Primary {
+        interface {
+          ...on Query {
+            complexScalar
+            ...on Query {
+              a: complexScalar
+            }
+          }
+          ...on SecondItem {
+            name
+            name2: name
+          }
+        }
+      }
+    `);
+
+    const complexity = getComplexity({
+      estimators: [
+        fieldExtensionsEstimator(),
+        simpleEstimator({defaultComplexity: 1})
+      ],
+      schema,
+      query,
+    });
+    expect(complexity).to.equal(41); // 1 for interface, 20 * 2 for complexScalar
+  });
+
+  it('should calculate max complexity for multiple interfaces with nesting + named fragment', () => {
+    const query = parse(`
+      query Primary {
+        interface {
+          ...F
+          ...on SecondItem {
+            name
+            name2: name
+          }
+        }
+      }
+      
+      fragment F on Query {
+        complexScalar
+        ...on Query {
+          a: complexScalar
+        }
+      }
+    `);
+
+    const complexity = getComplexity({
+      estimators: [
+        fieldExtensionsEstimator(),
+        simpleEstimator({defaultComplexity: 1})
+      ],
+      schema,
+      query,
+    });
+    expect(complexity).to.equal(41); // 1 for interface, 20 * 2 for complexScalar
   });
 });

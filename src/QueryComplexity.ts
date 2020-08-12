@@ -19,7 +19,7 @@ import {
   GraphQLField, isCompositeType, GraphQLCompositeType, GraphQLFieldMap,
   GraphQLSchema, DocumentNode, TypeInfo,
   visit, visitWithTypeInfo,
-  GraphQLDirective,
+  GraphQLDirective, isAbstractType,
 } from 'graphql';
 import {
   GraphQLUnionType,
@@ -47,6 +47,11 @@ export type ComplexityEstimator = (options: ComplexityEstimatorArgs) => number |
 
 // Complexity can be anything that is supported by the configured estimators
 export type Complexity = any;
+
+// Map of complexities for possible types (of Union, Interface types)
+type ComplexityMap = {
+  [typeName: string]: number,
+}
 
 export interface QueryComplexityOptions {
   // The maximum allowed query complexity, queries above this threshold will be rejected
@@ -185,9 +190,19 @@ export default class QueryComplexity {
       if (typeDef instanceof GraphQLObjectType || typeDef instanceof GraphQLInterfaceType) {
         fields = typeDef.getFields();
       }
-      return node.selectionSet.selections.reduce(
-        (total: number, childNode: FieldNode | FragmentSpreadNode | InlineFragmentNode) => {
-          let nodeComplexity = 0;
+
+      // Determine all possible types of the current node
+      let possibleTypeNames: string[];
+      if (isAbstractType(typeDef)) {
+        possibleTypeNames = this.context.getSchema().getPossibleTypes(typeDef).map(t => t.name);
+      } else {
+        possibleTypeNames = [typeDef.name];
+      }
+
+      // Collect complexities for all possible types individually
+      const selectionSetComplexities: ComplexityMap = node.selectionSet.selections.reduce(
+        (complexities: ComplexityMap, childNode: FieldNode | FragmentSpreadNode | InlineFragmentNode) => {
+          // let nodeComplexity = 0;
 
           let includeNode = true;
           let skipNode = false;
@@ -209,7 +224,7 @@ export default class QueryComplexity {
           });
 
           if (!includeNode || skipNode) {
-            return total;
+            return complexities;
           }
 
           switch (childNode.kind) {
@@ -247,7 +262,11 @@ export default class QueryComplexity {
                 const tmpComplexity = estimator(estimatorArgs);
 
                 if (typeof tmpComplexity === 'number' && !isNaN(tmpComplexity)) {
-                  nodeComplexity = tmpComplexity;
+                  complexities = addComplexities(
+                    tmpComplexity,
+                    complexities,
+                    possibleTypeNames,
+                  );
                   return true;
                 }
 
@@ -268,7 +287,22 @@ export default class QueryComplexity {
               const fragmentType = assertCompositeType(
                 this.context.getSchema().getType(fragment.typeCondition.name.value)
               );
-              nodeComplexity = this.nodeComplexity(fragment, fragmentType);
+              const nodeComplexity = this.nodeComplexity(fragment, fragmentType);
+              if (isAbstractType(fragmentType)) {
+                // Add fragment complexity for all possible types
+                complexities = addComplexities(
+                  nodeComplexity,
+                  complexities,
+                  this.context.getSchema().getPossibleTypes(fragmentType).map(t => t.name),
+                );
+              } else {
+                // Add complexity for object type
+                complexities = addComplexities(
+                  nodeComplexity,
+                  complexities,
+                  [fragmentType.name],
+                );
+              }
               break;
             }
             case Kind.INLINE_FRAGMENT: {
@@ -279,16 +313,41 @@ export default class QueryComplexity {
                 );
               }
 
-              nodeComplexity = this.nodeComplexity(childNode, inlineFragmentType);
+              const nodeComplexity = this.nodeComplexity(childNode, inlineFragmentType);
+              if (isAbstractType(inlineFragmentType)) {
+                // Add fragment complexity for all possible types
+                complexities = addComplexities(
+                  nodeComplexity,
+                  complexities,
+                  this.context.getSchema().getPossibleTypes(inlineFragmentType).map(t => t.name),
+                );
+              } else {
+                // Add complexity for object type
+                complexities = addComplexities(
+                  nodeComplexity,
+                  complexities,
+                  [inlineFragmentType.name],
+                );
+              }
               break;
             }
             default: {
-              nodeComplexity = this.nodeComplexity(childNode, typeDef);
+              complexities = addComplexities(
+                this.nodeComplexity(childNode, typeDef),
+                complexities,
+                possibleTypeNames,
+              );
               break;
             }
           }
-          return Math.max(nodeComplexity, 0) + total;
-        }, 0);
+
+          return complexities;
+        }, {});
+      // Only return max complexity of all possible types
+      if (!selectionSetComplexities) {
+        return NaN;
+      }
+      return Math.max(...Object.values(selectionSetComplexities), 0);
     }
     return 0;
   }
@@ -305,4 +364,25 @@ export default class QueryComplexity {
       this.complexity
     ));
   }
+}
+
+/**
+ * Adds a complexity to the complexity map for all possible types
+ * @param complexity
+ * @param complexityMap
+ * @param possibleTypes
+ */
+function addComplexities(
+  complexity: number,
+  complexityMap: ComplexityMap,
+  possibleTypes: string[],
+): ComplexityMap {
+  for (const type of possibleTypes) {
+    if (complexityMap.hasOwnProperty(type)) {
+      complexityMap[type] = complexityMap[type] + complexity;
+    } else {
+      complexityMap[type] = complexity;
+    }
+  }
+  return complexityMap;
 }
