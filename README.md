@@ -1,8 +1,9 @@
 # GraphQL Query Complexity Analysis for graphql-js
 
+[![npm](https://img.shields.io/npm/dm/graphql-query-complexity)](https://www.npmjs.com/package/graphql-query-complexity)
 [![npm version](https://badge.fury.io/js/graphql-query-complexity.svg)](https://badge.fury.io/js/graphql-query-complexity) 
 [![CircleCI](https://circleci.com/gh/slicknode/graphql-query-complexity.svg?style=shield)](https://circleci.com/gh/slicknode/graphql-query-complexity)
-
+[![Twitter Follow](https://img.shields.io/twitter/follow/slicknode?style=social)](https://twitter.com/slicknode)
 
 This library provides GraphQL query analysis to reject complex queries to your GraphQL server.
 This can be used to protect your GraphQL servers against resource exhaustion and DoS attacks.
