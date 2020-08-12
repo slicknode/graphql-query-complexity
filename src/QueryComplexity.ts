@@ -179,14 +179,13 @@ export default class QueryComplexity {
   nodeComplexity(
     node: FieldNode | FragmentDefinitionNode | InlineFragmentNode | OperationDefinitionNode,
     typeDef: GraphQLObjectType | GraphQLInterfaceType | GraphQLUnionType,
-    complexity: number = 0
   ): number {
     if (node.selectionSet) {
       let fields:GraphQLFieldMap<any, any> = {};
       if (typeDef instanceof GraphQLObjectType || typeDef instanceof GraphQLInterfaceType) {
         fields = typeDef.getFields();
       }
-      return complexity + node.selectionSet.selections.reduce(
+      return node.selectionSet.selections.reduce(
         (total: number, childNode: FieldNode | FragmentSpreadNode | InlineFragmentNode) => {
           let nodeComplexity = 0;
 
@@ -275,7 +274,6 @@ export default class QueryComplexity {
             case Kind.INLINE_FRAGMENT: {
               let inlineFragmentType = typeDef;
               if (childNode.typeCondition && childNode.typeCondition.name) {
-                // $FlowFixMe: Not sure why flow thinks this can still be NULL
                 inlineFragmentType = assertCompositeType(
                   this.context.getSchema().getType(childNode.typeCondition.name.value)
                 );
@@ -290,9 +288,9 @@ export default class QueryComplexity {
             }
           }
           return Math.max(nodeComplexity, 0) + total;
-        }, complexity);
+        }, 0);
     }
-    return complexity;
+    return 0;
   }
 
   createError(): GraphQLError {

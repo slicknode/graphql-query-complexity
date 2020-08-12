@@ -482,4 +482,32 @@ describe('QueryComplexity analysis', () => {
     });
     expect(complexity2).to.equal(20);
   });
+
+  it('should calculate max complexity for fragment on union type', () => {
+    const query = parse(`
+      query Primary {
+        union {
+          ...on Item {
+            scalar
+          }
+          ...on SecondItem {
+            scalar
+          }
+          ...on SecondItem {
+            scalar
+          }
+        }
+      }
+    `);
+
+    const complexity = getComplexity({
+      estimators: [
+        fieldExtensionsEstimator(),
+        simpleEstimator({defaultComplexity: 1})
+      ],
+      schema,
+      query,
+    });
+    expect(complexity).to.equal(3);
+  });
 });
