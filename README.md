@@ -125,11 +125,17 @@ import schema from './schema';
 const app = express();
 app.use('/api', graphqlHTTP(async (request, response, {variables}) => ({
   schema,
-  validationRules: [ queryComplexity({
-    maximumComplexity: 1000,
-    variables,
-    onComplete: (complexity: number) => {console.log('Query Complexity:', complexity);},
-  }) ]
+  validationRules: [
+    queryComplexity({
+      estimators: [
+        // Configure your estimators
+        simpleEstimator({defaultComplexity: 1})
+      ],
+      maximumComplexity: 1000,
+      variables,
+      onComplete: (complexity: number) => {console.log('Query Complexity:', complexity);},
+    })
+  ]
 })));
 ```
 
