@@ -30,12 +30,6 @@ import {
   GraphQLError
 } from 'graphql';
 
-declare module 'graphql/type/definition' {
-  export interface GraphQLField<TSource, TContext, TArgs = { [argName: string]: any }> {
-    complexity?: Complexity;
-  }
-}
-
 export type ComplexityEstimatorArgs = {
   type: GraphQLCompositeType,
   field: GraphQLField<any, any>,
