@@ -201,7 +201,7 @@ export default class QueryComplexity {
           let includeNode = true;
           let skipNode = false;
 
-          childNode.directives.forEach((directive: DirectiveNode) => {
+          childNode.directives?.forEach((directive: DirectiveNode) => {
             const directiveName = directive.name.value;
             switch (directiveName) {
               case 'include': {
