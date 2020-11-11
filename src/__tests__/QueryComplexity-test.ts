@@ -166,6 +166,45 @@ describe('QueryComplexity analysis', () => {
     expect(visitor.complexity).to.equal(0);
   });
 
+  it('should ignore unknown fragments', () => {
+    const ast = parse(`
+      query {
+        ...UnknownFragment
+        variableScalar(count: 100)
+      }
+    `);
+
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
+    const visitor = new ComplexityVisitor(context, {
+      maximumComplexity: 100,
+      estimators: [
+        simpleEstimator({defaultComplexity: 10})
+      ]
+    });
+
+    visit(ast, visitWithTypeInfo(typeInfo, visitor));
+    expect(visitor.complexity).to.equal(10);
+  });
+
+  it('should ignore unused variables', () => {
+    const ast = parse(`
+      query ($unusedVar: ID!) {
+        variableScalar(count: 100)
+      }
+    `);
+
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
+    const visitor = new ComplexityVisitor(context, {
+      maximumComplexity: 100,
+      estimators: [
+        simpleEstimator({defaultComplexity: 10})
+      ]
+    });
+
+    visit(ast, visitWithTypeInfo(typeInfo, visitor));
+    expect(visitor.complexity).to.equal(10);
+  });
+
   it('should report error above threshold', () => {
     const ast = parse(`
       query {

@@ -278,24 +278,26 @@ export default class QueryComplexity {
             }
             case Kind.FRAGMENT_SPREAD: {
               const fragment = this.context.getFragment(childNode.name.value);
-              const fragmentType = assertCompositeType(
-                this.context.getSchema().getType(fragment.typeCondition.name.value)
-              );
-              const nodeComplexity = this.nodeComplexity(fragment, fragmentType);
-              if (isAbstractType(fragmentType)) {
-                // Add fragment complexity for all possible types
-                complexities = addComplexities(
-                  nodeComplexity,
-                  complexities,
-                  this.context.getSchema().getPossibleTypes(fragmentType).map(t => t.name),
+              if (fragment) {
+                const fragmentType = assertCompositeType(
+                  this.context.getSchema().getType(fragment.typeCondition.name.value)
                 );
-              } else {
-                // Add complexity for object type
-                complexities = addComplexities(
-                  nodeComplexity,
-                  complexities,
-                  [fragmentType.name],
-                );
+                const nodeComplexity = this.nodeComplexity(fragment, fragmentType);
+                if (isAbstractType(fragmentType)) {
+                  // Add fragment complexity for all possible types
+                  complexities = addComplexities(
+                    nodeComplexity,
+                    complexities,
+                    this.context.getSchema().getPossibleTypes(fragmentType).map(t => t.name),
+                  );
+                } else {
+                  // Add complexity for object type
+                  complexities = addComplexities(
+                    nodeComplexity,
+                    complexities,
+                    [fragmentType.name],
+                  );
+                }
               }
               break;
             }
