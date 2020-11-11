@@ -19,7 +19,7 @@ import {
   GraphQLField, isCompositeType, GraphQLCompositeType, GraphQLFieldMap,
   GraphQLSchema, DocumentNode, TypeInfo,
   visit, visitWithTypeInfo,
-  GraphQLDirective, isAbstractType,
+  GraphQLDirective, isAbstractType, GraphQLNamedType,
 } from 'graphql';
 import {
   GraphQLUnionType,
@@ -278,35 +278,40 @@ export default class QueryComplexity {
             }
             case Kind.FRAGMENT_SPREAD: {
               const fragment = this.context.getFragment(childNode.name.value);
-              if (fragment) {
-                const fragmentType = assertCompositeType(
-                  this.context.getSchema().getType(fragment.typeCondition.name.value)
+              // Unknown fragment, should be caught by other validation rules
+              if (!fragment) {
+                break;
+              }
+              const fragmentType = this.context.getSchema().getType(fragment.typeCondition.name.value);
+              // Invalid fragment type, ignore. Should be caught by other validation rules
+              if (!isCompositeType(fragmentType)) {
+                break;
+              }
+              const nodeComplexity = this.nodeComplexity(fragment, fragmentType);
+              if (isAbstractType(fragmentType)) {
+                // Add fragment complexity for all possible types
+                complexities = addComplexities(
+                  nodeComplexity,
+                  complexities,
+                  this.context.getSchema().getPossibleTypes(fragmentType).map(t => t.name),
                 );
-                const nodeComplexity = this.nodeComplexity(fragment, fragmentType);
-                if (isAbstractType(fragmentType)) {
-                  // Add fragment complexity for all possible types
-                  complexities = addComplexities(
-                    nodeComplexity,
-                    complexities,
-                    this.context.getSchema().getPossibleTypes(fragmentType).map(t => t.name),
-                  );
-                } else {
-                  // Add complexity for object type
-                  complexities = addComplexities(
-                    nodeComplexity,
-                    complexities,
-                    [fragmentType.name],
-                  );
-                }
+              } else {
+                // Add complexity for object type
+                complexities = addComplexities(
+                  nodeComplexity,
+                  complexities,
+                  [fragmentType.name],
+                );
               }
               break;
             }
             case Kind.INLINE_FRAGMENT: {
-              let inlineFragmentType = typeDef;
+              let inlineFragmentType: GraphQLNamedType = typeDef;
               if (childNode.typeCondition && childNode.typeCondition.name) {
-                inlineFragmentType = assertCompositeType(
-                  this.context.getSchema().getType(childNode.typeCondition.name.value)
-                );
+                inlineFragmentType = this.context.getSchema().getType(childNode.typeCondition.name.value);
+                if (!isCompositeType(inlineFragmentType)) {
+                  break;
+                }
               }
 
               const nodeComplexity = this.nodeComplexity(childNode, inlineFragmentType);

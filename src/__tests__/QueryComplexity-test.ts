@@ -186,6 +186,49 @@ describe('QueryComplexity analysis', () => {
     expect(visitor.complexity).to.equal(10);
   });
 
+  it('should ignore inline fragment on unknown type', () => {
+    const ast = parse(`
+      query {
+        ...on UnknownType {
+          variableScalar(count: 100)
+        }
+      }
+    `);
+
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
+    const visitor = new ComplexityVisitor(context, {
+      maximumComplexity: 100,
+      estimators: [
+        simpleEstimator({defaultComplexity: 10})
+      ]
+    });
+
+    visit(ast, visitWithTypeInfo(typeInfo, visitor));
+    expect(visitor.complexity).to.equal(0);
+  });
+
+  it('should ignore fragment on unknown type', () => {
+    const ast = parse(`
+      query {
+        ...F
+      }
+      fragment F on UnknownType {
+        variableScalar(count: 100)
+      }
+    `);
+
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
+    const visitor = new ComplexityVisitor(context, {
+      maximumComplexity: 100,
+      estimators: [
+        simpleEstimator({defaultComplexity: 10})
+      ]
+    });
+
+    visit(ast, visitWithTypeInfo(typeInfo, visitor));
+    expect(visitor.complexity).to.equal(0);
+  });
+
   it('should ignore unused variables', () => {
     const ast = parse(`
       query ($unusedVar: ID!) {
@@ -203,6 +246,25 @@ describe('QueryComplexity analysis', () => {
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
     expect(visitor.complexity).to.equal(10);
+  });
+
+  it('should ignore unknown field', () => {
+    const ast = parse(`
+      query {
+        unknownField
+      }
+    `);
+
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
+    const visitor = new ComplexityVisitor(context, {
+      maximumComplexity: 100,
+      estimators: [
+        simpleEstimator({defaultComplexity: 10})
+      ]
+    });
+
+    visit(ast, visitWithTypeInfo(typeInfo, visitor));
+    expect(visitor.complexity).to.equal(0);
   });
 
   it('should report error above threshold', () => {
