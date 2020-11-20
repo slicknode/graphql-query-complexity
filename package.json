@@ -1,49 +1,57 @@
 {
   "name": "graphql-query-complexity",
-  "version": "0.1.2",
+  "version": "0.7.1",
   "description": "Validation rule for GraphQL query complexity analysis",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint --fix src/**/*.ts",
     "clean": "rimraf dist/*",
     "build": "tsc",
     "test": "npm run lint && npm run testonly",
-    "testonly": "mocha --check-leaks --exit --full-trace --require ts-node/register 'src/**/__tests__/**/*-test.{ts,tsx}'",
+    "testonly": "mocha --check-leaks --exit --full-trace --require ts-node/register/transpile-only 'src/**/__tests__/**/*-test.{ts,tsx}'",
     "dist": "npm run clean && tsc && npm run build",
     "prepublish": "npm run clean && npm run dist"
   },
   "directories": {
     "lib": "./dist"
   },
-  "dependencies": {},
+  "dependencies": {
+    "lodash.get": "^4.4.2"
+  },
   "peerDependencies": {
-    "graphql": "^0.13.2"
+    "graphql": "^0.13.0 || ^14.0.0 || ^15.0.0"
   },
   "files": [
     "dist",
     "README.md",
     "LICENSE"
   ],
-  "repository": "ivome/graphql-query-complexity",
+  "repository": "slicknode/graphql-query-complexity",
   "keywords": [
     "graphql",
-    "query complexity"
+    "query",
+    "validation",
+    "cost",
+    "complexity",
+    "analysis"
   ],
   "author": "Ivo Meißner",
   "license": "MIT",
   "devDependencies": {
-    "@types/assert": "^0.0.31",
-    "@types/chai": "^4.1.4",
-    "@types/graphql": "^0.13.4",
-    "@types/mocha": "^5.2.5",
-    "chai": "^4.1.0",
-    "eslint": "^5.4.0",
-    "eslint-plugin-typescript": "^0.12.0",
-    "graphql": "^0.13.2",
-    "mocha": "^5.2.0",
-    "rimraf": "^2.6.1",
-    "ts-node": "^7.0.1",
-    "typescript": "^3.0.1",
-    "typescript-eslint-parser": "^18.0.0"
+    "@types/assert": "^1.4.6",
+    "@types/chai": "^4.2.11",
+    "@types/lodash.get": "^4.4.6",
+    "@types/mocha": "^7.0.2",
+    "@typescript-eslint/eslint-plugin": "^2.27.0",
+    "@typescript-eslint/parser": "^2.27.0",
+    "chai": "^4.2.0",
+    "eslint": "^6.8.0",
+    "graphql": "^14.5.0 || ^15.0.0",
+    "mocha": "^7.1.1",
+    "rimraf": "^3.0.2",
+    "ts-node": "^8.8.2",
+    "typescript": "^3.8.3"
   }
 }

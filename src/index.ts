@@ -6,7 +6,11 @@
 import { ValidationContext } from 'graphql';
 import QueryComplexity from './QueryComplexity';
 import { QueryComplexityOptions } from './QueryComplexity';
-export default function createQueryComplexityValidator(options: QueryComplexityOptions): Function {
+
+export * from './estimators';
+export * from './QueryComplexity';
+
+export default function createQueryComplexityValidator(options: QueryComplexityOptions): (context: ValidationContext) => QueryComplexity {
   return (context: ValidationContext): QueryComplexity => {
     return new QueryComplexity(context, options);
   };

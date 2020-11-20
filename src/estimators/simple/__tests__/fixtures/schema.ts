@@ -14,16 +14,11 @@ import {
   GraphQLInterfaceType,
 } from 'graphql';
 
-import {ComplexityEstimatorArgs} from '../../QueryComplexity';
-
 const Item: GraphQLObjectType = new GraphQLObjectType({
   name: 'Item',
   fields: () => ({
     variableList: {
       type: Item,
-      extensions: {
-        complexity: (args: ComplexityEstimatorArgs) => args.childComplexity * (args.args.count || 10)
-      },
       args: {
         count: {
           type: GraphQLInt
@@ -31,18 +26,6 @@ const Item: GraphQLObjectType = new GraphQLObjectType({
       }
     },
     scalar: { type: GraphQLString },
-    complexScalar: { type: GraphQLString, extensions: { complexity: 20 } },
-    variableScalar: {
-      type: Item,
-      extensions: {
-        complexity: (args: ComplexityEstimatorArgs) => 10 * (args.args.count || 10)
-      },
-      args: {
-        count: {
-          type: GraphQLInt
-        }
-      }
-    },
     list: { type: new GraphQLList(Item) },
     nonNullItem: {
       type: new GraphQLNonNull(Item),
@@ -60,14 +43,6 @@ const NameInterface = new GraphQLInterfaceType({
   fields: {
     name: { type: GraphQLString }
   },
-  resolveType: () => Item
-});
-
-const UnionInterface = new GraphQLInterfaceType({
-  name: 'UnionInterface',
-  fields: () => ({
-    union: { type: Union }
-  }),
   resolveType: () => Item
 });
 
@@ -95,31 +70,12 @@ const Union = new GraphQLUnionType({
   resolveType: () => Item
 });
 
-const SDLInterface = new GraphQLInterfaceType({
-  name: 'SDLInterface',
-  fields: {
-    sdl: { type: GraphQLString }
-  },
-  resolveType: () => 'SDL'
-});
-
-const SDL = new GraphQLObjectType({
-  name: 'SDL',
-  fields: {
-    sdl: { type: GraphQLString }
-  },
-  interfaces: () => [SDLInterface],
-});
-
 const Query = new GraphQLObjectType({
   name: 'Query',
   fields: () => ({
     name: { type: GraphQLString },
     variableList: {
       type: Item,
-      extensions: {
-        complexity: (args: ComplexityEstimatorArgs) => args.childComplexity * (args.args.count || 10)
-      },
       args: {
         count: {
           type: GraphQLInt
@@ -129,13 +85,9 @@ const Query = new GraphQLObjectType({
     interface: {type: NameInterface},
     enum: {type: EnumType},
     scalar: { type: GraphQLString },
-    complexScalar: { type: GraphQLString, extensions: { complexity: 20 } },
     union: { type: Union },
     variableScalar: {
       type: Item,
-      extensions: {
-        complexity: (args: ComplexityEstimatorArgs) => 10 * (args.args.count || 10)
-      },
       args: {
         count: {
           type: GraphQLInt
@@ -158,15 +110,8 @@ const Query = new GraphQLObjectType({
           type: new GraphQLNonNull(GraphQLInt)
         }
       }
-    },
-    _service: {type: SDLInterface},
+    }
   }),
-  interfaces: () => [NameInterface, UnionInterface,]
 });
 
-export default new GraphQLSchema({
-  query: Query,
-  types: [
-    SDL,
-  ],
-});
+export default new GraphQLSchema({ query: Query });

@@ -7,6 +7,7 @@
     "moduleResolution": "node",
     "sourceMap": true,
     "outDir": "dist",
+    "declaration": true,
     "baseUrl": ".",
     "paths": {
       "*": [
@@ -16,7 +17,9 @@
     },
     "lib": [
       "es2015",
-      "esnext.asynciterable"
+      "es2018",
+      "esnext.asynciterable",
+      "dom"
     ]
   },
   "include": [
