@@ -117,7 +117,7 @@ To use the query complexity analysis validation rule with express-graphql, use s
 following: 
 
 ```javascript
-import queryComplexity from 'graphql-query-complexity';
+import queryComplexity, { simpleEstimator } from 'graphql-query-complexity';
 import express from 'express';
 import graphqlHTTP from 'express-graphql';
 import schema from './schema';
