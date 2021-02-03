@@ -37,6 +37,9 @@ export type ComplexityEstimatorArgs = {
   childComplexity: number
 }
 
+// Operation applied on fields on same level / layer in graph tree
+export type LayerTransformation = (fieldComplexityA: number, fieldComplexityB: number, fieldType: string) => number;
+
 export type ComplexityEstimator = (options: ComplexityEstimatorArgs) => number | void;
 
 // Complexity can be anything that is supported by the configured estimators
@@ -68,6 +71,9 @@ export interface QueryComplexityOptions {
 
   // An array of complexity estimators to use for estimating the complexity
   estimators: Array<ComplexityEstimator>;
+
+  // Optional operation applied on fields on same level / layer in graph tree
+  layerTransformation?: LayerTransformation;
 }
 
 function queryComplexityMessage(max: number, actual: number): string {
@@ -82,7 +88,8 @@ export function getComplexity(options: {
   schema: GraphQLSchema,
   query: DocumentNode,
   variables?: Object,
-  operationName?: string
+  operationName?: string,
+  layerTransformation?: LayerTransformation,
 }): number {
   const typeInfo = new TypeInfo(options.schema);
 
@@ -92,7 +99,8 @@ export function getComplexity(options: {
     maximumComplexity: Infinity,
     estimators: options.estimators,
     variables: options.variables,
-    operationName: options.operationName
+    operationName: options.operationName,
+    layerTransformation: options.layerTransformation,
   });
 
   visit(options.query, visitWithTypeInfo(typeInfo, visitor));
@@ -107,6 +115,7 @@ export default class QueryComplexity {
   estimators: Array<ComplexityEstimator>;
   includeDirectiveDef: GraphQLDirective;
   skipDirectiveDef: GraphQLDirective;
+  layerTransformation: LayerTransformation;
 
   constructor(
     context: ValidationContext,
@@ -120,9 +129,12 @@ export default class QueryComplexity {
     this.complexity = 0;
     this.options = options;
 
+    const defaultLayerTransformation = (a: number, b: number): number => a + b;
+
     this.includeDirectiveDef = this.context.getSchema().getDirective('include');
     this.skipDirectiveDef = this.context.getSchema().getDirective('skip');
-    this.estimators = options.estimators
+    this.estimators = options.estimators;
+    this.layerTransformation = options.layerTransformation !== undefined ? options.layerTransformation : defaultLayerTransformation;
 
     this.OperationDefinition = {
       enter: this.onOperationDefinitionEnter,
@@ -260,6 +272,7 @@ export default class QueryComplexity {
                     tmpComplexity,
                     complexities,
                     possibleTypeNames,
+                    this.layerTransformation
                   );
                   return true;
                 }
@@ -294,6 +307,7 @@ export default class QueryComplexity {
                   nodeComplexity,
                   complexities,
                   this.context.getSchema().getPossibleTypes(fragmentType).map(t => t.name),
+                  this.layerTransformation
                 );
               } else {
                 // Add complexity for object type
@@ -301,6 +315,7 @@ export default class QueryComplexity {
                   nodeComplexity,
                   complexities,
                   [fragmentType.name],
+                  this.layerTransformation
                 );
               }
               break;
@@ -321,6 +336,7 @@ export default class QueryComplexity {
                   nodeComplexity,
                   complexities,
                   this.context.getSchema().getPossibleTypes(inlineFragmentType).map(t => t.name),
+                  this.layerTransformation
                 );
               } else {
                 // Add complexity for object type
@@ -328,6 +344,7 @@ export default class QueryComplexity {
                   nodeComplexity,
                   complexities,
                   [inlineFragmentType.name],
+                  this.layerTransformation
                 );
               }
               break;
@@ -337,6 +354,7 @@ export default class QueryComplexity {
                 this.nodeComplexity(childNode, typeDef),
                 complexities,
                 possibleTypeNames,
+                this.layerTransformation
               );
               break;
             }
@@ -372,15 +390,17 @@ export default class QueryComplexity {
  * @param complexity
  * @param complexityMap
  * @param possibleTypes
+ * @param layerTransformation
  */
 function addComplexities(
   complexity: number,
   complexityMap: ComplexityMap,
   possibleTypes: string[],
+  layerTransformation: LayerTransformation,
 ): ComplexityMap {
   for (const type of possibleTypes) {
     if (complexityMap.hasOwnProperty(type)) {
-      complexityMap[type] = complexityMap[type] + complexity;
+      complexityMap[type] = layerTransformation(complexityMap[type], complexity, type);
     } else {
       complexityMap[type] = complexity;
     }
