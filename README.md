@@ -25,7 +25,8 @@ Create the rule with a maximum query complexity:
 
 ```javascript
 import queryComplexity, {
-  simpleEstimator
+  simpleEstimator, 
+  LayerTransformation
 } from 'graphql-query-complexity';
 
 const rule = queryComplexity({
@@ -60,7 +61,10 @@ const rule = queryComplexity({
     simpleEstimator({
       defaultComplexity: 1
     })
-  ]
+  ],
+    
+  // Optional operation applied on fields on same level / layer in graph tree
+  layerTransformation?: LayerTransformation;
 });
 ```
 
