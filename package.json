@@ -12,7 +12,7 @@
     "test": "npm run lint && npm run testonly",
     "testonly": "mocha --check-leaks --exit --full-trace --require ts-node/register/transpile-only 'src/**/__tests__/**/*-test.{ts,tsx}'",
     "dist": "npm run clean && tsc && npm run build",
-    "prepublish": "npm run clean && npm run dist"
+    "prepare": "npm run clean && npm run dist"
   },
   "directories": {
     "lib": "./dist"
