@@ -10,6 +10,7 @@ import {
   TypeInfo,
   visit,
   visitWithTypeInfo,
+  buildSchema
 } from 'graphql';
 
 import {expect} from 'chai';
@@ -254,11 +255,16 @@ describe('directiveEstimator analysis', () => {
     const codeFirstSchema = new GraphQLSchema({
       directives: [complexityDirective]
     });
-    
-    const printedCodeFirstSchema = printSchema(codeFirstSchema).trim();
-    const printedComplexityDirective = print(schema.getDirective('complexity').astNode).trim();
 
-    expect(printedCodeFirstSchema).to.equal(printedComplexityDirective);
+    // rebuilding code first schema
+    // graphql-js <= 14 prints descriptions in different ways printSchema(schema) vs print(astNode)
+    // and directive from code first schema has no astNode
+    const builtCodeFirstSchema = buildSchema(printSchema(codeFirstSchema));
+
+    const printedSchemaFirstDirective = print(schema.getDirective('complexity').astNode);
+    const printedCodeFirstDirective = print(builtCodeFirstSchema.getDirective('complexity').astNode);
+
+    expect(printedSchemaFirstDirective).to.equal(printedCodeFirstDirective);
   });
 
   it('should create complexity directive with configured name', () => {
@@ -267,9 +273,14 @@ describe('directiveEstimator analysis', () => {
       directives: [complexityDirective]
     });
 
-    const printedCodeFirstSchema = printSchema(codeFirstSchema).trim();
-    const printedComplexityDirective = print(schema.getDirective('cost').astNode).trim();
+    // rebuilding code first schema
+    // graphql-js <= 14 prints descriptions in different ways printSchema(schema) vs print(astNode)
+    // and directive from code first schema has no astNode
+    const builtCodeFirstSchema = buildSchema(printSchema(codeFirstSchema));
 
-    expect(printedCodeFirstSchema).to.equal(printedComplexityDirective);
+    const printedSchemaFirstDirective = print(schema.getDirective('cost').astNode);
+    const printedCodeFirstDirective = print(builtCodeFirstSchema.getDirective('cost').astNode);
+
+    expect(printedSchemaFirstDirective).to.equal(printedCodeFirstDirective);
   });
 });
