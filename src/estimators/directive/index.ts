@@ -8,7 +8,7 @@ export type ComplexityDirectiveOptions = {
   name?: string
 }
 
-export function createComplexityDirective(options: ComplexityDirectiveOptions = {}) {
+export function createComplexityDirective(options?: ComplexityDirectiveOptions) {
   const mergedOptions = {
     name: 'complexity',
     ...(options || {})
