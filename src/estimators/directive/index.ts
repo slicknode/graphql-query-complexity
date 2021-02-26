@@ -4,14 +4,9 @@ import { GraphQLDirective } from 'graphql/type/directives';
 import { DirectiveLocation } from 'graphql/language/directiveLocation';
 import get from 'lodash.get';
 
-export default function (options?: {}): ComplexityEstimator {
-  const mergedOptions = {
-    name: 'complexity',
-    ...(options || {})
-  };
-
-  const directive = new GraphQLDirective({
-    name: mergedOptions.name,
+export function complexityDirective(name: string = 'complexity') {
+  return new GraphQLDirective({
+    name,
     description: 'Define a relation between the field and other nodes',
     locations: [
       DirectiveLocation.FIELD,
@@ -26,6 +21,10 @@ export default function (options?: {}): ComplexityEstimator {
       }
     },
   });
+}
+
+export default function (options: { name?: string } = {}): ComplexityEstimator {
+  const directive = complexityDirective(options.name);
 
   return (args: ComplexityEstimatorArgs) => {
     // Ignore if astNode is undefined
