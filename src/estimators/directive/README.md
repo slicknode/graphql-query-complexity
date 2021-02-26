@@ -63,3 +63,19 @@ input Filter {
 ```
 
 The multipliers can be combined. Configured multipliers that don't have a value or `NULL` are ignored. 
+
+Code first approach can use the `createComplexityDirective` function to generate directive definition:
+
+```typescript
+import {createComplexityDirective} from 'graphql-query-complexity';
+
+const schema = new GraphQLSchema({
+  directives: [
+    createComplexityDirective({
+      // Optionally change the name of the directive here... Default value is `complexity`
+      name: 'complexity'
+    })
+  ]
+  // ... other config
+});
+```

@@ -7,12 +7,16 @@ import {
 } from 'graphql';
 
 export default buildSchema(`
+"""Define a relation between the field and other nodes"""
 directive @cost(
+  """The complexity value for the field"""
   value: Int!,
   multipliers: [String!]
 ) on FIELD_DEFINITION
 
+"""Define a relation between the field and other nodes"""
 directive @complexity(
+  """The complexity value for the field"""
   value: Int!,
   multipliers: [String!]
 ) on FIELD_DEFINITION

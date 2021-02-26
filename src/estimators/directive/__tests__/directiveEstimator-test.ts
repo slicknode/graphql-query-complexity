@@ -3,7 +3,10 @@
  */
 
 import {
+  GraphQLSchema,
   parse,
+  print,
+  printSchema,
   TypeInfo,
   visit,
   visitWithTypeInfo,
@@ -14,7 +17,7 @@ import {expect} from 'chai';
 import schema from './fixtures/schema';
 
 import ComplexityVisitor from '../../../QueryComplexity';
-import directiveEstimator from '../index';
+import directiveEstimator, {createComplexityDirective} from '../index';
 import { CompatibleValidationContext } from '../../../__tests__/fixtures/CompatibleValidationContext';
 
 describe('directiveEstimator analysis', () => {
@@ -224,7 +227,7 @@ describe('directiveEstimator analysis', () => {
     expect(visitor.complexity).to.equal(10);
   });
 
-  it('ignores fields without compexity directive', () => {
+  it('ignores fields without complexity directive', () => {
     const ast = parse(`
       query {
         noDirective
@@ -244,5 +247,29 @@ describe('directiveEstimator analysis', () => {
     expect(context.getErrors()[0].message).to.include(
       'No complexity could be calculated for field Query.noDirective',
     );
+  });
+
+  it('should create complexity directive that can be used to generate directive definition', () => {
+    const complexityDirective = createComplexityDirective();
+    const codeFirstSchema = new GraphQLSchema({
+      directives: [complexityDirective]
+    });
+    
+    const printedCodeFirstSchema = printSchema(codeFirstSchema).trim();
+    const printedComplexityDirective = print(schema.getDirective('complexity').astNode).trim();
+
+    expect(printedCodeFirstSchema).to.equal(printedComplexityDirective);
+  });
+
+  it('should create complexity directive with configured name', () => {
+    const complexityDirective = createComplexityDirective({name: 'cost'});
+    const codeFirstSchema = new GraphQLSchema({
+      directives: [complexityDirective]
+    });
+
+    const printedCodeFirstSchema = printSchema(codeFirstSchema).trim();
+    const printedComplexityDirective = print(schema.getDirective('cost').astNode).trim();
+
+    expect(printedCodeFirstSchema).to.equal(printedComplexityDirective);
   });
 });
