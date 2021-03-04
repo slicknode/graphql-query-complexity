@@ -3,10 +3,14 @@
  */
 
 import {
+  GraphQLSchema,
   parse,
+  print,
+  printSchema,
   TypeInfo,
   visit,
   visitWithTypeInfo,
+  buildSchema
 } from 'graphql';
 
 import {expect} from 'chai';
@@ -14,7 +18,7 @@ import {expect} from 'chai';
 import schema from './fixtures/schema';
 
 import ComplexityVisitor from '../../../QueryComplexity';
-import directiveEstimator from '../index';
+import directiveEstimator, {createComplexityDirective} from '../index';
 import { CompatibleValidationContext } from '../../../__tests__/fixtures/CompatibleValidationContext';
 
 describe('directiveEstimator analysis', () => {
@@ -224,7 +228,7 @@ describe('directiveEstimator analysis', () => {
     expect(visitor.complexity).to.equal(10);
   });
 
-  it('ignores fields without compexity directive', () => {
+  it('ignores fields without complexity directive', () => {
     const ast = parse(`
       query {
         noDirective
@@ -244,5 +248,39 @@ describe('directiveEstimator analysis', () => {
     expect(context.getErrors()[0].message).to.include(
       'No complexity could be calculated for field Query.noDirective',
     );
+  });
+
+  it('should create complexity directive that can be used to generate directive definition', () => {
+    const complexityDirective = createComplexityDirective();
+    const codeFirstSchema = new GraphQLSchema({
+      directives: [complexityDirective]
+    });
+
+    // rebuilding code first schema
+    // graphql-js <= 14 prints descriptions in different ways printSchema(schema) vs print(astNode)
+    // and directive from code first schema has no astNode
+    const builtCodeFirstSchema = buildSchema(printSchema(codeFirstSchema));
+
+    const printedSchemaFirstDirective = print(schema.getDirective('complexity').astNode);
+    const printedCodeFirstDirective = print(builtCodeFirstSchema.getDirective('complexity').astNode);
+
+    expect(printedSchemaFirstDirective).to.equal(printedCodeFirstDirective);
+  });
+
+  it('should create complexity directive with configured name', () => {
+    const complexityDirective = createComplexityDirective({name: 'cost'});
+    const codeFirstSchema = new GraphQLSchema({
+      directives: [complexityDirective]
+    });
+
+    // rebuilding code first schema
+    // graphql-js <= 14 prints descriptions in different ways printSchema(schema) vs print(astNode)
+    // and directive from code first schema has no astNode
+    const builtCodeFirstSchema = buildSchema(printSchema(codeFirstSchema));
+
+    const printedSchemaFirstDirective = print(schema.getDirective('cost').astNode);
+    const printedCodeFirstDirective = print(builtCodeFirstSchema.getDirective('cost').astNode);
+
+    expect(printedSchemaFirstDirective).to.equal(printedCodeFirstDirective);
   });
 });
