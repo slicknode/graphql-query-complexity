@@ -33,6 +33,7 @@ import {
 export type ComplexityEstimatorArgs = {
   type: GraphQLCompositeType,
   field: GraphQLField<any, any>,
+  node: FieldNode,
   args: {[key: string]: any},
   childComplexity: number
 }
@@ -250,6 +251,7 @@ export default class QueryComplexity {
                 childComplexity,
                 args,
                 field,
+                node: childNode,
                 type: typeDef
               };
               const validScore = this.estimators.find(estimator => {
