@@ -64,6 +64,7 @@ The function signature is the same as for the main estimator which lets you reus
 type ComplexityEstimatorArgs = {
   type: GraphQLCompositeType,
   field: GraphQLField<any, any>,
+  node: FieldNode,
   args: {[key: string]: any},
   childComplexity: number
 }

@@ -64,7 +64,8 @@ input Filter {
 
 The multipliers can be combined. Configured multipliers that don't have a value or `NULL` are ignored. 
 
-Code first approach can use the `createComplexityDirective` function to generate directive definition:
+If you are using the code first approach you can use the `createComplexityDirective` function to create 
+the complexity directive:
 
 ```typescript
 import {createComplexityDirective} from 'graphql-query-complexity';
