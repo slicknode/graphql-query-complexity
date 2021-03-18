@@ -13,7 +13,7 @@ import {expect} from 'chai';
 
 import schema from './fixtures/schema';
 
-import ComplexityVisitor, {getComplexity} from '../QueryComplexity';
+import ComplexityVisitor, {getComplexity, ComplexityEstimator} from '../QueryComplexity';
 import {
   simpleEstimator,
   directiveEstimator,
@@ -757,5 +757,31 @@ describe('QueryComplexity analysis', () => {
       query,
     });
     expect(complexity).to.equal(41); // 1 for interface, 20 * 2 for complexScalar
+  });
+
+  it('should include the current node in the estimator args', () => {
+    const ast = parse(`
+      query {
+        nonNullItem {
+          scalar
+          complexScalar
+          variableScalar(count: 10)
+        }
+      }
+    `);
+
+    const fieldCountEstimator: ComplexityEstimator = ({ node }) => {
+      if (node.selectionSet) {
+        return 10 * node.selectionSet.selections.length;
+      }
+      return 0;
+    };
+
+    const complexity = getComplexity({
+      estimators: [ fieldCountEstimator ],
+      schema,
+      query: ast
+    });
+    expect(complexity).to.equal(30); // 3 fields on nonNullItem * 10
   });
 });
