@@ -7,6 +7,7 @@
 import {
   getArgumentValues,
   getDirectiveValues,
+  getVariableValues,
 } from 'graphql/execution/values';
 
 import {
@@ -121,6 +122,7 @@ export default class QueryComplexity {
   estimators: Array<ComplexityEstimator>;
   includeDirectiveDef: GraphQLDirective;
   skipDirectiveDef: GraphQLDirective;
+  variableValues: Record<string, any>;
 
   constructor(context: ValidationContext, options: QueryComplexityOptions) {
     if (
@@ -139,6 +141,7 @@ export default class QueryComplexity {
     this.includeDirectiveDef = this.context.getSchema().getDirective('include');
     this.skipDirectiveDef = this.context.getSchema().getDirective('skip');
     this.estimators = options.estimators;
+    this.variableValues = {};
 
     this.OperationDefinition = {
       enter: this.onOperationDefinitionEnter,
@@ -153,6 +156,14 @@ export default class QueryComplexity {
     ) {
       return;
     }
+
+    // Get variable values from variables that are passed from options, merged
+    // with default values defined in the operation
+    this.variableValues = getVariableValues(
+      this.context.getSchema(),
+      operation.variableDefinitions ?? [],
+      this.options.variables ?? {}
+    ).coerced;
 
     switch (operation.operation) {
       case 'query':
@@ -246,7 +257,7 @@ export default class QueryComplexity {
                 const values = getDirectiveValues(
                   this.includeDirectiveDef,
                   childNode,
-                  this.options.variables || {}
+                  this.variableValues || {}
                 );
                 includeNode = values.if;
                 break;
@@ -255,7 +266,7 @@ export default class QueryComplexity {
                 const values = getDirectiveValues(
                   this.skipDirectiveDef,
                   childNode,
-                  this.options.variables || {}
+                  this.variableValues || {}
                 );
                 skipNode = values.if;
                 break;
@@ -282,7 +293,7 @@ export default class QueryComplexity {
                 args = getArgumentValues(
                   field,
                   childNode,
-                  this.options.variables || {}
+                  this.variableValues || {}
                 );
               } catch (e) {
                 return this.context.reportError(e);

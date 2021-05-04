@@ -37,6 +37,21 @@ describe('QueryComplexity analysis', () => {
     expect(complexity).to.equal(1);
   });
 
+  it('should respect @include(if: false) via default variable value', () => {
+    const ast = parse(`
+      query Foo ($shouldSkip: Boolean = false) {
+        variableScalar(count: 10) @include(if: $shouldSkip)
+      }
+    `);
+
+    const complexity = getComplexity({
+      estimators: [simpleEstimator({ defaultComplexity: 1 })],
+      schema,
+      query: ast,
+    });
+    expect(complexity).to.equal(0);
+  });
+
   it('should respect @include(if: false)', () => {
     const ast = parse(`
       query {
@@ -129,6 +144,25 @@ describe('QueryComplexity analysis', () => {
       variables: {
         count: 5,
       },
+    });
+    expect(complexity).to.equal(50);
+  });
+
+  it('should calculate complexity with variables and default value', () => {
+    const ast = parse(`
+      query Q($count: Int = 5) {
+        variableScalar(count: $count)
+      }
+    `);
+
+    const complexity = getComplexity({
+      estimators: [
+        fieldExtensionsEstimator(),
+        simpleEstimator({ defaultComplexity: 1 }),
+      ],
+      schema,
+      query: ast,
+      variables: {},
     });
     expect(complexity).to.equal(50);
   });
