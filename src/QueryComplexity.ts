@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-use-before-define */
 /**
  * Created by Ivo Meißner on 28.07.17.
  */
@@ -11,11 +13,9 @@ import {
   ValidationContext,
   FragmentDefinitionNode,
   OperationDefinitionNode,
-  DirectiveNode,
   FieldNode,
   FragmentSpreadNode,
   InlineFragmentNode,
-  assertCompositeType,
   GraphQLField, isCompositeType, GraphQLCompositeType, GraphQLFieldMap,
   GraphQLSchema, DocumentNode, TypeInfo,
   visit, visitWithTypeInfo,
@@ -131,7 +131,7 @@ export default class QueryComplexity {
     };
   }
 
-  onOperationDefinitionEnter(operation: OperationDefinitionNode) {
+  onOperationDefinitionEnter(operation: OperationDefinitionNode): void {
     if (typeof this.options.operationName === 'string' && this.options.operationName !== operation.name.value) {
       return;
     }
@@ -198,11 +198,12 @@ export default class QueryComplexity {
       const selectionSetComplexities: ComplexityMap = node.selectionSet.selections.reduce(
         (complexities: ComplexityMap, childNode: FieldNode | FragmentSpreadNode | InlineFragmentNode) => {
           // let nodeComplexity = 0;
+          let innerComplexities = complexities;
 
           let includeNode = true;
           let skipNode = false;
 
-          childNode.directives?.forEach((directive: DirectiveNode) => {
+          for (const directive of childNode.directives ?? []) {
             const directiveName = directive.name.value;
             switch (directiveName) {
               case 'include': {
@@ -216,7 +217,7 @@ export default class QueryComplexity {
                 break;
               }
             }
-          });
+          }
 
           if (!includeNode || skipNode) {
             return complexities;
@@ -258,7 +259,7 @@ export default class QueryComplexity {
                 const tmpComplexity = estimator(estimatorArgs);
 
                 if (typeof tmpComplexity === 'number' && !isNaN(tmpComplexity)) {
-                  complexities = addComplexities(
+                  innerComplexities = addComplexities(
                     tmpComplexity,
                     complexities,
                     possibleTypeNames,
@@ -292,14 +293,14 @@ export default class QueryComplexity {
               const nodeComplexity = this.nodeComplexity(fragment, fragmentType);
               if (isAbstractType(fragmentType)) {
                 // Add fragment complexity for all possible types
-                complexities = addComplexities(
+                innerComplexities = addComplexities(
                   nodeComplexity,
                   complexities,
                   this.context.getSchema().getPossibleTypes(fragmentType).map(t => t.name),
                 );
               } else {
                 // Add complexity for object type
-                complexities = addComplexities(
+                innerComplexities = addComplexities(
                   nodeComplexity,
                   complexities,
                   [ fragmentType.name ],
@@ -319,14 +320,14 @@ export default class QueryComplexity {
               const nodeComplexity = this.nodeComplexity(childNode, inlineFragmentType);
               if (isAbstractType(inlineFragmentType)) {
                 // Add fragment complexity for all possible types
-                complexities = addComplexities(
+                innerComplexities = addComplexities(
                   nodeComplexity,
                   complexities,
                   this.context.getSchema().getPossibleTypes(inlineFragmentType).map(t => t.name),
                 );
               } else {
                 // Add complexity for object type
-                complexities = addComplexities(
+                innerComplexities = addComplexities(
                   nodeComplexity,
                   complexities,
                   [ inlineFragmentType.name ],
@@ -335,7 +336,7 @@ export default class QueryComplexity {
               break;
             }
             default: {
-              complexities = addComplexities(
+              innerComplexities = addComplexities(
                 this.nodeComplexity(childNode, typeDef),
                 complexities,
                 possibleTypeNames,
@@ -344,7 +345,7 @@ export default class QueryComplexity {
             }
           }
 
-          return complexities;
+          return innerComplexities;
         }, {});
       // Only return max complexity of all possible types
       if (!selectionSetComplexities) {
@@ -381,8 +382,8 @@ function addComplexities(
   possibleTypes: string[],
 ): ComplexityMap {
   for (const type of possibleTypes) {
-    if (complexityMap.hasOwnProperty(type)) {
-      complexityMap[type] = complexityMap[type] + complexity;
+    if (Object.prototype.hasOwnProperty.call(complexityMap, type)) {
+      complexityMap[type] += complexity;
     } else {
       complexityMap[type] = complexity;
     }
