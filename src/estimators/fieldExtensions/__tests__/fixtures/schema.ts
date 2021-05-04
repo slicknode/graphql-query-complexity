@@ -15,7 +15,7 @@ import {
   GraphQLInterfaceType,
 } from 'graphql';
 
-import {ComplexityEstimatorArgs} from '../../../../QueryComplexity';
+import { ComplexityEstimatorArgs } from '../../../../QueryComplexity';
 
 const Item: GraphQLObjectType = new GraphQLObjectType({
   name: 'Item',
@@ -23,13 +23,14 @@ const Item: GraphQLObjectType = new GraphQLObjectType({
     variableList: {
       type: Item,
       extensions: {
-        complexity: (args: ComplexityEstimatorArgs) => args.childComplexity * (args.args.count || 10),
+        complexity: (args: ComplexityEstimatorArgs) =>
+          args.childComplexity * (args.args.count || 10),
       },
       args: {
         count: {
-          type: GraphQLInt
-        }
-      }
+          type: GraphQLInt,
+        },
+      },
     },
     scalar: { type: GraphQLString },
     complexScalar: {
@@ -41,13 +42,14 @@ const Item: GraphQLObjectType = new GraphQLObjectType({
     variableScalar: {
       type: Item,
       extensions: {
-        complexity: (args: ComplexityEstimatorArgs) => 10 * (args.args.count || 10),
+        complexity: (args: ComplexityEstimatorArgs) =>
+          10 * (args.args.count || 10),
       },
       args: {
         count: {
-          type: GraphQLInt
-        }
-      }
+          type: GraphQLInt,
+        },
+      },
     },
     list: { type: new GraphQLList(Item) },
     nonNullItem: {
@@ -64,18 +66,18 @@ const Item: GraphQLObjectType = new GraphQLObjectType({
 const NameInterface = new GraphQLInterfaceType({
   name: 'NameInterface',
   fields: {
-    name: { type: GraphQLString }
+    name: { type: GraphQLString },
   },
-  resolveType: () => Item
+  resolveType: () => Item,
 });
 
 const SecondItem = new GraphQLObjectType({
   name: 'SecondItem',
   fields: () => ({
-    name: {type: GraphQLString},
-    scalar: {type: GraphQLString}
+    name: { type: GraphQLString },
+    scalar: { type: GraphQLString },
   }),
-  interfaces: [ NameInterface ]
+  interfaces: [NameInterface],
 });
 
 const EnumType = new GraphQLEnumType({
@@ -83,14 +85,14 @@ const EnumType = new GraphQLEnumType({
   values: {
     RED: { value: 0 },
     GREEN: { value: 1 },
-    BLUE: { value: 2 }
-  }
+    BLUE: { value: 2 },
+  },
 });
 
 const Union = new GraphQLUnionType({
   name: 'Union',
-  types: [ Item, SecondItem ],
-  resolveType: () => Item
+  types: [Item, SecondItem],
+  resolveType: () => Item,
 });
 
 const Query = new GraphQLObjectType({
@@ -100,16 +102,17 @@ const Query = new GraphQLObjectType({
     variableList: {
       type: Item,
       extensions: {
-        complexity: (args: ComplexityEstimatorArgs) => args.childComplexity * (args.args.count || 10),
+        complexity: (args: ComplexityEstimatorArgs) =>
+          args.childComplexity * (args.args.count || 10),
       },
       args: {
         count: {
-          type: GraphQLInt
-        }
-      }
+          type: GraphQLInt,
+        },
+      },
     },
-    interface: {type: NameInterface},
-    enum: {type: EnumType},
+    interface: { type: NameInterface },
+    enum: { type: EnumType },
     scalar: { type: GraphQLString },
     complexScalar: {
       type: GraphQLString,
@@ -121,13 +124,14 @@ const Query = new GraphQLObjectType({
     variableScalar: {
       type: Item,
       extensions: {
-        complexity: (args: ComplexityEstimatorArgs) => 10 * (args.args.count || 10),
+        complexity: (args: ComplexityEstimatorArgs) =>
+          10 * (args.args.count || 10),
       },
       args: {
         count: {
-          type: GraphQLInt
-        }
-      }
+          type: GraphQLInt,
+        },
+      },
     },
     list: { type: new GraphQLList(Item) },
     nonNullItem: {
@@ -142,10 +146,10 @@ const Query = new GraphQLObjectType({
       type: Item,
       args: {
         count: {
-          type: new GraphQLNonNull(GraphQLInt)
-        }
-      }
-    }
+          type: new GraphQLNonNull(GraphQLInt),
+        },
+      },
+    },
   }),
 });
 

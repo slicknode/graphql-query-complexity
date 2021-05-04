@@ -21,9 +21,9 @@ const Item: GraphQLObjectType = new GraphQLObjectType({
       type: Item,
       args: {
         count: {
-          type: GraphQLInt
-        }
-      }
+          type: GraphQLInt,
+        },
+      },
     },
     scalar: { type: GraphQLString },
     list: { type: new GraphQLList(Item) },
@@ -41,18 +41,18 @@ const Item: GraphQLObjectType = new GraphQLObjectType({
 const NameInterface = new GraphQLInterfaceType({
   name: 'NameInterface',
   fields: {
-    name: { type: GraphQLString }
+    name: { type: GraphQLString },
   },
-  resolveType: () => Item
+  resolveType: () => Item,
 });
 
 const SecondItem = new GraphQLObjectType({
   name: 'SecondItem',
   fields: () => ({
-    name: {type: GraphQLString},
-    scalar: {type: GraphQLString}
+    name: { type: GraphQLString },
+    scalar: { type: GraphQLString },
   }),
-  interfaces: [ NameInterface ]
+  interfaces: [NameInterface],
 });
 
 const EnumType = new GraphQLEnumType({
@@ -60,14 +60,14 @@ const EnumType = new GraphQLEnumType({
   values: {
     RED: { value: 0 },
     GREEN: { value: 1 },
-    BLUE: { value: 2 }
-  }
+    BLUE: { value: 2 },
+  },
 });
 
 const Union = new GraphQLUnionType({
   name: 'Union',
-  types: [ Item, SecondItem ],
-  resolveType: () => Item
+  types: [Item, SecondItem],
+  resolveType: () => Item,
 });
 
 const Query = new GraphQLObjectType({
@@ -78,21 +78,21 @@ const Query = new GraphQLObjectType({
       type: Item,
       args: {
         count: {
-          type: GraphQLInt
-        }
-      }
+          type: GraphQLInt,
+        },
+      },
     },
-    interface: {type: NameInterface},
-    enum: {type: EnumType},
+    interface: { type: NameInterface },
+    enum: { type: EnumType },
     scalar: { type: GraphQLString },
     union: { type: Union },
     variableScalar: {
       type: Item,
       args: {
         count: {
-          type: GraphQLInt
-        }
-      }
+          type: GraphQLInt,
+        },
+      },
     },
     list: { type: new GraphQLList(Item) },
     nonNullItem: {
@@ -107,10 +107,10 @@ const Query = new GraphQLObjectType({
       type: Item,
       args: {
         count: {
-          type: new GraphQLNonNull(GraphQLInt)
-        }
-      }
-    }
+          type: new GraphQLNonNull(GraphQLInt),
+        },
+      },
+    },
   }),
 });
 

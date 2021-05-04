@@ -10,15 +10,15 @@ import {
   TypeInfo,
   visit,
   visitWithTypeInfo,
-  buildSchema
+  buildSchema,
 } from 'graphql';
 
-import {expect} from 'chai';
+import { expect } from 'chai';
 
 import schema from './fixtures/schema';
 
 import ComplexityVisitor from '../../../QueryComplexity';
-import directiveEstimator, {createComplexityDirective} from '../index';
+import directiveEstimator, { createComplexityDirective } from '../index';
 import { CompatibleValidationContext } from '../../../__tests__/fixtures/CompatibleValidationContext';
 
 describe('directiveEstimator analysis', () => {
@@ -34,9 +34,7 @@ describe('directiveEstimator analysis', () => {
     const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
-      estimators: [
-        directiveEstimator()
-      ]
+      estimators: [directiveEstimator()],
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -53,9 +51,7 @@ describe('directiveEstimator analysis', () => {
     const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
-      estimators: [
-        directiveEstimator()
-      ]
+      estimators: [directiveEstimator()],
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -72,9 +68,7 @@ describe('directiveEstimator analysis', () => {
     const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
-      estimators: [
-        directiveEstimator()
-      ]
+      estimators: [directiveEstimator()],
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -93,9 +87,9 @@ describe('directiveEstimator analysis', () => {
       maximumComplexity: 100,
       estimators: [
         directiveEstimator({
-          name: 'cost'
-        })
-      ]
+          name: 'cost',
+        }),
+      ],
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -114,9 +108,7 @@ describe('directiveEstimator analysis', () => {
     const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
-      estimators: [
-        directiveEstimator()
-      ]
+      estimators: [directiveEstimator()],
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -135,9 +127,7 @@ describe('directiveEstimator analysis', () => {
     const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
-      estimators: [
-        directiveEstimator()
-      ]
+      estimators: [directiveEstimator()],
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -156,9 +146,7 @@ describe('directiveEstimator analysis', () => {
     const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
-      estimators: [
-        directiveEstimator()
-      ]
+      estimators: [directiveEstimator()],
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -177,9 +165,7 @@ describe('directiveEstimator analysis', () => {
     const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
-      estimators: [
-        directiveEstimator()
-      ]
+      estimators: [directiveEstimator()],
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -198,9 +184,7 @@ describe('directiveEstimator analysis', () => {
     const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
-      estimators: [
-        directiveEstimator()
-      ]
+      estimators: [directiveEstimator()],
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -219,9 +203,7 @@ describe('directiveEstimator analysis', () => {
     const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
-      estimators: [
-        directiveEstimator()
-      ]
+      estimators: [directiveEstimator()],
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -238,22 +220,20 @@ describe('directiveEstimator analysis', () => {
     const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
-      estimators: [
-        directiveEstimator()
-      ]
+      estimators: [directiveEstimator()],
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
     expect(context.getErrors().length).to.equal(1);
     expect(context.getErrors()[0].message).to.include(
-      'No complexity could be calculated for field Query.noDirective',
+      'No complexity could be calculated for field Query.noDirective'
     );
   });
 
   it('should create complexity directive that can be used to generate directive definition', () => {
     const complexityDirective = createComplexityDirective();
     const codeFirstSchema = new GraphQLSchema({
-      directives: [ complexityDirective ]
+      directives: [complexityDirective],
     });
 
     // rebuilding code first schema
@@ -261,16 +241,20 @@ describe('directiveEstimator analysis', () => {
     // and directive from code first schema has no astNode
     const builtCodeFirstSchema = buildSchema(printSchema(codeFirstSchema));
 
-    const printedSchemaFirstDirective = print(schema.getDirective('complexity').astNode);
-    const printedCodeFirstDirective = print(builtCodeFirstSchema.getDirective('complexity').astNode);
+    const printedSchemaFirstDirective = print(
+      schema.getDirective('complexity').astNode
+    );
+    const printedCodeFirstDirective = print(
+      builtCodeFirstSchema.getDirective('complexity').astNode
+    );
 
     expect(printedSchemaFirstDirective).to.equal(printedCodeFirstDirective);
   });
 
   it('should create complexity directive with configured name', () => {
-    const complexityDirective = createComplexityDirective({name: 'cost'});
+    const complexityDirective = createComplexityDirective({ name: 'cost' });
     const codeFirstSchema = new GraphQLSchema({
-      directives: [ complexityDirective ]
+      directives: [complexityDirective],
     });
 
     // rebuilding code first schema
@@ -278,8 +262,12 @@ describe('directiveEstimator analysis', () => {
     // and directive from code first schema has no astNode
     const builtCodeFirstSchema = buildSchema(printSchema(codeFirstSchema));
 
-    const printedSchemaFirstDirective = print(schema.getDirective('cost').astNode);
-    const printedCodeFirstDirective = print(builtCodeFirstSchema.getDirective('cost').astNode);
+    const printedSchemaFirstDirective = print(
+      schema.getDirective('cost').astNode
+    );
+    const printedCodeFirstDirective = print(
+      builtCodeFirstSchema.getDirective('cost').astNode
+    );
 
     expect(printedSchemaFirstDirective).to.equal(printedCodeFirstDirective);
   });

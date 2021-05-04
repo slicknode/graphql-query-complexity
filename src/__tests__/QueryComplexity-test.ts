@@ -2,18 +2,16 @@
  * Created by Ivo Meißner on 28.07.17.
  */
 
-import {
-  parse,
-  TypeInfo,
-  visit,
-  visitWithTypeInfo,
-} from 'graphql';
+import { parse, TypeInfo, visit, visitWithTypeInfo } from 'graphql';
 
-import {expect} from 'chai';
+import { expect } from 'chai';
 
 import schema from './fixtures/schema';
 
-import ComplexityVisitor, {getComplexity, ComplexityEstimator} from '../QueryComplexity';
+import ComplexityVisitor, {
+  getComplexity,
+  ComplexityEstimator,
+} from '../QueryComplexity';
 import {
   simpleEstimator,
   directiveEstimator,
@@ -32,11 +30,9 @@ describe('QueryComplexity analysis', () => {
     `);
 
     const complexity = getComplexity({
-      estimators: [
-        simpleEstimator({defaultComplexity: 1})
-      ],
+      estimators: [simpleEstimator({ defaultComplexity: 1 })],
       schema,
-      query: ast
+      query: ast,
     });
     expect(complexity).to.equal(1);
   });
@@ -49,11 +45,9 @@ describe('QueryComplexity analysis', () => {
     `);
 
     const complexity = getComplexity({
-      estimators: [
-        simpleEstimator({defaultComplexity: 1})
-      ],
+      estimators: [simpleEstimator({ defaultComplexity: 1 })],
       schema,
-      query: ast
+      query: ast,
     });
     expect(complexity).to.equal(0);
   });
@@ -66,11 +60,9 @@ describe('QueryComplexity analysis', () => {
     `);
 
     const complexity = getComplexity({
-      estimators: [
-        simpleEstimator({defaultComplexity: 1})
-      ],
+      estimators: [simpleEstimator({ defaultComplexity: 1 })],
       schema,
-      query: ast
+      query: ast,
     });
     expect(complexity).to.equal(1);
   });
@@ -83,11 +75,9 @@ describe('QueryComplexity analysis', () => {
     `);
 
     const complexity = getComplexity({
-      estimators: [
-        simpleEstimator({defaultComplexity: 1})
-      ],
+      estimators: [simpleEstimator({ defaultComplexity: 1 })],
       schema,
-      query: ast
+      query: ast,
     });
     expect(complexity).to.equal(0);
   });
@@ -100,11 +90,9 @@ describe('QueryComplexity analysis', () => {
     `);
 
     const complexity = getComplexity({
-      estimators: [
-        simpleEstimator({defaultComplexity: 1})
-      ],
+      estimators: [simpleEstimator({ defaultComplexity: 1 })],
       schema,
-      query: ast
+      query: ast,
     });
     expect(complexity).to.equal(1);
   });
@@ -117,11 +105,9 @@ describe('QueryComplexity analysis', () => {
     `);
 
     const complexity = getComplexity({
-      estimators: [
-        simpleEstimator({defaultComplexity: 1})
-      ],
+      estimators: [simpleEstimator({ defaultComplexity: 1 })],
       schema,
-      query: ast
+      query: ast,
     });
     expect(complexity).to.equal(1);
   });
@@ -136,7 +122,7 @@ describe('QueryComplexity analysis', () => {
     const complexity = getComplexity({
       estimators: [
         fieldExtensionsEstimator(),
-        simpleEstimator({defaultComplexity: 1})
+        simpleEstimator({ defaultComplexity: 1 }),
       ],
       schema,
       query: ast,
@@ -157,9 +143,7 @@ describe('QueryComplexity analysis', () => {
     const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
-      estimators: [
-        simpleEstimator({defaultComplexity: -100})
-      ]
+      estimators: [simpleEstimator({ defaultComplexity: -100 })],
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -177,9 +161,7 @@ describe('QueryComplexity analysis', () => {
     const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
-      estimators: [
-        simpleEstimator({defaultComplexity: 10})
-      ]
+      estimators: [simpleEstimator({ defaultComplexity: 10 })],
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -198,9 +180,7 @@ describe('QueryComplexity analysis', () => {
     const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
-      estimators: [
-        simpleEstimator({defaultComplexity: 10})
-      ]
+      estimators: [simpleEstimator({ defaultComplexity: 10 })],
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -220,9 +200,7 @@ describe('QueryComplexity analysis', () => {
     const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
-      estimators: [
-        simpleEstimator({defaultComplexity: 10})
-      ]
+      estimators: [simpleEstimator({ defaultComplexity: 10 })],
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -239,9 +217,7 @@ describe('QueryComplexity analysis', () => {
     const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
-      estimators: [
-        simpleEstimator({defaultComplexity: 10})
-      ]
+      estimators: [simpleEstimator({ defaultComplexity: 10 })],
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -258,9 +234,7 @@ describe('QueryComplexity analysis', () => {
     const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
-      estimators: [
-        simpleEstimator({defaultComplexity: 10})
-      ]
+      estimators: [simpleEstimator({ defaultComplexity: 10 })],
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -280,9 +254,9 @@ describe('QueryComplexity analysis', () => {
       estimators: [
         fieldExtensionsEstimator(),
         simpleEstimator({
-          defaultComplexity: 1
-        })
-      ]
+          defaultComplexity: 1,
+        }),
+      ],
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -310,9 +284,9 @@ describe('QueryComplexity analysis', () => {
       estimators: [
         fieldExtensionsEstimator(),
         simpleEstimator({
-          defaultComplexity: 1
-        })
-      ]
+          defaultComplexity: 1,
+        }),
+      ],
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -337,9 +311,9 @@ describe('QueryComplexity analysis', () => {
       estimators: [
         fieldExtensionsEstimator(),
         simpleEstimator({
-          defaultComplexity: 1
-        })
-      ]
+          defaultComplexity: 1,
+        }),
+      ],
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -364,9 +338,9 @@ describe('QueryComplexity analysis', () => {
       estimators: [
         fieldExtensionsEstimator(),
         simpleEstimator({
-          defaultComplexity: 1
-        })
-      ]
+          defaultComplexity: 1,
+        }),
+      ],
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -391,9 +365,9 @@ describe('QueryComplexity analysis', () => {
       estimators: [
         fieldExtensionsEstimator(),
         simpleEstimator({
-          defaultComplexity: 1
-        })
-      ]
+          defaultComplexity: 1,
+        }),
+      ],
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -417,9 +391,9 @@ describe('QueryComplexity analysis', () => {
       estimators: [
         fieldExtensionsEstimator(),
         simpleEstimator({
-          defaultComplexity: 1
-        })
-      ]
+          defaultComplexity: 1,
+        }),
+      ],
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -439,9 +413,9 @@ describe('QueryComplexity analysis', () => {
       estimators: [
         fieldExtensionsEstimator(),
         simpleEstimator({
-          defaultComplexity: 1
-        })
-      ]
+          defaultComplexity: 1,
+        }),
+      ],
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -460,13 +434,15 @@ describe('QueryComplexity analysis', () => {
       estimators: [
         fieldExtensionsEstimator(),
         simpleEstimator({
-          defaultComplexity: 1
-        })
-      ]
+          defaultComplexity: 1,
+        }),
+      ],
     });
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
     expect(context.getErrors().length).to.equal(1);
-    expect(context.getErrors()[0].message).to.equal('Argument "count" of required type "Int!" was not provided.');
+    expect(context.getErrors()[0].message).to.equal(
+      'Argument "count" of required type "Int!" was not provided.'
+    );
   });
 
   it('should report error when no estimator is configured', () => {
@@ -478,13 +454,13 @@ describe('QueryComplexity analysis', () => {
     const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
-      estimators: []
+      estimators: [],
     });
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
     expect(context.getErrors().length).to.equal(1);
     expect(context.getErrors()[0].message).to.equal(
       'No complexity could be calculated for field Query.scalar. ' +
-      'At least one complexity estimator has to return a complexity score.'
+        'At least one complexity estimator has to return a complexity score.'
     );
   });
 
@@ -497,15 +473,13 @@ describe('QueryComplexity analysis', () => {
     const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
-      estimators: [
-        fieldExtensionsEstimator()
-      ]
+      estimators: [fieldExtensionsEstimator()],
     });
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
     expect(context.getErrors().length).to.equal(1);
     expect(context.getErrors()[0].message).to.equal(
       'No complexity could be calculated for field Query.scalar. ' +
-      'At least one complexity estimator has to return a complexity score.'
+        'At least one complexity estimator has to return a complexity score.'
     );
   });
 
@@ -519,11 +493,9 @@ describe('QueryComplexity analysis', () => {
     `);
 
     const complexity = getComplexity({
-      estimators: [
-        directiveEstimator(),
-      ],
+      estimators: [directiveEstimator()],
       schema,
-      query: ast
+      query: ast,
     });
     expect(Number.isNaN(complexity)).to.equal(true);
   });
@@ -541,11 +513,11 @@ describe('QueryComplexity analysis', () => {
       estimators: [
         directiveEstimator(),
         simpleEstimator({
-          defaultComplexity: 1
-        })
+          defaultComplexity: 1,
+        }),
       ],
       schema,
-      query: ast
+      query: ast,
     });
     expect(complexity).to.equal(2);
   });
@@ -565,21 +537,21 @@ describe('QueryComplexity analysis', () => {
     const complexity1 = getComplexity({
       estimators: [
         fieldExtensionsEstimator(),
-        simpleEstimator({defaultComplexity: 1})
+        simpleEstimator({ defaultComplexity: 1 }),
       ],
       schema,
-      query: ast
+      query: ast,
     });
     expect(complexity1).to.equal(41);
 
     const complexity2 = getComplexity({
       estimators: [
         fieldExtensionsEstimator(),
-        simpleEstimator({defaultComplexity: 1})
+        simpleEstimator({ defaultComplexity: 1 }),
       ],
       schema,
       query: ast,
-      operationName: 'Secondary'
+      operationName: 'Secondary',
     });
     expect(complexity2).to.equal(20);
   });
@@ -604,7 +576,7 @@ describe('QueryComplexity analysis', () => {
     const complexity = getComplexity({
       estimators: [
         fieldExtensionsEstimator(),
-        simpleEstimator({defaultComplexity: 1})
+        simpleEstimator({ defaultComplexity: 1 }),
       ],
       schema,
       query,
@@ -634,7 +606,7 @@ describe('QueryComplexity analysis', () => {
     const complexity = getComplexity({
       estimators: [
         fieldExtensionsEstimator(),
-        simpleEstimator({defaultComplexity: 0})
+        simpleEstimator({ defaultComplexity: 0 }),
       ],
       schema,
       query,
@@ -665,7 +637,7 @@ describe('QueryComplexity analysis', () => {
     const complexity = getComplexity({
       estimators: [
         fieldExtensionsEstimator(),
-        simpleEstimator({defaultComplexity: 0})
+        simpleEstimator({ defaultComplexity: 0 }),
       ],
       schema,
       query,
@@ -691,7 +663,7 @@ describe('QueryComplexity analysis', () => {
     const complexity = getComplexity({
       estimators: [
         fieldExtensionsEstimator(),
-        simpleEstimator({defaultComplexity: 1})
+        simpleEstimator({ defaultComplexity: 1 }),
       ],
       schema,
       query,
@@ -720,7 +692,7 @@ describe('QueryComplexity analysis', () => {
     const complexity = getComplexity({
       estimators: [
         fieldExtensionsEstimator(),
-        simpleEstimator({defaultComplexity: 1})
+        simpleEstimator({ defaultComplexity: 1 }),
       ],
       schema,
       query,
@@ -751,7 +723,7 @@ describe('QueryComplexity analysis', () => {
     const complexity = getComplexity({
       estimators: [
         fieldExtensionsEstimator(),
-        simpleEstimator({defaultComplexity: 1})
+        simpleEstimator({ defaultComplexity: 1 }),
       ],
       schema,
       query,
@@ -778,9 +750,9 @@ describe('QueryComplexity analysis', () => {
     };
 
     const complexity = getComplexity({
-      estimators: [ fieldCountEstimator ],
+      estimators: [fieldCountEstimator],
       schema,
-      query: ast
+      query: ast,
     });
     expect(complexity).to.equal(30); // 3 fields on nonNullItem * 10
   });

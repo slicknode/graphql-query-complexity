@@ -2,9 +2,7 @@
  * Created by Ivo Meißner on 28.07.17.
  */
 
-import {
-  buildSchema
-} from 'graphql';
+import { buildSchema } from 'graphql';
 
 export default buildSchema(`
 """Define a relation between the field and other nodes"""

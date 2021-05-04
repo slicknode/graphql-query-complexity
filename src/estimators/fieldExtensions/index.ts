@@ -1,4 +1,7 @@
-import {ComplexityEstimator, ComplexityEstimatorArgs} from '../../QueryComplexity';
+import {
+  ComplexityEstimator,
+  ComplexityEstimatorArgs,
+} from '../../QueryComplexity';
 
 export default function (): ComplexityEstimator {
   return (args: ComplexityEstimatorArgs): number | void => {
