@@ -1,6 +1,6 @@
-import { GraphQLError, TypeInfo, ValidationContext } from "graphql";
-import { GraphQLSchema } from "graphql/type/schema";
-import { DocumentNode } from "graphql/language/ast";
+import { GraphQLError, TypeInfo, ValidationContext } from 'graphql';
+import { GraphQLSchema } from 'graphql/type/schema';
+import { DocumentNode } from 'graphql/language/ast';
 
 /**
  * This class is used to test that validation errors are raised correctly
@@ -18,11 +18,11 @@ export class CompatibleValidationContext extends ValidationContext {
     private errors: GraphQLError[] = []
 
     constructor(schema: GraphQLSchema, ast: DocumentNode, typeInfo: TypeInfo) {
-        super(schema, ast, typeInfo, err => this.errors.push(err));
+      super(schema, ast, typeInfo, err => this.errors.push(err));
     }
 
     getErrors(): ReadonlyArray<GraphQLError> {
-        // @ts-ignore
-        return super.getErrors ? super.getErrors() : this.errors
+      // @ts-ignore
+      return super.getErrors ? super.getErrors() : this.errors;
     }
 }

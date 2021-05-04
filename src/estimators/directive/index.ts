@@ -5,7 +5,7 @@ import { DirectiveLocation } from 'graphql/language/directiveLocation';
 import get from 'lodash.get';
 
 export type ComplexityDirectiveOptions = {
-  name?: string
+  name?: string;
 }
 
 export function createComplexityDirective(options?: ComplexityDirectiveOptions) {

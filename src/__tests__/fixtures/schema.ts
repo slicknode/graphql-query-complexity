@@ -108,7 +108,7 @@ const SDL = new GraphQLObjectType({
   fields: {
     sdl: { type: GraphQLString }
   },
-  interfaces: () => [SDLInterface],
+  interfaces: () => [ SDLInterface ],
 });
 
 const Query = new GraphQLObjectType({
@@ -161,7 +161,7 @@ const Query = new GraphQLObjectType({
     },
     _service: {type: SDLInterface},
   }),
-  interfaces: () => [NameInterface, UnionInterface,]
+  interfaces: () => [ NameInterface, UnionInterface, ]
 });
 
 export default new GraphQLSchema({
