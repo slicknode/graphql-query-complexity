@@ -63,14 +63,6 @@ const NameInterface = new GraphQLInterfaceType({
   resolveType: () => Item
 });
 
-const UnionInterface = new GraphQLInterfaceType({
-  name: 'UnionInterface',
-  fields: () => ({
-    union: { type: Union }
-  }),
-  resolveType: () => Item
-});
-
 const SecondItem = new GraphQLObjectType({
   name: 'SecondItem',
   fields: () => ({
@@ -92,6 +84,14 @@ const EnumType = new GraphQLEnumType({
 const Union = new GraphQLUnionType({
   name: 'Union',
   types: [ Item, SecondItem ],
+  resolveType: () => Item
+});
+
+const UnionInterface = new GraphQLInterfaceType({
+  name: 'UnionInterface',
+  fields: () => ({
+    union: { type: Union }
+  }),
   resolveType: () => Item
 });
 
