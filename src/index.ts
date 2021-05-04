@@ -10,7 +10,9 @@ import { QueryComplexityOptions } from './QueryComplexity';
 export * from './estimators';
 export * from './QueryComplexity';
 
-export default function createQueryComplexityValidator(options: QueryComplexityOptions): (context: ValidationContext) => QueryComplexity {
+export default function createQueryComplexityValidator(
+  options: QueryComplexityOptions
+): (context: ValidationContext) => QueryComplexity {
   return (context: ValidationContext): QueryComplexity => {
     return new QueryComplexity(context, options);
   };

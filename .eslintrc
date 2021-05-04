@@ -13,15 +13,8 @@
     "env": {
         "browser": true,
         "es6": true,
-        "node": true
-    },
-
-    "globals": {
-        "describe": true,
-        "expect": true,
-        "it": true,
-        "before": true,
-        "after": true
+        "node": true,
+        "mocha": true
     },
 
     "parserOptions": {

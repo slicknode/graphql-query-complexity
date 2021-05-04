@@ -5,10 +5,10 @@ import { DirectiveLocation } from 'graphql/language/directiveLocation';
 import get from 'lodash.get';
 
 export type ComplexityDirectiveOptions = {
-  name?: string
+  name?: string;
 }
 
-export function createComplexityDirective(options?: ComplexityDirectiveOptions) {
+export function createComplexityDirective(options?: ComplexityDirectiveOptions): GraphQLDirective {
   const mergedOptions = {
     name: 'complexity',
     ...(options || {})
@@ -35,7 +35,7 @@ export function createComplexityDirective(options?: ComplexityDirectiveOptions) 
 export default function (options: ComplexityDirectiveOptions = {}): ComplexityEstimator {
   const directive = createComplexityDirective(options);
 
-  return (args: ComplexityEstimatorArgs) => {
+  return (args: ComplexityEstimatorArgs): number | void => {
     // Ignore if astNode is undefined
     if (!args.field.astNode) {
       return;

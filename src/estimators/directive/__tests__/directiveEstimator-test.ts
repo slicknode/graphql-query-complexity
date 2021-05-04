@@ -253,7 +253,7 @@ describe('directiveEstimator analysis', () => {
   it('should create complexity directive that can be used to generate directive definition', () => {
     const complexityDirective = createComplexityDirective();
     const codeFirstSchema = new GraphQLSchema({
-      directives: [complexityDirective]
+      directives: [ complexityDirective ]
     });
 
     // rebuilding code first schema
@@ -270,7 +270,7 @@ describe('directiveEstimator analysis', () => {
   it('should create complexity directive with configured name', () => {
     const complexityDirective = createComplexityDirective({name: 'cost'});
     const codeFirstSchema = new GraphQLSchema({
-      directives: [complexityDirective]
+      directives: [ complexityDirective ]
     });
 
     // rebuilding code first schema

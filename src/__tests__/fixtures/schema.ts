@@ -63,14 +63,6 @@ const NameInterface = new GraphQLInterfaceType({
   resolveType: () => Item
 });
 
-const UnionInterface = new GraphQLInterfaceType({
-  name: 'UnionInterface',
-  fields: () => ({
-    union: { type: Union }
-  }),
-  resolveType: () => Item
-});
-
 const SecondItem = new GraphQLObjectType({
   name: 'SecondItem',
   fields: () => ({
@@ -95,6 +87,14 @@ const Union = new GraphQLUnionType({
   resolveType: () => Item
 });
 
+const UnionInterface = new GraphQLInterfaceType({
+  name: 'UnionInterface',
+  fields: () => ({
+    union: { type: Union }
+  }),
+  resolveType: () => Item
+});
+
 const SDLInterface = new GraphQLInterfaceType({
   name: 'SDLInterface',
   fields: {
@@ -108,7 +108,7 @@ const SDL = new GraphQLObjectType({
   fields: {
     sdl: { type: GraphQLString }
   },
-  interfaces: () => [SDLInterface],
+  interfaces: () => [ SDLInterface ],
 });
 
 const Query = new GraphQLObjectType({
@@ -161,7 +161,7 @@ const Query = new GraphQLObjectType({
     },
     _service: {type: SDLInterface},
   }),
-  interfaces: () => [NameInterface, UnionInterface,]
+  interfaces: () => [ NameInterface, UnionInterface, ]
 });
 
 export default new GraphQLSchema({
