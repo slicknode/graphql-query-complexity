@@ -2,14 +2,9 @@
  * Created by Ivo Meißner on 28.07.17.
  */
 
-import {
-  parse,
-  TypeInfo,
-  visit,
-  visitWithTypeInfo,
-} from 'graphql';
+import { parse, TypeInfo, visit, visitWithTypeInfo } from 'graphql';
 
-import {expect} from 'chai';
+import { expect } from 'chai';
 
 import schema from './fixtures/schema';
 
@@ -34,9 +29,9 @@ describe('fieldExtensions estimator', () => {
       estimators: [
         fieldExtensionsEstimator(),
         simpleEstimator({
-          defaultComplexity: 1
-        })
-      ]
+          defaultComplexity: 1,
+        }),
+      ],
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -56,9 +51,9 @@ describe('fieldExtensions estimator', () => {
       estimators: [
         fieldExtensionsEstimator(),
         simpleEstimator({
-          defaultComplexity: 1
-        })
-      ]
+          defaultComplexity: 1,
+        }),
+      ],
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -78,9 +73,9 @@ describe('fieldExtensions estimator', () => {
       estimators: [
         fieldExtensionsEstimator(),
         simpleEstimator({
-          defaultComplexity: 1
-        })
-      ]
+          defaultComplexity: 1,
+        }),
+      ],
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -100,9 +95,9 @@ describe('fieldExtensions estimator', () => {
       estimators: [
         fieldExtensionsEstimator(),
         simpleEstimator({
-          defaultComplexity: 1
-        })
-      ]
+          defaultComplexity: 1,
+        }),
+      ],
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -122,9 +117,9 @@ describe('fieldExtensions estimator', () => {
       estimators: [
         fieldExtensionsEstimator(),
         simpleEstimator({
-          defaultComplexity: 1
-        })
-      ]
+          defaultComplexity: 1,
+        }),
+      ],
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -152,9 +147,9 @@ describe('fieldExtensions estimator', () => {
       estimators: [
         fieldExtensionsEstimator(),
         simpleEstimator({
-          defaultComplexity: 1
-        })
-      ]
+          defaultComplexity: 1,
+        }),
+      ],
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -179,9 +174,9 @@ describe('fieldExtensions estimator', () => {
       estimators: [
         fieldExtensionsEstimator(),
         simpleEstimator({
-          defaultComplexity: 1
-        })
-      ]
+          defaultComplexity: 1,
+        }),
+      ],
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -206,9 +201,9 @@ describe('fieldExtensions estimator', () => {
       estimators: [
         fieldExtensionsEstimator(),
         simpleEstimator({
-          defaultComplexity: 1
-        })
-      ]
+          defaultComplexity: 1,
+        }),
+      ],
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -233,9 +228,9 @@ describe('fieldExtensions estimator', () => {
       estimators: [
         fieldExtensionsEstimator(),
         simpleEstimator({
-          defaultComplexity: 1
-        })
-      ]
+          defaultComplexity: 1,
+        }),
+      ],
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -259,9 +254,9 @@ describe('fieldExtensions estimator', () => {
       estimators: [
         fieldExtensionsEstimator(),
         simpleEstimator({
-          defaultComplexity: 1
-        })
-      ]
+          defaultComplexity: 1,
+        }),
+      ],
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -281,9 +276,9 @@ describe('fieldExtensions estimator', () => {
       estimators: [
         fieldExtensionsEstimator(),
         simpleEstimator({
-          defaultComplexity: 1
-        })
-      ]
+          defaultComplexity: 1,
+        }),
+      ],
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -302,12 +297,14 @@ describe('fieldExtensions estimator', () => {
       estimators: [
         fieldExtensionsEstimator(),
         simpleEstimator({
-          defaultComplexity: 1
-        })
-      ]
+          defaultComplexity: 1,
+        }),
+      ],
     });
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
     expect(context.getErrors().length).to.equal(1);
-    expect(context.getErrors()[0].message).to.equal('Argument "count" of required type "Int!" was not provided.');
+    expect(context.getErrors()[0].message).to.equal(
+      'Argument "count" of required type "Int!" was not provided.'
+    );
   });
 });

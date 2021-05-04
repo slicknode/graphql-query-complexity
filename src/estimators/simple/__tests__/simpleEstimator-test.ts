@@ -2,14 +2,9 @@
  * Created by Ivo Meißner on 28.07.17.
  */
 
-import {
-  parse,
-  TypeInfo,
-  visit,
-  visitWithTypeInfo,
-} from 'graphql';
+import { parse, TypeInfo, visit, visitWithTypeInfo } from 'graphql';
 
-import {expect} from 'chai';
+import { expect } from 'chai';
 
 import schema from './fixtures/schema';
 import simpleEstimator from '../index';
@@ -30,9 +25,7 @@ describe('simple estimator', () => {
     const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
-      estimators: [
-        simpleEstimator({defaultComplexity: 1})
-      ]
+      estimators: [simpleEstimator({ defaultComplexity: 1 })],
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -49,9 +42,7 @@ describe('simple estimator', () => {
     const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
-      estimators: [
-        simpleEstimator({defaultComplexity: 10})
-      ]
+      estimators: [simpleEstimator({ defaultComplexity: 10 })],
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -68,9 +59,7 @@ describe('simple estimator', () => {
     const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
-      estimators: [
-        simpleEstimator({defaultComplexity: -10})
-      ]
+      estimators: [simpleEstimator({ defaultComplexity: -10 })],
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -87,9 +76,7 @@ describe('simple estimator', () => {
     const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
-      estimators: [
-        simpleEstimator({defaultComplexity: 1000})
-      ]
+      estimators: [simpleEstimator({ defaultComplexity: 1000 })],
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -114,9 +101,7 @@ describe('simple estimator', () => {
     const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
-      estimators: [
-        simpleEstimator({defaultComplexity: 1})
-      ]
+      estimators: [simpleEstimator({ defaultComplexity: 1 })],
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -138,9 +123,7 @@ describe('simple estimator', () => {
     const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
-      estimators: [
-        simpleEstimator({defaultComplexity: 1})
-      ]
+      estimators: [simpleEstimator({ defaultComplexity: 1 })],
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -161,9 +144,7 @@ describe('simple estimator', () => {
     const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
-      estimators: [
-        simpleEstimator({defaultComplexity: 1})
-      ]
+      estimators: [simpleEstimator({ defaultComplexity: 1 })],
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -185,9 +166,7 @@ describe('simple estimator', () => {
     const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
-      estimators: [
-        simpleEstimator({defaultComplexity: 1})
-      ]
+      estimators: [simpleEstimator({ defaultComplexity: 1 })],
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -208,9 +187,7 @@ describe('simple estimator', () => {
     const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
-      estimators: [
-        simpleEstimator({defaultComplexity: 1})
-      ]
+      estimators: [simpleEstimator({ defaultComplexity: 1 })],
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
@@ -227,9 +204,7 @@ describe('simple estimator', () => {
     const context = new CompatibleValidationContext(schema, ast, typeInfo);
     const visitor = new ComplexityVisitor(context, {
       maximumComplexity: 100,
-      estimators: [
-        simpleEstimator({defaultComplexity: 1})
-      ]
+      estimators: [simpleEstimator({ defaultComplexity: 1 })],
     });
 
     visit(ast, visitWithTypeInfo(typeInfo, visitor));

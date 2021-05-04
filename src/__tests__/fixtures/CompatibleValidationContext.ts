@@ -15,15 +15,15 @@ import { DocumentNode } from 'graphql/language/ast';
  * `onError` API.
  */
 export class CompatibleValidationContext extends ValidationContext {
-    private errors: GraphQLError[] = []
+  private errors: GraphQLError[] = [];
 
-    constructor(schema: GraphQLSchema, ast: DocumentNode, typeInfo: TypeInfo) {
-      super(schema, ast, typeInfo, err => this.errors.push(err));
-    }
+  constructor(schema: GraphQLSchema, ast: DocumentNode, typeInfo: TypeInfo) {
+    super(schema, ast, typeInfo, (err) => this.errors.push(err));
+  }
 
-    getErrors(): ReadonlyArray<GraphQLError> {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-      // @ts-ignore
-      return super.getErrors ? super.getErrors() : this.errors;
-    }
+  getErrors(): ReadonlyArray<GraphQLError> {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+    // @ts-ignore
+    return super.getErrors ? super.getErrors() : this.errors;
+  }
 }

@@ -16,29 +16,37 @@ import {
   FieldNode,
   FragmentSpreadNode,
   InlineFragmentNode,
-  GraphQLField, isCompositeType, GraphQLCompositeType, GraphQLFieldMap,
-  GraphQLSchema, DocumentNode, TypeInfo,
-  visit, visitWithTypeInfo,
-  GraphQLDirective, isAbstractType, GraphQLNamedType,
-} from 'graphql';
-import {
+  GraphQLField,
+  isCompositeType,
+  GraphQLCompositeType,
+  GraphQLFieldMap,
+  GraphQLSchema,
+  DocumentNode,
+  TypeInfo,
+  visit,
+  visitWithTypeInfo,
+  GraphQLDirective,
+  isAbstractType,
+  GraphQLNamedType,
   GraphQLUnionType,
   GraphQLObjectType,
   GraphQLInterfaceType,
   Kind,
   getNamedType,
-  GraphQLError
+  GraphQLError,
 } from 'graphql';
 
 export type ComplexityEstimatorArgs = {
   type: GraphQLCompositeType;
   field: GraphQLField<any, any>;
   node: FieldNode;
-  args: {[key: string]: any};
+  args: { [key: string]: any };
   childComplexity: number;
-}
+};
 
-export type ComplexityEstimator = (options: ComplexityEstimatorArgs) => number | void;
+export type ComplexityEstimator = (
+  options: ComplexityEstimatorArgs
+) => number | void;
 
 // Complexity can be anything that is supported by the configured estimators
 export type Complexity = any;
@@ -46,7 +54,7 @@ export type Complexity = any;
 // Map of complexities for possible types (of Union, Interface types)
 type ComplexityMap = {
   [typeName: string]: number;
-}
+};
 
 export interface QueryComplexityOptions {
   // The maximum allowed query complexity, queries above this threshold will be rejected
@@ -87,13 +95,18 @@ export function getComplexity(options: {
 }): number {
   const typeInfo = new TypeInfo(options.schema);
 
-  const context = new ValidationContext(options.schema, options.query, typeInfo, () => null);
+  const context = new ValidationContext(
+    options.schema,
+    options.query,
+    typeInfo,
+    () => null
+  );
   const visitor = new QueryComplexity(context, {
     // Maximum complexity does not matter since we're only interested in the calculated complexity.
     maximumComplexity: Infinity,
     estimators: options.estimators,
     variables: options.variables,
-    operationName: options.operationName
+    operationName: options.operationName,
   });
 
   visit(options.query, visitWithTypeInfo(typeInfo, visitor));
@@ -109,11 +122,13 @@ export default class QueryComplexity {
   includeDirectiveDef: GraphQLDirective;
   skipDirectiveDef: GraphQLDirective;
 
-  constructor(
-    context: ValidationContext,
-    options: QueryComplexityOptions
-  ) {
-    if (!(typeof options.maximumComplexity === 'number' && options.maximumComplexity > 0)) {
+  constructor(context: ValidationContext, options: QueryComplexityOptions) {
+    if (
+      !(
+        typeof options.maximumComplexity === 'number' &&
+        options.maximumComplexity > 0
+      )
+    ) {
       throw new Error('Maximum query complexity must be a positive number');
     }
 
@@ -127,12 +142,15 @@ export default class QueryComplexity {
 
     this.OperationDefinition = {
       enter: this.onOperationDefinitionEnter,
-      leave: this.onOperationDefinitionLeave
+      leave: this.onOperationDefinitionLeave,
     };
   }
 
   onOperationDefinitionEnter(operation: OperationDefinitionNode): void {
-    if (typeof this.options.operationName === 'string' && this.options.operationName !== operation.name.value) {
+    if (
+      typeof this.options.operationName === 'string' &&
+      this.options.operationName !== operation.name.value
+    ) {
       return;
     }
 
@@ -156,12 +174,19 @@ export default class QueryComplexity {
         );
         break;
       default:
-        throw new Error(`Query complexity could not be calculated for operation of type ${operation.operation}`);
+        throw new Error(
+          `Query complexity could not be calculated for operation of type ${operation.operation}`
+        );
     }
   }
 
-  onOperationDefinitionLeave(operation: OperationDefinitionNode): GraphQLError | undefined {
-    if (typeof this.options.operationName === 'string' && this.options.operationName !== operation.name.value) {
+  onOperationDefinitionLeave(
+    operation: OperationDefinitionNode
+  ): GraphQLError | undefined {
+    if (
+      typeof this.options.operationName === 'string' &&
+      this.options.operationName !== operation.name.value
+    ) {
       return;
     }
 
@@ -170,33 +195,44 @@ export default class QueryComplexity {
     }
 
     if (this.complexity > this.options.maximumComplexity) {
-      return this.context.reportError(
-        this.createError()
-      );
+      return this.context.reportError(this.createError());
     }
   }
 
   nodeComplexity(
-    node: FieldNode | FragmentDefinitionNode | InlineFragmentNode | OperationDefinitionNode,
-    typeDef: GraphQLObjectType | GraphQLInterfaceType | GraphQLUnionType,
+    node:
+      | FieldNode
+      | FragmentDefinitionNode
+      | InlineFragmentNode
+      | OperationDefinitionNode,
+    typeDef: GraphQLObjectType | GraphQLInterfaceType | GraphQLUnionType
   ): number {
     if (node.selectionSet) {
       let fields: GraphQLFieldMap<any, any> = {};
-      if (typeDef instanceof GraphQLObjectType || typeDef instanceof GraphQLInterfaceType) {
+      if (
+        typeDef instanceof GraphQLObjectType ||
+        typeDef instanceof GraphQLInterfaceType
+      ) {
         fields = typeDef.getFields();
       }
 
       // Determine all possible types of the current node
       let possibleTypeNames: string[];
       if (isAbstractType(typeDef)) {
-        possibleTypeNames = this.context.getSchema().getPossibleTypes(typeDef).map(t => t.name);
+        possibleTypeNames = this.context
+          .getSchema()
+          .getPossibleTypes(typeDef)
+          .map((t) => t.name);
       } else {
-        possibleTypeNames = [ typeDef.name ];
+        possibleTypeNames = [typeDef.name];
       }
 
       // Collect complexities for all possible types individually
       const selectionSetComplexities: ComplexityMap = node.selectionSet.selections.reduce(
-        (complexities: ComplexityMap, childNode: FieldNode | FragmentSpreadNode | InlineFragmentNode) => {
+        (
+          complexities: ComplexityMap,
+          childNode: FieldNode | FragmentSpreadNode | InlineFragmentNode
+        ) => {
           // let nodeComplexity = 0;
           let innerComplexities = complexities;
 
@@ -207,12 +243,20 @@ export default class QueryComplexity {
             const directiveName = directive.name.value;
             switch (directiveName) {
               case 'include': {
-                const values = getDirectiveValues(this.includeDirectiveDef, childNode, this.options.variables || {});
+                const values = getDirectiveValues(
+                  this.includeDirectiveDef,
+                  childNode,
+                  this.options.variables || {}
+                );
                 includeNode = values.if;
                 break;
               }
               case 'skip': {
-                const values = getDirectiveValues(this.skipDirectiveDef, childNode, this.options.variables || {});
+                const values = getDirectiveValues(
+                  this.skipDirectiveDef,
+                  childNode,
+                  this.options.variables || {}
+                );
                 skipNode = values.if;
                 break;
               }
@@ -233,9 +277,13 @@ export default class QueryComplexity {
               const fieldType = getNamedType(field.type);
 
               // Get arguments
-              let args: {[key: string]: any};
+              let args: { [key: string]: any };
               try {
-                args = getArgumentValues(field, childNode, this.options.variables || {});
+                args = getArgumentValues(
+                  field,
+                  childNode,
+                  this.options.variables || {}
+                );
               } catch (e) {
                 return this.context.reportError(e);
               }
@@ -253,16 +301,19 @@ export default class QueryComplexity {
                 args,
                 field,
                 node: childNode,
-                type: typeDef
+                type: typeDef,
               };
-              const validScore = this.estimators.find(estimator => {
+              const validScore = this.estimators.find((estimator) => {
                 const tmpComplexity = estimator(estimatorArgs);
 
-                if (typeof tmpComplexity === 'number' && !isNaN(tmpComplexity)) {
+                if (
+                  typeof tmpComplexity === 'number' &&
+                  !isNaN(tmpComplexity)
+                ) {
                   innerComplexities = addComplexities(
                     tmpComplexity,
                     complexities,
-                    possibleTypeNames,
+                    possibleTypeNames
                   );
                   return true;
                 }
@@ -273,7 +324,7 @@ export default class QueryComplexity {
                 return this.context.reportError(
                   new GraphQLError(
                     `No complexity could be calculated for field ${typeDef.name}.${field.name}. ` +
-                    'At least one complexity estimator has to return a complexity score.'
+                      'At least one complexity estimator has to return a complexity score.'
                   )
                 );
               }
@@ -285,25 +336,33 @@ export default class QueryComplexity {
               if (!fragment) {
                 break;
               }
-              const fragmentType = this.context.getSchema().getType(fragment.typeCondition.name.value);
+              const fragmentType = this.context
+                .getSchema()
+                .getType(fragment.typeCondition.name.value);
               // Invalid fragment type, ignore. Should be caught by other validation rules
               if (!isCompositeType(fragmentType)) {
                 break;
               }
-              const nodeComplexity = this.nodeComplexity(fragment, fragmentType);
+              const nodeComplexity = this.nodeComplexity(
+                fragment,
+                fragmentType
+              );
               if (isAbstractType(fragmentType)) {
                 // Add fragment complexity for all possible types
                 innerComplexities = addComplexities(
                   nodeComplexity,
                   complexities,
-                  this.context.getSchema().getPossibleTypes(fragmentType).map(t => t.name),
+                  this.context
+                    .getSchema()
+                    .getPossibleTypes(fragmentType)
+                    .map((t) => t.name)
                 );
               } else {
                 // Add complexity for object type
                 innerComplexities = addComplexities(
                   nodeComplexity,
                   complexities,
-                  [ fragmentType.name ],
+                  [fragmentType.name]
                 );
               }
               break;
@@ -311,26 +370,34 @@ export default class QueryComplexity {
             case Kind.INLINE_FRAGMENT: {
               let inlineFragmentType: GraphQLNamedType = typeDef;
               if (childNode.typeCondition && childNode.typeCondition.name) {
-                inlineFragmentType = this.context.getSchema().getType(childNode.typeCondition.name.value);
+                inlineFragmentType = this.context
+                  .getSchema()
+                  .getType(childNode.typeCondition.name.value);
                 if (!isCompositeType(inlineFragmentType)) {
                   break;
                 }
               }
 
-              const nodeComplexity = this.nodeComplexity(childNode, inlineFragmentType);
+              const nodeComplexity = this.nodeComplexity(
+                childNode,
+                inlineFragmentType
+              );
               if (isAbstractType(inlineFragmentType)) {
                 // Add fragment complexity for all possible types
                 innerComplexities = addComplexities(
                   nodeComplexity,
                   complexities,
-                  this.context.getSchema().getPossibleTypes(inlineFragmentType).map(t => t.name),
+                  this.context
+                    .getSchema()
+                    .getPossibleTypes(inlineFragmentType)
+                    .map((t) => t.name)
                 );
               } else {
                 // Add complexity for object type
                 innerComplexities = addComplexities(
                   nodeComplexity,
                   complexities,
-                  [ inlineFragmentType.name ],
+                  [inlineFragmentType.name]
                 );
               }
               break;
@@ -339,14 +406,16 @@ export default class QueryComplexity {
               innerComplexities = addComplexities(
                 this.nodeComplexity(childNode, typeDef),
                 complexities,
-                possibleTypeNames,
+                possibleTypeNames
               );
               break;
             }
           }
 
           return innerComplexities;
-        }, {});
+        },
+        {}
+      );
       // Only return max complexity of all possible types
       if (!selectionSetComplexities) {
         return NaN;
@@ -363,10 +432,9 @@ export default class QueryComplexity {
         this.complexity
       );
     }
-    return new GraphQLError(queryComplexityMessage(
-      this.options.maximumComplexity,
-      this.complexity
-    ));
+    return new GraphQLError(
+      queryComplexityMessage(this.options.maximumComplexity, this.complexity)
+    );
   }
 }
 
@@ -379,7 +447,7 @@ export default class QueryComplexity {
 function addComplexities(
   complexity: number,
   complexityMap: ComplexityMap,
-  possibleTypes: string[],
+  possibleTypes: string[]
 ): ComplexityMap {
   for (const type of possibleTypes) {
     if (Object.prototype.hasOwnProperty.call(complexityMap, type)) {
