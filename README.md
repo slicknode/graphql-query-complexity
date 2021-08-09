@@ -1,19 +1,18 @@
 # GraphQL Query Complexity Analysis for graphql-js
 
 [![npm](https://img.shields.io/npm/dm/graphql-query-complexity)](https://www.npmjs.com/package/graphql-query-complexity)
-[![npm version](https://badge.fury.io/js/graphql-query-complexity.svg)](https://badge.fury.io/js/graphql-query-complexity) 
+[![npm version](https://badge.fury.io/js/graphql-query-complexity.svg)](https://badge.fury.io/js/graphql-query-complexity)
 [![CircleCI](https://circleci.com/gh/slicknode/graphql-query-complexity.svg?style=shield)](https://circleci.com/gh/slicknode/graphql-query-complexity)
 [![Twitter Follow](https://img.shields.io/twitter/follow/slicknode?style=social)](https://twitter.com/slicknode)
 
 This library provides GraphQL query analysis to reject complex queries to your GraphQL server.
 This can be used to protect your GraphQL servers against resource exhaustion and DoS attacks.
 
-Works with [graphql-js](https://github.com/graphql/graphql-js) reference implementation. 
-
+Works with [graphql-js](https://github.com/graphql/graphql-js) reference implementation.
 
 ## Installation
 
-Install the package via npm 
+Install the package via npm
 
 ```bash
 npm install -S graphql-query-complexity
@@ -24,39 +23,40 @@ npm install -S graphql-query-complexity
 Create the rule with a maximum query complexity:
 
 ```javascript
-import queryComplexity, {
+import {
+  createComplexityRule,
   simpleEstimator
 } from 'graphql-query-complexity';
 
-const rule = queryComplexity({
+const rule = createComplexityRule({
   // The maximum allowed query complexity, queries above this threshold will be rejected
   maximumComplexity: 1000,
-  
+
   // The query variables. This is needed because the variables are not available
   // in the visitor of the graphql-js library
   variables: {},
 
   // specify operation name only when pass multi-operation documents
   operationName?: string,
-  
+
   // Optional callback function to retrieve the determined query complexity
   // Will be invoked whether the query is rejected or not
   // This can be used for logging or to implement rate limiting
   onComplete: (complexity: number) => {console.log('Determined query complexity: ', complexity)},
-  
+
   // Optional function to create a custom error
   createError: (max: number, actual: number) => {
     return new GraphQLError(`Query is too complex: ${actual}. Maximum allowed complexity: ${max}`);
   },
-  
+
   // Add any number of estimators. The estimators are invoked in order, the first
   // numeric value that is being returned by an estimator is used as the field complexity.
-  // If no estimator returns a value, an exception is raised. 
+  // If no estimator returns a value, an exception is raised.
   estimators: [
     // Add more estimators here...
-    
+
     // This will assign each field a complexity of 1 if no other estimator
-    // returned a value. 
+    // returned a value.
     simpleEstimator({
       defaultComplexity: 1
     })
@@ -68,78 +68,85 @@ const rule = queryComplexity({
 
 The complexity calculation of a GraphQL query can be customized with so called complexity estimators.
 A complexity estimator is a simple function that calculates the complexity for a field. You can add
-any number of complexity estimators to the rule, which are then executed one after another. 
-The first estimator that returns a numeric complexity value determines the complexity for that field. 
+any number of complexity estimators to the rule, which are then executed one after another.
+The first estimator that returns a numeric complexity value determines the complexity for that field.
 
 At least one estimator has to return a complexity value, otherwise an exception is raised. You can
 for example use the [simpleEstimator](./src/estimators/simple/README.md) as the last estimator
-in your chain to define a default value. 
+in your chain to define a default value.
 
 You can use any of the available estimators to calculate the complexity of a field
 or write your own:
 
-*   **[`simpleEstimator`](src/estimators/simple/README.md):** The simple estimator returns a fixed complexity for each field. Can be used as
-    last estimator in the chain for a default value.
-*   **[`directiveEstimator`](src/estimators/directive/README.md):** Set the complexity via a directive in your 
-    schema definition (for example via GraphQL SDL)
-*   **[`fieldExtensionsEstimator`](src/estimators/fieldExtensions/README.md):** The field extensions estimator lets you set a numeric value or a custom estimator
-    function in the field config extensions of your schema. 
-*   PRs welcome...
+- **[`simpleEstimator`](src/estimators/simple/README.md):** The simple estimator returns a fixed complexity for each field. Can be used as
+  last estimator in the chain for a default value.
+- **[`directiveEstimator`](src/estimators/directive/README.md):** Set the complexity via a directive in your
+  schema definition (for example via GraphQL SDL)
+- **[`fieldExtensionsEstimator`](src/estimators/fieldExtensions/README.md):** The field extensions estimator lets you set a numeric value or a custom estimator
+  function in the field config extensions of your schema.
+- PRs welcome...
 
-Consult the documentation of each estimator for information about how to use them. 
+Consult the documentation of each estimator for information about how to use them.
 
 ## Creating Custom Estimators
 
-An estimator has the following function signature: 
+An estimator has the following function signature:
 
 ```typescript
 type ComplexityEstimatorArgs = {
   // The composite type (interface, object, union) that the evaluated field belongs to
-  type: GraphQLCompositeType,
-  
+  type: GraphQLCompositeType;
+
   // The GraphQLField that is being evaluated
-  field: GraphQLField<any, any>,
-  
+  field: GraphQLField<any, any>;
+
   // The GraphQL node that is being evaluated
-  node: FieldNode,
-  
+  node: FieldNode;
+
   // The input arguments of the field
-  args: {[key: string]: any},
-  
+  args: { [key: string]: any };
+
   // The complexity of all child selections for that field
-  childComplexity: number
-}
+  childComplexity: number;
+};
 
 type ComplexityEstimator = (options: ComplexityEstimatorArgs) => number | void;
 ```
 
-
 ## Usage with express-graphql
 
 To use the query complexity analysis validation rule with express-graphql, use something like the
-following: 
+following:
 
 ```javascript
-import queryComplexity, { simpleEstimator } from 'graphql-query-complexity';
+import {
+  simpleEstimator,
+  createComplexityRule,
+} from 'graphql-query-complexity';
 import express from 'express';
 import graphqlHTTP from 'express-graphql';
 import schema from './schema';
 
 const app = express();
-app.use('/api', graphqlHTTP(async (request, response, {variables}) => ({
-  schema,
-  validationRules: [
-    queryComplexity({
-      estimators: [
-        // Configure your estimators
-        simpleEstimator({defaultComplexity: 1})
-      ],
-      maximumComplexity: 1000,
-      variables,
-      onComplete: (complexity: number) => {console.log('Query Complexity:', complexity);},
-    })
-  ]
-})));
+app.use(
+  '/api',
+  graphqlHTTP(async (request, response, { variables }) => ({
+    schema,
+    validationRules: [
+      createComplexityRule({
+        estimators: [
+          // Configure your estimators
+          simpleEstimator({ defaultComplexity: 1 }),
+        ],
+        maximumComplexity: 1000,
+        variables,
+        onComplete: (complexity: number) => {
+          console.log('Query Complexity:', complexity);
+        },
+      }),
+    ],
+  }))
+);
 ```
 
 ## Calculate query complexity
@@ -165,9 +172,7 @@ const query = parse(`
 `);
 
 const complexity = getComplexity({
-  estimators: [
-    simpleEstimator({defaultComplexity: 1})
-  ],
+  estimators: [simpleEstimator({ defaultComplexity: 1 })],
   schema,
   query,
   variables: {
@@ -178,10 +183,9 @@ const complexity = getComplexity({
 console.log(complexity); // Output: 3
 ```
 
-
 ## Prior Art
 
-This project is inspired by the following prior projects: 
+This project is inspired by the following prior projects:
 
--   Query complexity analysis in the [Sangria GraphQL](http://sangria-graphql.org/) implementation.
--   [graphql-cost-analysis](https://github.com/pa-bru/graphql-cost-analysis) - Multipliers and directiveEstimator
+- Query complexity analysis in the [Sangria GraphQL](http://sangria-graphql.org/) implementation.
+- [graphql-cost-analysis](https://github.com/pa-bru/graphql-cost-analysis) - Multipliers and directiveEstimator

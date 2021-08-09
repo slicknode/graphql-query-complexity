@@ -2,24 +2,25 @@
 
 The `fieldExtensionsEstimator` lets you define a numeric value or a custom estimator
 in the field config extensions of your GraphQL schema. If no complexity is set in the field config,
-the estimator does not return any value and the next estimator in the chain is executed. 
+the estimator does not return any value and the next estimator in the chain is executed.
 
 ## Usage
 
 ```typescript
-import queryComplexity, {
+import {
+  createComplexityRule,
   fieldExtensionsEstimator,
-  simpleEstimator
+  simpleEstimator,
 } from 'graphql-query-complexity';
 
-const rule = queryComplexity({
+const rule = createComplexityRule({
   estimators: [
     fieldExtensionsEstimator(),
-    
-    // We use the simpleEstimator as fallback so we only need to 
+
+    // We use the simpleEstimator as fallback so we only need to
     // define the complexity for non 1 values (this is not required...)
-    simpleEstimator({defaultComplexity: 1})
-  ]
+    simpleEstimator({ defaultComplexity: 1 }),
+  ],
   // ... other config
 });
 ```
@@ -34,7 +35,7 @@ const Post = new GraphQLObjectType({
     text: {
       type: GraphQLString,
       extensions: {
-        complexity: 5
+        complexity: 5,
       },
     },
   }),
@@ -52,22 +53,22 @@ query {
 }
 ```
 
-This query would result in a complexity of 7. 
-5 for the `text` field and 1 for each of the other fields. 
+This query would result in a complexity of 7.
+5 for the `text` field and 1 for each of the other fields.
 
-You can also pass an estimator in the field config to determine a custom complexity. 
+You can also pass an estimator in the field config to determine a custom complexity.
 This function will provide the complexity of the child nodes as well as the field input arguments.
 
 The function signature is the same as for the main estimator which lets you reuse estimators:
 
 ```typescript
 type ComplexityEstimatorArgs = {
-  type: GraphQLCompositeType,
-  field: GraphQLField<any, any>,
-  node: FieldNode,
-  args: {[key: string]: any},
-  childComplexity: number
-}
+  type: GraphQLCompositeType;
+  field: GraphQLField<any, any>;
+  node: FieldNode;
+  args: { [key: string]: any };
+  childComplexity: number;
+};
 
 type ComplexityEstimator = (options: ComplexityEstimatorArgs) => number | void;
 ```
@@ -83,11 +84,11 @@ const Query = new GraphQLObjectType({
       args: {
         count: {
           type: GraphQLInt,
-          defaultValue: 10
-        }
+          defaultValue: 10,
+        },
       },
       extensions: {
-        complexity: ({args, childComplexity}) => childComplexity * args.count,
+        complexity: ({ args, childComplexity }) => childComplexity * args.count,
       },
     },
   }),
