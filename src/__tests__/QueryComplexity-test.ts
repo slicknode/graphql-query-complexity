@@ -12,7 +12,8 @@ import ComplexityVisitor, {
   getComplexity,
   ComplexityEstimator,
 } from '../QueryComplexity';
-import {
+import defaultExport, {
+  createComplexityRule,
   simpleEstimator,
   directiveEstimator,
   fieldExtensionsEstimator,
@@ -21,6 +22,11 @@ import { CompatibleValidationContext } from './fixtures/CompatibleValidationCont
 
 describe('QueryComplexity analysis', () => {
   const typeInfo = new TypeInfo(schema);
+
+  it('exports createComplexityRule as default and named export in index', () => {
+    expect(createComplexityRule).to.equal(defaultExport);
+    expect(typeof createComplexityRule).to.equal('function');
+  });
 
   it('should calculate complexity', () => {
     const ast = parse(`
