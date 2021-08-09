@@ -1,6 +1,6 @@
 {
   "name": "graphql-query-complexity",
-  "version": "0.8.1",
+  "version": "0.9.0",
   "description": "Validation rule for GraphQL query complexity analysis",
   "main": "dist/cjs/index.js",
   "types": "dist/cjs/index.d.ts",
