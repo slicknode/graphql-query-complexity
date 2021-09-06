@@ -12,6 +12,7 @@ import {
   GraphQLEnumType,
   GraphQLUnionType,
   GraphQLInterfaceType,
+  GraphQLScalarType,
 } from 'graphql';
 
 const Item: GraphQLObjectType = new GraphQLObjectType({
@@ -70,6 +71,34 @@ const Union = new GraphQLUnionType({
   resolveType: () => Item,
 });
 
+const ErrorThrower = new GraphQLObjectType({
+  name: 'ErrorType',
+  fields: {
+    errorScalar: {
+      type: new GraphQLObjectType({
+        name: 'ErrorScalar',
+        fields: { irrelevant: { type: GraphQLString } },
+      }),
+      args: {
+        throws: {
+          type: new GraphQLScalarType({
+            name: 'Throws',
+            parseValue() {
+              throw new Error('Scalar parse error');
+            },
+            parseLiteral() {
+              throw new Error('Scalar parse error');
+            },
+            serialize() {
+              return '';
+            },
+          }),
+        },
+      },
+    },
+  },
+});
+
 const Query = new GraphQLObjectType({
   name: 'Query',
   fields: () => ({
@@ -110,6 +139,9 @@ const Query = new GraphQLObjectType({
           type: new GraphQLNonNull(GraphQLInt),
         },
       },
+    },
+    errorThrower: {
+      type: ErrorThrower,
     },
   }),
 });

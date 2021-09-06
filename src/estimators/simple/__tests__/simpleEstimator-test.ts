@@ -210,4 +210,25 @@ describe('simple estimator', () => {
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
     expect(visitor.complexity).to.equal(1);
   });
+
+  it('should fall back on default complexity when child complexity cannot be computed', () => {
+    const ast = parse(`
+      query {
+        errorThrower {
+          errorScalar(throws: "an error") {
+            irrelevant
+          }
+        }
+      }
+    `);
+
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
+    const visitor = new ComplexityVisitor(context, {
+      maximumComplexity: 100,
+      estimators: [simpleEstimator({ defaultComplexity: 1 })],
+    });
+
+    visit(ast, visitWithTypeInfo(typeInfo, visitor));
+    expect(visitor.complexity).to.equal(1);
+  });
 });

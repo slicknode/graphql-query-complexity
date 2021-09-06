@@ -11,6 +11,9 @@ export default function (options?: {
       ? options.defaultComplexity
       : 1;
   return (args: ComplexityEstimatorArgs): number | void => {
-    return defaultComplexity + args.childComplexity;
+    const { childComplexity } = args;
+    return (
+      defaultComplexity + (Number.isNaN(childComplexity) ? 0 : childComplexity)
+    );
   };
 }
