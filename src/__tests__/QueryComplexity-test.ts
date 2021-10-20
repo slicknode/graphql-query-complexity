@@ -2,7 +2,14 @@
  * Created by Ivo Meißner on 28.07.17.
  */
 
-import { parse, TypeInfo, visit, visitWithTypeInfo } from 'graphql';
+import {
+  parse,
+  TypeInfo,
+  visit,
+  visitWithTypeInfo,
+  validate,
+  specifiedRules,
+} from 'graphql';
 
 import { expect } from 'chai';
 
@@ -523,7 +530,7 @@ describe('QueryComplexity analysis', () => {
     );
   });
 
-  it('should return NaN when no astNode available on field when using directiveEstimator', () => {
+  it('should throw error when no astNode available on field when using directiveEstimator', () => {
     const ast = parse(`
       query {
         _service {
@@ -532,12 +539,13 @@ describe('QueryComplexity analysis', () => {
       }
     `);
 
-    const complexity = getComplexity({
-      estimators: [directiveEstimator()],
-      schema,
-      query: ast,
-    });
-    expect(Number.isNaN(complexity)).to.equal(true);
+    expect(() => {
+      getComplexity({
+        estimators: [directiveEstimator()],
+        schema,
+        query: ast,
+      });
+    }).to.throw(/No complexity could be calculated for field Query._service/);
   });
 
   it('should skip complexity calculation by directiveEstimator when no astNode available on field', () => {
@@ -795,5 +803,33 @@ describe('QueryComplexity analysis', () => {
       query: ast,
     });
     expect(complexity).to.equal(30); // 3 fields on nonNullItem * 10
+  });
+
+  it('should handle invalid argument values for multiple query fields', () => {
+    const ast = parse(`
+      query {
+        requiredArgs(count: x) {
+          scalar
+          complexScalar
+        }
+        nonNullItem {
+          scalar
+          complexScalar
+          variableScalar(count: 10)
+        }
+      }
+    `);
+
+    validate(schema, ast, [
+      ...specifiedRules,
+      createComplexityRule({
+        maximumComplexity: 1000,
+        estimators: [
+          simpleEstimator({
+            defaultComplexity: 1,
+          }),
+        ],
+      }),
+    ]);
   });
 });
