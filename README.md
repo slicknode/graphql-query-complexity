@@ -171,16 +171,21 @@ const query = parse(`
   }
 `);
 
-const complexity = getComplexity({
-  estimators: [simpleEstimator({ defaultComplexity: 1 })],
-  schema,
-  query,
-  variables: {
-    count: 10,
-  },
-});
+try {
+  const complexity = getComplexity({
+    estimators: [simpleEstimator({ defaultComplexity: 1 })],
+    schema,
+    query,
+    variables: {
+      count: 10,
+    },
+  });
 
-console.log(complexity); // Output: 3
+  console.log(complexity); // Output: 3
+} catch (e) {
+  // Log error in case complexity cannot be calculated (invalid query, misconfiguration, etc.)
+  console.error('Could not calculate complexity', e.message);
+}
 ```
 
 ## Prior Art

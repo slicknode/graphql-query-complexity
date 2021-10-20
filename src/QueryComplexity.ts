@@ -96,11 +96,12 @@ export function getComplexity(options: {
 }): number {
   const typeInfo = new TypeInfo(options.schema);
 
+  const errors: GraphQLError[] = [];
   const context = new ValidationContext(
     options.schema,
     options.query,
     typeInfo,
-    () => null
+    (error) => errors.push(error)
   );
   const visitor = new QueryComplexity(context, {
     // Maximum complexity does not matter since we're only interested in the calculated complexity.
@@ -111,6 +112,12 @@ export function getComplexity(options: {
   });
 
   visit(options.query, visitWithTypeInfo(typeInfo, visitor));
+
+  // Throw first error if any
+  if (errors.length) {
+    throw errors.pop();
+  }
+
   return visitor.complexity;
 }
 
@@ -244,7 +251,7 @@ export default class QueryComplexity {
           (
             complexities: ComplexityMap,
             childNode: FieldNode | FragmentSpreadNode | InlineFragmentNode
-          ) => {
+          ): ComplexityMap => {
             // let nodeComplexity = 0;
             let innerComplexities = complexities;
 
@@ -297,7 +304,8 @@ export default class QueryComplexity {
                     this.variableValues || {}
                   );
                 } catch (e) {
-                  return this.context.reportError(e);
+                  this.context.reportError(e);
+                  return complexities;
                 }
 
                 // Check if we have child complexity
