@@ -341,12 +341,13 @@ export default class QueryComplexity {
                   return false;
                 });
                 if (!validScore) {
-                  return this.context.reportError(
+                  this.context.reportError(
                     new GraphQLError(
                       `No complexity could be calculated for field ${typeDef.name}.${field.name}. ` +
                         'At least one complexity estimator has to return a complexity score.'
                     )
                   );
+                  return complexities;
                 }
                 break;
               }
