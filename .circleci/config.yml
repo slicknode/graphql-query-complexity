@@ -12,7 +12,7 @@ workflows:
           # definitions for field extensions in older @types/graphql versions
           matrix:
             parameters:
-              graphql-version: ["~0.13", "~14.0", "~14.5", "~14.6", "~15.0"]
+              graphql-version: ['~14.5', '~14.6', '~15.0']
       - test-and-build:
           # Leave graphql-version unspecified to respect the lockfile and also run tsc
           name: test-and-build-with-typecheck
@@ -22,7 +22,7 @@ jobs:
     parameters:
       graphql-version:
         type: string
-        default: ""
+        default: ''
 
     docker:
       # specify the version you desire here
@@ -36,9 +36,9 @@ jobs:
       # Download and cache dependencies
       - restore_cache:
           keys:
-          - v1-dependencies-{{ checksum "package.json" }}-<< parameters.graphql-version >>
-          # fallback to using the latest cache if no exact match is found
-          - v1-dependencies-
+            - v1-dependencies-{{ checksum "package.json" }}-<< parameters.graphql-version >>
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
 
       - when:
           condition: << parameters.graphql-version >>
