@@ -43,19 +43,19 @@
   "author": "Ivo Meißner",
   "license": "MIT",
   "devDependencies": {
-    "@types/assert": "^1.4.6",
-    "@types/chai": "^4.2.11",
+    "@types/assert": "^1.5.6",
+    "@types/chai": "^4.2.22",
     "@types/lodash.get": "^4.4.6",
-    "@types/mocha": "^7.0.2",
-    "@typescript-eslint/eslint-plugin": "^2.27.0",
-    "@typescript-eslint/parser": "^2.27.0",
-    "chai": "^4.2.0",
-    "eslint": "^6.8.0",
+    "@types/mocha": "^9.0.0",
+    "@typescript-eslint/eslint-plugin": "^5.1.0",
+    "@typescript-eslint/parser": "^5.1.0",
+    "chai": "^4.3.4",
+    "eslint": "^8.0.1",
     "graphql": "^14.5.0 || ^15.0.0",
-    "mocha": "^7.1.1",
-    "prettier": "^2.2.1",
+    "mocha": "^9.1.3",
+    "prettier": "^2.4.1",
     "rimraf": "^3.0.2",
-    "ts-node": "^8.8.2",
-    "typescript": "^3.8.3"
+    "ts-node": "^10.3.0",
+    "typescript": "^4.4.4"
   }
 }
