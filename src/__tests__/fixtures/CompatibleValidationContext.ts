@@ -22,7 +22,7 @@ export class CompatibleValidationContext extends ValidationContext {
   }
 
   getErrors(): ReadonlyArray<GraphQLError> {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     return super.getErrors ? super.getErrors() : this.errors;
   }
