@@ -6,7 +6,9 @@
 [![Twitter Follow](https://img.shields.io/twitter/follow/slicknode?style=social)](https://twitter.com/slicknode)
 
 This library provides GraphQL query analysis to reject complex queries to your GraphQL server.
-This can be used to protect your GraphQL servers against resource exhaustion and DoS attacks.
+It can be used to protect your GraphQL servers against resource exhaustion and DoS attacks.
+
+This library was originally developed as part of the [Slicknode GraphQL Framework + Headless CMS](https://slicknode.com).
 
 Works with [graphql-js](https://github.com/graphql/graphql-js) reference implementation.
 
