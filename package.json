@@ -56,7 +56,6 @@
     "@types/chai": "^4.2.22",
     "@types/lodash.get": "^4.4.6",
     "@types/mocha": "^9.0.0",
-    "@types/node": "^16.11.7",
     "@types/semver": "^7.3.9",
     "@typescript-eslint/eslint-plugin": "^5.1.0",
     "@typescript-eslint/parser": "^5.1.0",
