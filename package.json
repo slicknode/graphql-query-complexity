@@ -9,12 +9,12 @@
     "lint": "eslint --ext .ts . && prettier --config .prettierrc 'src/**/*.ts' --check",
     "lint:fix": "eslint --ext .ts . --fix && prettier --config .prettierrc 'src/**/*.ts' --write",
     "clean": "rimraf dist/*",
-    "build": "npm run build:esm && npm run build:cjs",
+    "build": "npm run build:esm && npm run build:cjs && ./fix-hybrid-module.sh",
     "build:esm": "tsc -p ./tsconfig.esm.json",
-    "build:cjs": "tsc -p ./tsconfig.json",
+    "build:cjs": "tsc -p ./tsconfig.cjs.json",
     "test": "npm run lint && npm run testonly",
     "testonly": "mocha --check-leaks --exit --full-trace --require ts-node/register/transpile-only 'src/**/__tests__/**/*-test.{ts,tsx}'",
-    "dist": "npm run clean && tsc && npm run build",
+    "dist": "npm run clean && npm run build",
     "prepare": "npm run clean && npm run dist"
   },
   "directories": {
@@ -40,6 +40,12 @@
     "complexity",
     "analysis"
   ],
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    }
+  },
   "author": "Ivo Meißner",
   "license": "MIT",
   "devDependencies": {
