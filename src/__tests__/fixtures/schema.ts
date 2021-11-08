@@ -14,7 +14,7 @@ import {
   GraphQLInterfaceType,
 } from 'graphql';
 
-import { ComplexityEstimatorArgs } from '../../QueryComplexity';
+import { ComplexityEstimatorArgs } from '../../QueryComplexity.js';
 
 const Item: GraphQLObjectType = new GraphQLObjectType({
   name: 'Item',

@@ -15,11 +15,11 @@ import {
 
 import { expect } from 'chai';
 
-import schema from './fixtures/schema';
+import schema from './fixtures/schema.js';
 
-import ComplexityVisitor from '../../../QueryComplexity';
-import directiveEstimator, { createComplexityDirective } from '../index';
-import { CompatibleValidationContext } from '../../../__tests__/fixtures/CompatibleValidationContext';
+import ComplexityVisitor from '../../../QueryComplexity.js';
+import directiveEstimator, { createComplexityDirective } from '../index.js';
+import { CompatibleValidationContext } from '../../../__tests__/fixtures/CompatibleValidationContext.js';
 
 describe('directiveEstimator analysis', () => {
   const typeInfo = new TypeInfo(schema);

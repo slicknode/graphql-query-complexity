@@ -13,19 +13,19 @@ import {
 
 import { expect } from 'chai';
 
-import schema from './fixtures/schema';
+import schema from './fixtures/schema.js';
 
 import ComplexityVisitor, {
   getComplexity,
   ComplexityEstimator,
-} from '../QueryComplexity';
+} from '../QueryComplexity.js';
 import defaultExport, {
   createComplexityRule,
   simpleEstimator,
   directiveEstimator,
   fieldExtensionsEstimator,
-} from '../index';
-import { CompatibleValidationContext } from './fixtures/CompatibleValidationContext';
+} from '../index.js';
+import { CompatibleValidationContext } from './fixtures/CompatibleValidationContext.js';
 
 describe('QueryComplexity analysis', () => {
   const typeInfo = new TypeInfo(schema);

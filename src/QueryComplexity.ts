@@ -8,7 +8,7 @@ import {
   getArgumentValues,
   getDirectiveValues,
   getVariableValues,
-} from 'graphql/execution/values';
+} from 'graphql/execution/values.js';
 
 import {
   ValidationContext,

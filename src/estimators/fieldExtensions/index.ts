@@ -1,7 +1,7 @@
 import {
   ComplexityEstimator,
   ComplexityEstimatorArgs,
-} from '../../QueryComplexity';
+} from '../../QueryComplexity.js';
 
 export default function (): ComplexityEstimator {
   return (args: ComplexityEstimatorArgs): number | void => {

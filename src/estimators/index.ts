@@ -1,7 +1,7 @@
-export { default as simpleEstimator } from './simple';
+export { default as simpleEstimator } from './simple/index.js';
 export {
   default as directiveEstimator,
   ComplexityDirectiveOptions,
   createComplexityDirective,
-} from './directive';
-export { default as fieldExtensionsEstimator } from './fieldExtensions';
+} from './directive/index.js';
+export { default as fieldExtensionsEstimator } from './fieldExtensions/index.js';
