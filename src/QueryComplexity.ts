@@ -168,7 +168,8 @@ export default class QueryComplexity {
     // with default values defined in the operation
     this.variableValues = getVariableValues(
       this.context.getSchema(),
-      operation.variableDefinitions ?? [],
+      // We have to create a new array here because input argument is not readonly in graphql ~14.6.0
+      operation.variableDefinitions ? [...operation.variableDefinitions] : [],
       this.options.variables ?? {}
     ).coerced;
 

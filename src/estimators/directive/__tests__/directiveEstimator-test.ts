@@ -11,6 +11,8 @@ import {
   visit,
   visitWithTypeInfo,
   buildSchema,
+  GraphQLString,
+  GraphQLObjectType,
 } from 'graphql';
 
 import { expect } from 'chai';
@@ -234,6 +236,14 @@ describe('directiveEstimator analysis', () => {
     const complexityDirective = createComplexityDirective();
     const codeFirstSchema = new GraphQLSchema({
       directives: [complexityDirective],
+      query: new GraphQLObjectType({
+        name: 'Query',
+        fields: {
+          dummy: {
+            type: GraphQLString,
+          },
+        },
+      }),
     });
 
     // rebuilding code first schema
@@ -255,6 +265,14 @@ describe('directiveEstimator analysis', () => {
     const complexityDirective = createComplexityDirective({ name: 'cost' });
     const codeFirstSchema = new GraphQLSchema({
       directives: [complexityDirective],
+      query: new GraphQLObjectType({
+        name: 'Query',
+        fields: {
+          dummy: {
+            type: GraphQLString,
+          },
+        },
+      }),
     });
 
     // rebuilding code first schema
