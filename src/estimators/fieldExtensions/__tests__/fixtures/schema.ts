@@ -14,6 +14,7 @@ import {
   GraphQLUnionType,
   GraphQLInterfaceType,
 } from 'graphql';
+import { compatResolveType } from '../../../../__tests__/utils/compatResolveType.js';
 
 import { ComplexityEstimatorArgs } from '../../../../QueryComplexity.js';
 
@@ -68,7 +69,7 @@ const NameInterface = new GraphQLInterfaceType({
   fields: {
     name: { type: GraphQLString },
   },
-  resolveType: () => Item,
+  resolveType: compatResolveType(Item),
 });
 
 const SecondItem = new GraphQLObjectType({
@@ -92,7 +93,7 @@ const EnumType = new GraphQLEnumType({
 const Union = new GraphQLUnionType({
   name: 'Union',
   types: [Item, SecondItem],
-  resolveType: () => Item,
+  resolveType: compatResolveType(Item),
 });
 
 const Query = new GraphQLObjectType({

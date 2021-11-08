@@ -201,7 +201,7 @@ export default class QueryComplexity {
 
   onOperationDefinitionLeave(
     operation: OperationDefinitionNode
-  ): GraphQLError | undefined {
+  ): GraphQLError | void {
     if (
       typeof this.options.operationName === 'string' &&
       this.options.operationName !== operation.name.value
@@ -268,7 +268,9 @@ export default class QueryComplexity {
                     childNode,
                     this.variableValues || {}
                   );
-                  includeNode = values.if;
+                  if (typeof values.if === 'boolean') {
+                    includeNode = values.if;
+                  }
                   break;
                 }
                 case 'skip': {
@@ -277,7 +279,9 @@ export default class QueryComplexity {
                     childNode,
                     this.variableValues || {}
                   );
-                  skipNode = values.if;
+                  if (typeof values.if === 'boolean') {
+                    skipNode = values.if;
+                  }
                   break;
                 }
               }

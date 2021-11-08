@@ -61,7 +61,7 @@ export default function (
 
     // Get multipliers
     let totalMultiplier = 1;
-    if (values.multipliers) {
+    if (values.multipliers && Array.isArray(values.multipliers)) {
       totalMultiplier = values.multipliers.reduce(
         (aggregated: number, multiplier: string) => {
           const multiplierValue = get(args.args, multiplier);
@@ -78,6 +78,6 @@ export default function (
       );
     }
 
-    return (values.value + args.childComplexity) * totalMultiplier;
+    return (Number(values.value) + args.childComplexity) * totalMultiplier;
   };
 }
