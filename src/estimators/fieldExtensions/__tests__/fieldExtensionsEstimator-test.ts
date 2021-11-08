@@ -6,12 +6,12 @@ import { parse, TypeInfo, visit, visitWithTypeInfo } from 'graphql';
 
 import { expect } from 'chai';
 
-import schema from './fixtures/schema';
+import schema from './fixtures/schema.js';
 
-import ComplexityVisitor from '../../../QueryComplexity';
-import simpleEstimator from '../../simple';
-import fieldExtensionsEstimator from '../index';
-import { CompatibleValidationContext } from '../../../__tests__/fixtures/CompatibleValidationContext';
+import ComplexityVisitor from '../../../QueryComplexity.js';
+import simpleEstimator from '../../simple/index.js';
+import fieldExtensionsEstimator from '../index.js';
+import { CompatibleValidationContext } from '../../../__tests__/fixtures/CompatibleValidationContext.js';
 
 describe('fieldExtensions estimator', () => {
   const typeInfo = new TypeInfo(schema);

@@ -1,6 +1,10 @@
-import { GraphQLError, TypeInfo, ValidationContext } from 'graphql';
-import { GraphQLSchema } from 'graphql/type/schema';
-import { DocumentNode } from 'graphql/language/ast';
+import {
+  GraphQLError,
+  TypeInfo,
+  ValidationContext,
+  GraphQLSchema,
+  DocumentNode,
+} from 'graphql';
 
 /**
  * This class is used to test that validation errors are raised correctly

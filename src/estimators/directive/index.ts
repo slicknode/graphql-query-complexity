@@ -1,16 +1,16 @@
 import {
   ComplexityEstimator,
   ComplexityEstimatorArgs,
-} from '../../QueryComplexity';
+} from '../../QueryComplexity.js';
 import {
   getDirectiveValues,
   GraphQLInt,
   GraphQLList,
   GraphQLNonNull,
   GraphQLString,
+  GraphQLDirective,
+  DirectiveLocation,
 } from 'graphql';
-import { GraphQLDirective } from 'graphql/type/directives';
-import { DirectiveLocation } from 'graphql/language/directiveLocation';
 import get from 'lodash.get';
 
 export type ComplexityDirectiveOptions = {

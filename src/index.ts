@@ -4,11 +4,11 @@
  * @flow
  */
 import { ValidationContext } from 'graphql';
-import QueryComplexity from './QueryComplexity';
-import { QueryComplexityOptions } from './QueryComplexity';
+import QueryComplexity from './QueryComplexity.js';
+import { QueryComplexityOptions } from './QueryComplexity.js';
 
-export * from './estimators';
-export * from './QueryComplexity';
+export * from './estimators/index.js';
+export * from './QueryComplexity.js';
 
 export function createComplexityRule(
   options: QueryComplexityOptions
