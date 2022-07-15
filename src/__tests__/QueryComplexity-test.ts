@@ -271,6 +271,93 @@ describe('QueryComplexity analysis', () => {
     expect(visitor.complexity).to.equal(10);
   });
 
+  it('should ignore unused variables with include', () => {
+    const ast = parse(`
+      query ($unusedVar: ID!, $shouldInclude: Boolean! = false) {
+        variableScalar(count: 100) @include(if: $shouldInclude)
+      }
+    `);
+
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
+    const visitor = new ComplexityVisitor(context, {
+      maximumComplexity: 100,
+      estimators: [simpleEstimator({ defaultComplexity: 10 })],
+      variables: { shouldInclude: true },
+    });
+
+    visit(ast, visitWithTypeInfo(typeInfo, visitor));
+    expect(visitor.complexity).to.equal(10);
+  });
+
+  it('should ignore unused variables with skip', () => {
+    const ast = parse(`
+      query ($unusedVar: ID!, $shouldSkip: Boolean! = false) {
+        variableScalar(count: 100) @skip(if: $shouldSkip)
+      }
+    `);
+
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
+    const visitor = new ComplexityVisitor(context, {
+      maximumComplexity: 100,
+      estimators: [simpleEstimator({ defaultComplexity: 10 })],
+      variables: { shouldSkip: false },
+    });
+
+    visit(ast, visitWithTypeInfo(typeInfo, visitor));
+    expect(visitor.complexity).to.equal(10);
+  });
+
+  it('should ignore unused variables with unused include', () => {
+    const ast = parse(`
+      query ($unusedVar: ID!, $shouldInclude: Boolean! = false) {
+        variableScalar(count: 100) @include(if: $shouldInclude)
+      }
+    `);
+
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
+    const visitor = new ComplexityVisitor(context, {
+      maximumComplexity: 100,
+      estimators: [simpleEstimator({ defaultComplexity: 10 })],
+    });
+
+    visit(ast, visitWithTypeInfo(typeInfo, visitor));
+    expect(visitor.complexity).to.equal(10);
+  });
+
+  it('should ignore unused variables with unused skip', () => {
+    const ast = parse(`
+      query ($unusedVar: ID!, $shouldSkip: Boolean! = false) {
+        variableScalar(count: 100) @skip(if: $shouldSkip)
+      }
+    `);
+
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
+    const visitor = new ComplexityVisitor(context, {
+      maximumComplexity: 100,
+      estimators: [simpleEstimator({ defaultComplexity: 10 })],
+    });
+
+    visit(ast, visitWithTypeInfo(typeInfo, visitor));
+    expect(visitor.complexity).to.equal(10);
+  });
+
+  it('should ignore multiple unused variables', () => {
+    const ast = parse(`
+      query ($unusedVar: ID!, $anotherUnusedVar: Boolean!) {
+        variableScalar(count: 100)
+      }
+    `);
+
+    const context = new CompatibleValidationContext(schema, ast, typeInfo);
+    const visitor = new ComplexityVisitor(context, {
+      maximumComplexity: 100,
+      estimators: [simpleEstimator({ defaultComplexity: 10 })],
+    });
+
+    visit(ast, visitWithTypeInfo(typeInfo, visitor));
+    expect(visitor.complexity).to.equal(10);
+  });
+
   it('should ignore unknown field', () => {
     const ast = parse(`
       query {
@@ -639,7 +726,7 @@ describe('QueryComplexity analysis', () => {
           ...on Union {
             ...on Item {
               complexScalar1: complexScalar
-            } 
+            }
           }
           ...on SecondItem {
             scalar
@@ -678,7 +765,7 @@ describe('QueryComplexity analysis', () => {
       fragment F on Union {
         ...on Item {
           complexScalar1: complexScalar
-        } 
+        }
       }
     `);
 
@@ -759,7 +846,7 @@ describe('QueryComplexity analysis', () => {
           }
         }
       }
-      
+
       fragment F on Query {
         complexScalar
         ...on Query {

@@ -173,6 +173,12 @@ export default class QueryComplexity {
       this.options.variables ?? {}
     ).coerced;
 
+    // If there are no coerced variable values it is because one or all of those variables were
+    // absent. In this case fallback to what was provided and ignore defaults.
+    if (!this.variableValues) {
+      this.variableValues = this.options.variables;
+    }
+
     switch (operation.operation) {
       case 'query':
         this.complexity += this.nodeComplexity(
@@ -261,28 +267,36 @@ export default class QueryComplexity {
 
             for (const directive of childNode.directives ?? []) {
               const directiveName = directive.name.value;
-              switch (directiveName) {
-                case 'include': {
-                  const values = getDirectiveValues(
-                    this.includeDirectiveDef,
-                    childNode,
-                    this.variableValues || {}
-                  );
-                  if (typeof values.if === 'boolean') {
-                    includeNode = values.if;
+              try {
+                switch (directiveName) {
+                  case 'include': {
+                    const values = getDirectiveValues(
+                      this.includeDirectiveDef,
+                      childNode,
+                      this.variableValues || {}
+                    );
+                    if (typeof values.if === 'boolean') {
+                      includeNode = values.if;
+                    }
+                    break;
                   }
-                  break;
+                  case 'skip': {
+                    const values = getDirectiveValues(
+                      this.skipDirectiveDef,
+                      childNode,
+                      this.variableValues || {}
+                    );
+                    if (typeof values.if === 'boolean') {
+                      skipNode = values.if;
+                    }
+                    break;
+                  }
                 }
-                case 'skip': {
-                  const values = getDirectiveValues(
-                    this.skipDirectiveDef,
-                    childNode,
-                    this.variableValues || {}
-                  );
-                  if (typeof values.if === 'boolean') {
-                    skipNode = values.if;
-                  }
-                  break;
+              } catch (error) {
+                // Ignore GraphQLErrors in favor of falling back to the default values for
+                // includeNode and skipNode
+                if (!(error instanceof GraphQLError)) {
+                  throw error;
                 }
               }
             }
