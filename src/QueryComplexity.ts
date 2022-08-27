@@ -180,7 +180,7 @@ export default class QueryComplexity {
       operation.variableDefinitions ? [...operation.variableDefinitions] : [],
       this.options.variables ?? {}
     );
-    if (errors) {
+    if (errors && errors.length) {
       // We have input validation errors, report errors and abort
       errors.forEach((error) => this.context.reportError(error));
       return;
