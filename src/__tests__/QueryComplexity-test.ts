@@ -639,7 +639,7 @@ describe('QueryComplexity analysis', () => {
           ...on Union {
             ...on Item {
               complexScalar1: complexScalar
-            } 
+            }
           }
           ...on SecondItem {
             scalar
@@ -678,7 +678,7 @@ describe('QueryComplexity analysis', () => {
       fragment F on Union {
         ...on Item {
           complexScalar1: complexScalar
-        } 
+        }
       }
     `);
 
@@ -759,7 +759,7 @@ describe('QueryComplexity analysis', () => {
           }
         }
       }
-      
+
       fragment F on Query {
         complexScalar
         ...on Query {
@@ -831,5 +831,33 @@ describe('QueryComplexity analysis', () => {
         ],
       }),
     ]);
+  });
+
+  it('passed context to estimators', () => {
+    const ast = parse(`
+      query {
+        scalar
+        requiredArgs(count: 10) {
+          scalar
+        }
+      }
+    `);
+
+    const contextEstimator: ComplexityEstimator = ({
+      context,
+      childComplexity,
+    }) => {
+      return context['complexityMultiplier'] * (childComplexity || 1);
+    };
+
+    const complexity = getComplexity({
+      estimators: [contextEstimator],
+      schema,
+      query: ast,
+      context: { complexityMultiplier: 5 },
+    });
+
+    // query.scalar(5) + query.requiredArgs(5) * requiredArgs.scalar(5)
+    expect(complexity).to.equal(30);
   });
 });

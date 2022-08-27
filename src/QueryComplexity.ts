@@ -43,6 +43,7 @@ export type ComplexityEstimatorArgs = {
   node: FieldNode;
   args: { [key: string]: any };
   childComplexity: number;
+  context?: Record<string, any>;
 };
 
 export type ComplexityEstimator = (
@@ -78,6 +79,9 @@ export interface QueryComplexityOptions {
 
   // An array of complexity estimators to use for estimating the complexity
   estimators: Array<ComplexityEstimator>;
+
+  // Pass request context to the estimators via estimationContext
+  context?: Record<string, any>;
 }
 
 function queryComplexityMessage(max: number, actual: number): string {
@@ -93,6 +97,7 @@ export function getComplexity(options: {
   query: DocumentNode;
   variables?: Record<string, any>;
   operationName?: string;
+  context?: Record<string, any>;
 }): number {
   const typeInfo = new TypeInfo(options.schema);
 
@@ -109,6 +114,7 @@ export function getComplexity(options: {
     estimators: options.estimators,
     variables: options.variables,
     operationName: options.operationName,
+    context: options.context,
   });
 
   visit(options.query, visitWithTypeInfo(typeInfo, visitor));
@@ -130,6 +136,7 @@ export default class QueryComplexity {
   includeDirectiveDef: GraphQLDirective;
   skipDirectiveDef: GraphQLDirective;
   variableValues: Record<string, any>;
+  requestContext?: Record<string, any>;
 
   constructor(context: ValidationContext, options: QueryComplexityOptions) {
     if (
@@ -149,6 +156,7 @@ export default class QueryComplexity {
     this.skipDirectiveDef = this.context.getSchema().getDirective('skip');
     this.estimators = options.estimators;
     this.variableValues = {};
+    this.requestContext = options.context;
 
     this.OperationDefinition = {
       enter: this.onOperationDefinitionEnter,
@@ -327,6 +335,7 @@ export default class QueryComplexity {
                   field,
                   node: childNode,
                   type: typeDef,
+                  context: this.requestContext,
                 };
                 const validScore = this.estimators.find((estimator) => {
                   const tmpComplexity = estimator(estimatorArgs);

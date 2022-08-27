@@ -1,6 +1,4 @@
-import { GraphQLType } from 'graphql';
-
-import graphqlPackage from 'graphql/package.json';
+import * as graphql from 'graphql';
 import semver from 'semver';
 
 /**
@@ -10,8 +8,8 @@ import semver from 'semver';
  * @param type
  * @returns
  */
-export function compatResolveType(type: GraphQLType): any {
-  if (semver.gte(graphqlPackage.version, '16.0.0')) {
+export function compatResolveType(type: graphql.GraphQLType): any {
+  if (graphql.version && semver.gte(graphql.version, '16.0.0')) {
     return () => type.toString();
   } else {
     return () => type;
