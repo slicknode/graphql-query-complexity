@@ -254,21 +254,28 @@ describe('QueryComplexity analysis', () => {
     expect(visitor.complexity).to.equal(0);
   });
 
-  it('should ignore unused variables', () => {
+  it('should report errors for unused variables', () => {
     const ast = parse(`
       query ($unusedVar: ID!) {
         variableScalar(count: 100)
       }
     `);
 
-    const context = new CompatibleValidationContext(schema, ast, typeInfo);
-    const visitor = new ComplexityVisitor(context, {
-      maximumComplexity: 100,
-      estimators: [simpleEstimator({ defaultComplexity: 10 })],
-    });
-
-    visit(ast, visitWithTypeInfo(typeInfo, visitor));
-    expect(visitor.complexity).to.equal(10);
+    const errors = validate(schema, ast, [
+      createComplexityRule({
+        maximumComplexity: 1000,
+        estimators: [
+          simpleEstimator({
+            defaultComplexity: 1,
+          }),
+        ],
+        variables: {
+          unusedVar: 'someID',
+        },
+      }),
+    ]);
+    expect(errors).to.have.length(1);
+    expect(errors[0].message).to.contain('$unusedVar');
   });
 
   it('should ignore unknown field', () => {
@@ -859,5 +866,29 @@ describe('QueryComplexity analysis', () => {
 
     // query.scalar(5) + query.requiredArgs(5) * requiredArgs.scalar(5)
     expect(complexity).to.equal(30);
+  });
+
+  it('reports variable coercion errors', () => {
+    const ast = parse(`
+      query ($input: RGB!){
+        enumInputArg(enum: $input)
+      }
+    `);
+
+    const errors = validate(schema, ast, [
+      createComplexityRule({
+        maximumComplexity: 1000,
+        estimators: [
+          simpleEstimator({
+            defaultComplexity: 1,
+          }),
+        ],
+        variables: {
+          input: 'INVALIDVALUE',
+        },
+      }),
+    ]);
+    expect(errors).to.have.length(1);
+    expect(errors[0].message).to.contain('INVALIDVALUE');
   });
 });
