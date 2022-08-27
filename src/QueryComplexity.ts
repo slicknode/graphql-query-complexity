@@ -174,12 +174,18 @@ export default class QueryComplexity {
 
     // Get variable values from variables that are passed from options, merged
     // with default values defined in the operation
-    this.variableValues = getVariableValues(
+    const { coerced, errors } = getVariableValues(
       this.context.getSchema(),
       // We have to create a new array here because input argument is not readonly in graphql ~14.6.0
       operation.variableDefinitions ? [...operation.variableDefinitions] : [],
       this.options.variables ?? {}
-    ).coerced;
+    );
+    if (errors && errors.length) {
+      // We have input validation errors, report errors and abort
+      errors.forEach((error) => this.context.reportError(error));
+      return;
+    }
+    this.variableValues = coerced;
 
     switch (operation.operation) {
       case 'query':

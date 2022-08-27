@@ -164,6 +164,14 @@ const Query = new GraphQLObjectType({
         },
       },
     },
+    enumInputArg: {
+      type: GraphQLString,
+      args: {
+        enum: {
+          type: EnumType,
+        },
+      },
+    },
     _service: { type: SDLInterface },
   }),
   interfaces: () => [NameInterface, UnionInterface],
