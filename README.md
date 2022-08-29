@@ -38,6 +38,9 @@ const rule = createComplexityRule({
   // in the visitor of the graphql-js library
   variables: {},
 
+  // The context object for the request (optional)
+  context: {}
+
   // specify operation name only when pass multi-operation documents
   operationName?: string,
 
@@ -110,6 +113,9 @@ type ComplexityEstimatorArgs = {
 
   // The complexity of all child selections for that field
   childComplexity: number;
+
+  // The context object for the request if it was provided
+  context?: Record<string, any>;
 };
 
 type ComplexityEstimator = (options: ComplexityEstimatorArgs) => number | void;

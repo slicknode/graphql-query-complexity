@@ -43,6 +43,7 @@ export type ComplexityEstimatorArgs = {
   node: FieldNode;
   args: { [key: string]: any };
   childComplexity: number;
+  context?: Record<string, any>;
 };
 
 export type ComplexityEstimator = (
@@ -78,6 +79,9 @@ export interface QueryComplexityOptions {
 
   // An array of complexity estimators to use for estimating the complexity
   estimators: Array<ComplexityEstimator>;
+
+  // Pass request context to the estimators via estimationContext
+  context?: Record<string, any>;
 }
 
 function queryComplexityMessage(max: number, actual: number): string {
@@ -93,6 +97,7 @@ export function getComplexity(options: {
   query: DocumentNode;
   variables?: Record<string, any>;
   operationName?: string;
+  context?: Record<string, any>;
 }): number {
   const typeInfo = new TypeInfo(options.schema);
 
@@ -109,6 +114,7 @@ export function getComplexity(options: {
     estimators: options.estimators,
     variables: options.variables,
     operationName: options.operationName,
+    context: options.context,
   });
 
   visit(options.query, visitWithTypeInfo(typeInfo, visitor));
@@ -130,6 +136,7 @@ export default class QueryComplexity {
   includeDirectiveDef: GraphQLDirective;
   skipDirectiveDef: GraphQLDirective;
   variableValues: Record<string, any>;
+  requestContext?: Record<string, any>;
 
   constructor(context: ValidationContext, options: QueryComplexityOptions) {
     if (
@@ -149,6 +156,7 @@ export default class QueryComplexity {
     this.skipDirectiveDef = this.context.getSchema().getDirective('skip');
     this.estimators = options.estimators;
     this.variableValues = {};
+    this.requestContext = options.context;
 
     this.OperationDefinition = {
       enter: this.onOperationDefinitionEnter,
@@ -166,12 +174,18 @@ export default class QueryComplexity {
 
     // Get variable values from variables that are passed from options, merged
     // with default values defined in the operation
-    this.variableValues = getVariableValues(
+    const { coerced, errors } = getVariableValues(
       this.context.getSchema(),
       // We have to create a new array here because input argument is not readonly in graphql ~14.6.0
       operation.variableDefinitions ? [...operation.variableDefinitions] : [],
       this.options.variables ?? {}
-    ).coerced;
+    );
+    if (errors && errors.length) {
+      // We have input validation errors, report errors and abort
+      errors.forEach((error) => this.context.reportError(error));
+      return;
+    }
+    this.variableValues = coerced;
 
     switch (operation.operation) {
       case 'query':
@@ -327,6 +341,7 @@ export default class QueryComplexity {
                   field,
                   node: childNode,
                   type: typeDef,
+                  context: this.requestContext,
                 };
                 const validScore = this.estimators.find((estimator) => {
                   const tmpComplexity = estimator(estimatorArgs);
