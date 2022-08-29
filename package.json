@@ -14,7 +14,7 @@
     "build:esm": "tsc -p ./tsconfig.esm.json",
     "build:cjs": "tsc -p ./tsconfig.cjs.json",
     "build:test:cjs": "tsc -p ./tsconfig.test.cjs.json && ./fix-hybrid-module.test.cjs.sh",
-    "build:test:esm": "tsc -p ./tsconfig.test.esm.json && npm run fiximport && ./fix-hybrid-module.test.esm.sh",
+    "build:test:esm": "tsc -p ./tsconfig.test.esm.json && npm run fiximport -- --test && ./fix-hybrid-module.test.esm.sh",
     "test": "npm run lint && npm run build:test:cjs && npm run testonly:cjs && npm run build:test:esm && npm run testonly:esm",
     "testonly:cjs": "mocha --check-leaks --exit --full-trace 'dist/test/cjs/**/__tests__/**/*-test.js'",
     "testonly:esm": "mocha -n experimental-json-modules --check-leaks --exit --full-trace 'dist/test/esm/**/__tests__/**/*-test.js'",

@@ -14,7 +14,9 @@ async function* getFiles(dir) {
 }
 
 (async () => {
-  for await (const f of getFiles('./dist/esm')) {
+  const buildOutput =
+    process.argv.at(-1) === '--test' ? './dist/test/esm' : './dist/esm';
+  for await (const f of getFiles(buildOutput)) {
     if (!f.endsWith('.js')) continue;
 
     const fileContent = (await readFile(f)).toString();
