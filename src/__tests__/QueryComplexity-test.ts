@@ -812,6 +812,48 @@ describe('QueryComplexity analysis', () => {
     expect(complexity).to.equal(30); // 3 fields on nonNullItem * 10
   });
 
+  it('should include the current path in the estimator args', () => {
+    const ast = parse(`
+      query {
+        nonNullItem {
+          scalar
+          complexScalar
+          variableScalar(count: 10)
+        }
+      }
+    `);
+
+    const pathEstimator: ComplexityEstimator = ({
+      field,
+      path,
+      childComplexity,
+    }) => {
+      switch (field.name) {
+        case 'variableScalar':
+          expect(path).to.deep.equal(['nonNullItem', 'variableScalar']);
+          return 1 + childComplexity;
+        case 'complexScalar':
+          expect(path).to.deep.equal(['nonNullItem', 'complexScalar']);
+          return 2 + childComplexity;
+        case 'scalar':
+          expect(path).to.deep.equal(['nonNullItem', 'scalar']);
+          return 4 + childComplexity;
+        case 'nonNullItem':
+          expect(path).to.deep.equal(['nonNullItem']);
+          return 8 + childComplexity;
+        default:
+          return 0;
+      }
+    };
+
+    const complexity = getComplexity({
+      estimators: [pathEstimator],
+      schema,
+      query: ast,
+    });
+    expect(complexity).to.equal(8 + 4 + 2 + 1);
+  });
+
   it('should handle invalid argument values for multiple query fields', () => {
     const ast = parse(`
       query {

@@ -43,6 +43,7 @@ export type ComplexityEstimatorArgs = {
   node: FieldNode;
   args: { [key: string]: any };
   childComplexity: number;
+  path: string[];
   context?: Record<string, any>;
 };
 
@@ -191,19 +192,22 @@ export default class QueryComplexity {
       case 'query':
         this.complexity += this.nodeComplexity(
           operation,
-          this.context.getSchema().getQueryType()
+          this.context.getSchema().getQueryType(),
+          []
         );
         break;
       case 'mutation':
         this.complexity += this.nodeComplexity(
           operation,
-          this.context.getSchema().getMutationType()
+          this.context.getSchema().getMutationType(),
+          []
         );
         break;
       case 'subscription':
         this.complexity += this.nodeComplexity(
           operation,
-          this.context.getSchema().getSubscriptionType()
+          this.context.getSchema().getSubscriptionType(),
+          []
         );
         break;
       default:
@@ -238,7 +242,8 @@ export default class QueryComplexity {
       | FragmentDefinitionNode
       | InlineFragmentNode
       | OperationDefinitionNode,
-    typeDef: GraphQLObjectType | GraphQLInterfaceType | GraphQLUnionType
+    typeDef: GraphQLObjectType | GraphQLInterfaceType | GraphQLUnionType,
+    currentPath: string[]
   ): number {
     if (node.selectionSet) {
       let fields: GraphQLFieldMap<any, any> = {};
@@ -327,10 +332,15 @@ export default class QueryComplexity {
                   return complexities;
                 }
 
+                const childPath = [...currentPath, childNode.name.value];
                 // Check if we have child complexity
                 let childComplexity = 0;
                 if (isCompositeType(fieldType)) {
-                  childComplexity = this.nodeComplexity(childNode, fieldType);
+                  childComplexity = this.nodeComplexity(
+                    childNode,
+                    fieldType,
+                    childPath
+                  );
                 }
 
                 // Run estimators one after another and return first valid complexity
@@ -339,6 +349,7 @@ export default class QueryComplexity {
                   childComplexity,
                   args,
                   field,
+                  path: childPath,
                   node: childNode,
                   type: typeDef,
                   context: this.requestContext,
@@ -386,7 +397,8 @@ export default class QueryComplexity {
                 }
                 const nodeComplexity = this.nodeComplexity(
                   fragment,
-                  fragmentType
+                  fragmentType,
+                  currentPath
                 );
                 if (isAbstractType(fragmentType)) {
                   // Add fragment complexity for all possible types
@@ -421,7 +433,8 @@ export default class QueryComplexity {
 
                 const nodeComplexity = this.nodeComplexity(
                   childNode,
-                  inlineFragmentType
+                  inlineFragmentType,
+                  currentPath
                 );
                 if (isAbstractType(inlineFragmentType)) {
                   // Add fragment complexity for all possible types
@@ -445,7 +458,7 @@ export default class QueryComplexity {
               }
               default: {
                 innerComplexities = addComplexities(
-                  this.nodeComplexity(childNode, typeDef),
+                  this.nodeComplexity(childNode, typeDef, currentPath),
                   complexities,
                   possibleTypeNames
                 );
