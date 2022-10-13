@@ -108,6 +108,9 @@ type ComplexityEstimatorArgs = {
   // The GraphQL node that is being evaluated
   node: FieldNode;
 
+  // The path of the GraphQL node that is being evaluated
+  path: string[];
+
   // The input arguments of the field
   args: { [key: string]: any };
 
