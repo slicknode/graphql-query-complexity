@@ -891,4 +891,25 @@ describe('QueryComplexity analysis', () => {
     expect(errors).to.have.length(1);
     expect(errors[0].message).to.contain('INVALIDVALUE');
   });
+
+  it("won't fail on subscription document", () => {
+    const ast = parse(`
+      subscription {
+        foo
+      }
+    `);
+
+    const errors = validate(schema, ast, [
+      createComplexityRule({
+        maximumComplexity: 1000,
+        estimators: [
+          simpleEstimator({
+            defaultComplexity: 1,
+          }),
+        ],
+      }),
+    ]);
+
+    expect(errors).to.have.length(0);
+  });
 });
