@@ -35,6 +35,9 @@ import {
   Kind,
   getNamedType,
   GraphQLError,
+  SchemaMetaFieldDef,
+  TypeMetaFieldDef,
+  TypeNameMetaFieldDef,
 } from 'graphql';
 
 export type ComplexityEstimatorArgs = {
@@ -307,7 +310,23 @@ export default class QueryComplexity {
 
             switch (childNode.kind) {
               case Kind.FIELD: {
-                const field = fields[childNode.name.value];
+                let field = null
+
+                switch (childNode.name.value) {
+                  case SchemaMetaFieldDef.name:
+                    field = SchemaMetaFieldDef
+                    break;
+                  case TypeMetaFieldDef.name:
+                    field = TypeMetaFieldDef
+                    break;
+                  case TypeNameMetaFieldDef.name:
+                    field = TypeNameMetaFieldDef
+                    break;
+                  default:
+                    field = fields[childNode.name.value];
+                    break;
+                }
+                
                 // Invalid field, should be caught by other validation rules
                 if (!field) {
                   break;
