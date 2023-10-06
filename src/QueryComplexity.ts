@@ -310,23 +310,23 @@ export default class QueryComplexity {
 
             switch (childNode.kind) {
               case Kind.FIELD: {
-                let field = null
+                let field = null;
 
                 switch (childNode.name.value) {
                   case SchemaMetaFieldDef.name:
-                    field = SchemaMetaFieldDef
+                    field = SchemaMetaFieldDef;
                     break;
                   case TypeMetaFieldDef.name:
-                    field = TypeMetaFieldDef
+                    field = TypeMetaFieldDef;
                     break;
                   case TypeNameMetaFieldDef.name:
-                    field = TypeNameMetaFieldDef
+                    field = TypeNameMetaFieldDef;
                     break;
                   default:
                     field = fields[childNode.name.value];
                     break;
                 }
-                
+
                 // Invalid field, should be caught by other validation rules
                 if (!field) {
                   break;
