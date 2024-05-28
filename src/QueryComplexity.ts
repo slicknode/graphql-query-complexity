@@ -241,9 +241,13 @@ export default class QueryComplexity {
       | FragmentDefinitionNode
       | InlineFragmentNode
       | OperationDefinitionNode,
-    typeDef: GraphQLObjectType | GraphQLInterfaceType | GraphQLUnionType
+    typeDef:
+      | GraphQLObjectType
+      | GraphQLInterfaceType
+      | GraphQLUnionType
+      | undefined
   ): number {
-    if (node.selectionSet) {
+    if (node.selectionSet && typeDef) {
       let fields: GraphQLFieldMap<any, any> = {};
       if (
         typeDef instanceof GraphQLObjectType ||
