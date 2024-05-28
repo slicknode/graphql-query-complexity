@@ -611,6 +611,33 @@ describe('QueryComplexity analysis', () => {
     expect(complexity2).to.equal(20);
   });
 
+  it('should calculate complexity for meta fields', () => {
+    const query = parse(`
+      query Primary {
+        __typename
+        __type(name: "Primary") {
+          name
+        }
+        __schema {
+          types {
+            name
+          }
+        }
+      }
+    `);
+
+    const complexity = getComplexity({
+      estimators: [
+        fieldExtensionsEstimator(),
+        simpleEstimator({ defaultComplexity: 1 }),
+      ],
+      schema,
+      query,
+    });
+
+    expect(complexity).to.equal(6);
+  });
+
   it('should calculate max complexity for fragment on union type', () => {
     const query = parse(`
       query Primary {
