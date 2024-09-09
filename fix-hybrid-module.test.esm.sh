@@ -4,7 +4,16 @@ cat >dist/test/esm/package.json <<!EOF
 }
 !EOF
 
-sed -i '' 's/from '\''graphql\/execution\/values'\'';/from '\''graphql\/execution\/values.mjs'\'';/' "dist/test/esm/QueryComplexity.js"
+file_path="dist/test/esm/QueryComplexity.js"
+find_path="dist/test/esm"
 
-# We need to update from 'graphql' to 'graphql/index.mjs' in all files in dist/esm to ensure the GraphQL module is loaded from the same realm
-find dist/test/esm -type f -name "*.js" -exec sed -i '' 's/from '\''graphql'\'';/from '\''graphql\/index.mjs'\'';/' {} +
+# Detect the operating system and use the appropriate sed command
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  # macOS (BSD sed)
+  sed -i '' 's/from '\''graphql\/execution\/values'\'';/from '\''graphql\/execution\/values.mjs'\'';/' "$file_path"
+  find "$find_path" -type f -name "*.js" -exec sed -i '' 's/from '\''graphql'\'';/from '\''graphql\/index.mjs'\'';/' {} +
+else
+  # Linux (GNU sed)
+  sed -i 's/from '\''graphql\/execution\/values'\'';/from '\''graphql\/execution\/values.mjs'\'';/' "$file_path"
+  find "$find_path" -type f -name "*.js" -exec sed -i 's/from '\''graphql'\'';/from '\''graphql\/index.mjs'\'';/' {} +
+fi

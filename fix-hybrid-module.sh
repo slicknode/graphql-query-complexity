@@ -1,18 +1,40 @@
+#!/bin/bash
+
+# Create package.json for CommonJS
 cat >dist/cjs/package.json <<!EOF
 {
     "type": "commonjs"
 }
 !EOF
 
-sed -i '' 's/require("graphql\/execution\/values")/require("graphql\/execution\/values.js")/' "dist/cjs/QueryComplexity.js"
+# Define the file paths
+cjs_file_path="dist/cjs/QueryComplexity.js"
+esm_file_path="dist/esm/QueryComplexity.js"
+find_path="dist/esm"
 
+# Detect the operating system and use the appropriate sed command
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  # macOS (BSD sed)
+  sed -i '' 's/require("graphql\/execution\/values")/require("graphql\/execution\/values.js")/' "$cjs_file_path"
+else
+  # Linux (GNU sed)
+  sed -i 's/require("graphql\/execution\/values")/require("graphql\/execution\/values.js")/' "$cjs_file_path"
+fi
+
+# Create package.json for ES modules
 cat >dist/esm/package.json <<!EOF
 {
     "type": "module"
 }
 !EOF
 
-sed -i '' 's/from '\''graphql\/execution\/values'\'';/from '\''graphql\/execution\/values.mjs'\'';/' "dist/esm/QueryComplexity.js"
-
-# We need to update from 'graphql' to 'graphql/index.mjs' in all files in dist/esm to ensure the GraphQL module is loaded from the same realm
-find dist/esm -type f -name "*.js" -exec sed -i '' 's/from '\''graphql'\'';/from '\''graphql\/index.mjs'\'';/' {} +
+# Detect the operating system and use the appropriate sed command
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  # macOS (BSD sed)
+  sed -i '' 's/from '\''graphql\/execution\/values'\'';/from '\''graphql\/execution\/values.mjs'\'';/' "$esm_file_path"
+  find "$find_path" -type f -name "*.js" -exec sed -i '' 's/from '\''graphql'\'';/from '\''graphql\/index.mjs'\'';/' {} +
+else
+  # Linux (GNU sed)
+  sed -i 's/from '\''graphql\/execution\/values'\'';/from '\''graphql\/execution\/values.mjs'\'';/' "$esm_file_path"
+  find "$find_path" -type f -name "*.js" -exec sed -i 's/from '\''graphql'\'';/from '\''graphql\/index.mjs'\'';/' {} +
+fi
