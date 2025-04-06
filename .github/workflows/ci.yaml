@@ -24,7 +24,7 @@ jobs:
           node-version: 'latest'
 
       - name: Restore cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: node_modules
           key: v1-dependencies-${{ hashFiles('package.json') }}-${{ matrix.graphql-version }}
@@ -44,7 +44,7 @@ jobs:
         run: yarn install --frozen-lockfile
 
       - name: Save cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: node_modules
           key: v1-dependencies-${{ hashFiles('package.json') }}-${{ matrix.graphql-version }}
@@ -64,7 +64,7 @@ jobs:
           node-version: 'latest'
 
       - name: Restore cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: node_modules
           key: v1-dependencies-${{ hashFiles('package.json') }}
@@ -75,7 +75,7 @@ jobs:
         run: yarn install --frozen-lockfile
 
       - name: Save cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: node_modules
           key: v1-dependencies-${{ hashFiles('package.json') }}
