@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        graphql-version: ['~15.0', '~16.0']
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'latest'
+
+      - name: Restore cache
+        uses: actions/cache@v2
+        with:
+          path: node_modules
+          key: v1-dependencies-${{ hashFiles('package.json') }}-${{ matrix.graphql-version }}
+          restore-keys: |
+            v1-dependencies-
+
+      - name: Install dependencies
+        if: matrix.graphql-version != ''
+        run: yarn install --ignore-scripts
+
+      - name: Add specific graphql version
+        if: matrix.graphql-version != ''
+        run: yarn --ignore-scripts add --dev graphql@${{ matrix.graphql-version }}
+
+      - name: Install dependencies with frozen lockfile
+        if: matrix.graphql-version == ''
+        run: yarn install --frozen-lockfile
+
+      - name: Save cache
+        uses: actions/cache@v2
+        with:
+          path: node_modules
+          key: v1-dependencies-${{ hashFiles('package.json') }}-${{ matrix.graphql-version }}
+
+      - name: Run tests
+        run: yarn test
+
+  test-and-build-with-typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'latest'
+
+      - name: Restore cache
+        uses: actions/cache@v2
+        with:
+          path: node_modules
+          key: v1-dependencies-${{ hashFiles('package.json') }}
+          restore-keys: |
+            v1-dependencies-
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Save cache
+        uses: actions/cache@v2
+        with:
+          path: node_modules
+          key: v1-dependencies-${{ hashFiles('package.json') }}
+
+      - name: Run tests
+        run: yarn test
