@@ -31,7 +31,7 @@ import {
 
 const rule = createComplexityRule({
   // The maximum allowed query complexity, queries above this threshold will be rejected
-  maximumComplexity: 1000,
+  maximumComplexity: 1_000,
 
   // The query variables. This is needed because the variables are not available
   // in the visitor of the graphql-js library
@@ -40,8 +40,15 @@ const rule = createComplexityRule({
   // The context object for the request (optional)
   context: {}
 
-  // specify operation name only when pass multi-operation documents
+  // Specify operation name when evaluating multi-operation documents
   operationName?: string,
+
+  // The maximum number of query nodes to evaluate (fields, fragments, composite types).
+  // If a query contains more than the specified number of nodes, the complexity rule will
+  // throw an error, regardless of the complexity of the query.
+  //
+  // Default: 10_000
+  maxQueryNodes?: 10_000,
 
   // Optional callback function to retrieve the determined query complexity
   // Will be invoked whether the query is rejected or not

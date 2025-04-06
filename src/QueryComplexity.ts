@@ -85,6 +85,11 @@ export interface QueryComplexityOptions {
 
   // Pass request context to the estimators via estimationContext
   context?: Record<string, any>;
+
+  // The maximum number of nodes to evaluate. If this is set, the query will be
+  // rejected if it exceeds this number. (Includes fields, fragments, inline fragments, etc.)
+  // Defaults to 10_000.
+  maxQueryNodes?: number;
 }
 
 function queryComplexityMessage(max: number, actual: number): string {
@@ -101,6 +106,7 @@ export function getComplexity(options: {
   variables?: Record<string, any>;
   operationName?: string;
   context?: Record<string, any>;
+  maxQueryNodes?: number;
 }): number {
   const typeInfo = new TypeInfo(options.schema);
 
@@ -118,6 +124,7 @@ export function getComplexity(options: {
     variables: options.variables,
     operationName: options.operationName,
     context: options.context,
+    maxQueryNodes: options.maxQueryNodes,
   });
 
   visit(options.query, visitWithTypeInfo(typeInfo, visitor));
@@ -140,6 +147,8 @@ export default class QueryComplexity {
   skipDirectiveDef: GraphQLDirective;
   variableValues: Record<string, any>;
   requestContext?: Record<string, any>;
+  evaluatedNodes: number;
+  maxQueryNodes: number;
 
   constructor(context: ValidationContext, options: QueryComplexityOptions) {
     if (
@@ -154,7 +163,8 @@ export default class QueryComplexity {
     this.context = context;
     this.complexity = 0;
     this.options = options;
-
+    this.evaluatedNodes = 0;
+    this.maxQueryNodes = options.maxQueryNodes ?? 10_000;
     this.includeDirectiveDef = this.context.getSchema().getDirective('include');
     this.skipDirectiveDef = this.context.getSchema().getDirective('skip');
     this.estimators = options.estimators;
@@ -274,7 +284,12 @@ export default class QueryComplexity {
             complexities: ComplexityMap,
             childNode: FieldNode | FragmentSpreadNode | InlineFragmentNode
           ): ComplexityMap => {
-            // let nodeComplexity = 0;
+            this.evaluatedNodes++;
+            if (this.evaluatedNodes >= this.maxQueryNodes) {
+              throw new GraphQLError(
+                'Query exceeds the maximum allowed number of nodes.'
+              );
+            }
             let innerComplexities = complexities;
 
             let includeNode = true;
