@@ -939,4 +939,87 @@ describe('QueryComplexity analysis', () => {
 
     expect(errors).to.have.length(0);
   });
+
+  it('should reject queries that exceed the maximum number of fragment nodes', () => {
+    const query = parse(`
+      query {
+        ...F
+        ...F
+      }
+      fragment F on Query {
+        scalar
+      }
+    `);
+
+    expect(() =>
+      getComplexity({
+        estimators: [simpleEstimator({ defaultComplexity: 1 })],
+        schema,
+        query,
+        maxQueryNodes: 1,
+        variables: {},
+      })
+    ).to.throw('Query exceeds the maximum allowed number of nodes.');
+  });
+
+  it('should reject queries that exceed the maximum number of field nodes', () => {
+    const query = parse(`
+      query {
+        scalar
+        scalar1: scalar
+        scalar2: scalar
+        scalar3: scalar
+        scalar4: scalar
+        scalar5: scalar
+        scalar6: scalar
+        scalar7: scalar
+      }
+    `);
+
+    expect(() =>
+      getComplexity({
+        estimators: [simpleEstimator({ defaultComplexity: 1 })],
+        schema,
+        query,
+        maxQueryNodes: 1,
+        variables: {},
+      })
+    ).to.throw('Query exceeds the maximum allowed number of nodes.');
+  });
+
+  it('should limit the number of query nodes to 10_000 by default', () => {
+    const failingQuery = parse(`
+      query {
+        ${Array.from({ length: 10_000 }, (_, i) => `scalar${i}: scalar`).join(
+          '\n'
+        )}
+      }
+    `);
+
+    expect(() =>
+      getComplexity({
+        estimators: [simpleEstimator({ defaultComplexity: 1 })],
+        schema,
+        query: failingQuery,
+        variables: {},
+      })
+    ).to.throw('Query exceeds the maximum allowed number of nodes.');
+
+    const passingQuery = parse(`
+      query {
+        ${Array.from({ length: 9999 }, (_, i) => `scalar${i}: scalar`).join(
+          '\n'
+        )}
+      }
+    `);
+
+    expect(() =>
+      getComplexity({
+        estimators: [simpleEstimator({ defaultComplexity: 1 })],
+        schema,
+        query: passingQuery,
+        variables: {},
+      })
+    ).not.to.throw();
+  });
 });
