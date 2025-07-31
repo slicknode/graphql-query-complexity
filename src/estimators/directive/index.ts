@@ -11,7 +11,6 @@ import {
   GraphQLDirective,
   DirectiveLocation,
 } from 'graphql';
-import get from 'lodash.get';
 
 export type ComplexityDirectiveOptions = {
   name?: string;
@@ -64,7 +63,7 @@ export default function (
     if (values.multipliers && Array.isArray(values.multipliers)) {
       totalMultiplier = values.multipliers.reduce(
         (aggregated: number, multiplier: string) => {
-          const multiplierValue = get(args.args, multiplier);
+          const multiplierValue = args.args?.[multiplier];
 
           if (typeof multiplierValue === 'number') {
             return aggregated * multiplierValue;

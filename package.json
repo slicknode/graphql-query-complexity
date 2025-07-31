@@ -23,9 +23,7 @@
   "directories": {
     "lib": "./dist"
   },
-  "dependencies": {
-    "lodash.get": "^4.4.2"
-  },
+  "dependencies": {},
   "peerDependencies": {
     "graphql": "^15.0.0 || ^16.0.0"
   },
