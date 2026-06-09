@@ -987,6 +987,52 @@ describe('QueryComplexity analysis', () => {
     ).to.throw('Query exceeds the maximum allowed number of nodes.');
   });
 
+  it('should handle self-referencing fragments without infinite loop', () => {
+    const query = parse(`
+      query {
+        ...A
+      }
+      fragment A on Query {
+        scalar
+        ...A
+      }
+    `);
+
+    // The back-edge spread (…A inside A) is skipped; only the non-recursive
+    // fields contribute to complexity.
+    const complexity = getComplexity({
+      estimators: [simpleEstimator({ defaultComplexity: 1 })],
+      schema,
+      query,
+    });
+    expect(complexity).to.equal(1);
+  });
+
+  it('should handle mutually recursive fragments without infinite loop', () => {
+    const query = parse(`
+      query {
+        ...A
+      }
+      fragment A on Query {
+        scalar
+        ...B
+      }
+      fragment B on Query {
+        scalar
+        ...A
+      }
+    `);
+
+    // A spreads B (new path), B tries to spread A (already active) — skipped.
+    // Only the two `scalar` fields contribute.
+    const complexity = getComplexity({
+      estimators: [simpleEstimator({ defaultComplexity: 1 })],
+      schema,
+      query,
+    });
+    expect(complexity).to.equal(2);
+  });
+
   it('should limit the number of query nodes to 10_000 by default', () => {
     const failingQuery = parse(`
       query {
