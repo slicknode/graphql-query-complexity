@@ -369,7 +369,11 @@ export default class QueryComplexity {
                 // Check if we have child complexity
                 let childComplexity = 0;
                 if (isCompositeType(fieldType)) {
-                  childComplexity = this.nodeComplexity(childNode, fieldType, activeFragments);
+                  childComplexity = this.nodeComplexity(
+                    childNode,
+                    fieldType,
+                    activeFragments
+                  );
                 }
 
                 // Run estimators one after another and return first valid complexity
