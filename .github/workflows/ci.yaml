@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
+        node-version: [20, 22, 24, 26]
         graphql-version: ['~15.0', '~16.0']
     steps:
       - name: Checkout repository
@@ -21,13 +22,13 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 'latest'
+          node-version: ${{ matrix.node-version }}
 
       - name: Restore cache
         uses: actions/cache@v3
         with:
           path: node_modules
-          key: v1-dependencies-${{ hashFiles('package.json') }}-${{ matrix.graphql-version }}
+          key: v1-dependencies-${{ hashFiles('package.json') }}-${{ matrix.node-version }}-${{ matrix.graphql-version }}
           restore-keys: |
             v1-dependencies-
 
@@ -47,13 +48,16 @@ jobs:
         uses: actions/cache@v3
         with:
           path: node_modules
-          key: v1-dependencies-${{ hashFiles('package.json') }}-${{ matrix.graphql-version }}
+          key: v1-dependencies-${{ hashFiles('package.json') }}-${{ matrix.node-version }}-${{ matrix.graphql-version }}
 
       - name: Run tests
         run: yarn test
 
   test-and-build-with-typecheck:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20, 22, 24, 26]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -61,13 +65,13 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 'latest'
+          node-version: ${{ matrix.node-version }}
 
       - name: Restore cache
         uses: actions/cache@v3
         with:
           path: node_modules
-          key: v1-dependencies-${{ hashFiles('package.json') }}
+          key: v1-dependencies-${{ hashFiles('package.json') }}-${{ matrix.node-version }}
           restore-keys: |
             v1-dependencies-
 
@@ -78,7 +82,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: node_modules
-          key: v1-dependencies-${{ hashFiles('package.json') }}
+          key: v1-dependencies-${{ hashFiles('package.json') }}-${{ matrix.node-version }}
 
       - name: Run tests
         run: yarn test

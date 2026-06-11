@@ -255,7 +255,8 @@ export default class QueryComplexity {
       | GraphQLObjectType
       | GraphQLInterfaceType
       | GraphQLUnionType
-      | undefined
+      | undefined,
+    activeFragments: Set<string> = new Set()
   ): number {
     if (node.selectionSet && typeDef) {
       let fields: GraphQLFieldMap<any, any> = {};
@@ -368,7 +369,11 @@ export default class QueryComplexity {
                 // Check if we have child complexity
                 let childComplexity = 0;
                 if (isCompositeType(fieldType)) {
-                  childComplexity = this.nodeComplexity(childNode, fieldType);
+                  childComplexity = this.nodeComplexity(
+                    childNode,
+                    fieldType,
+                    activeFragments
+                  );
                 }
 
                 // Run estimators one after another and return first valid complexity
@@ -410,9 +415,14 @@ export default class QueryComplexity {
                 break;
               }
               case Kind.FRAGMENT_SPREAD: {
-                const fragment = this.context.getFragment(childNode.name.value);
+                const fragmentName = childNode.name.value;
+                const fragment = this.context.getFragment(fragmentName);
                 // Unknown fragment, should be caught by other validation rules
                 if (!fragment) {
+                  break;
+                }
+                // Circular fragment reference — skip to avoid infinite recursion
+                if (activeFragments.has(fragmentName)) {
                   break;
                 }
                 const fragmentType = this.context
@@ -422,10 +432,16 @@ export default class QueryComplexity {
                 if (!isCompositeType(fragmentType)) {
                   break;
                 }
+                // Track this fragment on the active path so deeper spreads can
+                // detect cycles, then remove it on the way back up (backtracking)
+                // to avoid copying the set on every descent.
+                activeFragments.add(fragmentName);
                 const nodeComplexity = this.nodeComplexity(
                   fragment,
-                  fragmentType
+                  fragmentType,
+                  activeFragments
                 );
+                activeFragments.delete(fragmentName);
                 if (isAbstractType(fragmentType)) {
                   // Add fragment complexity for all possible types
                   innerComplexities = addComplexities(
@@ -459,7 +475,8 @@ export default class QueryComplexity {
 
                 const nodeComplexity = this.nodeComplexity(
                   childNode,
-                  inlineFragmentType
+                  inlineFragmentType,
+                  activeFragments
                 );
                 if (isAbstractType(inlineFragmentType)) {
                   // Add fragment complexity for all possible types
@@ -483,7 +500,7 @@ export default class QueryComplexity {
               }
               default: {
                 innerComplexities = addComplexities(
-                  this.nodeComplexity(childNode, typeDef),
+                  this.nodeComplexity(childNode, typeDef, activeFragments),
                   complexities,
                   possibleTypeNames
                 );
