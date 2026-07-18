@@ -27,7 +27,7 @@
     "lodash.get": "^4.4.2"
   },
   "peerDependencies": {
-    "graphql": "^15.0.0 || ^16.0.0"
+    "graphql": "^15.0.0 || ^16.0.0 || ^17.0.0"
   },
   "files": [
     "dist",
@@ -66,7 +66,7 @@
     "@typescript-eslint/parser": "^5.1.0",
     "chai": "^4.3.4",
     "eslint": "^8.0.1",
-    "graphql": "~14.6.0 || ~15.0.0 || ~16.0.0",
+    "graphql": "~14.6.0 || ~15.0.0 || ~16.0.0 || ~17.0.0",
     "mocha": "^11.7.6",
     "prettier": "^2.4.1",
     "rimraf": "^3.0.2",

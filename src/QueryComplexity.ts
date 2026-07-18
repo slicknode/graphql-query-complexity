@@ -14,6 +14,7 @@ import {
   ValidationContext,
   FragmentDefinitionNode,
   OperationDefinitionNode,
+  VariableDefinitionNode,
   FieldNode,
   FragmentSpreadNode,
   InlineFragmentNode,
@@ -187,7 +188,7 @@ export default class QueryComplexity {
 
     // Get variable values from variables that are passed from options, merged
     // with default values defined in the operation
-    const { coerced, errors } = getVariableValues(
+    const { coerced, errors } = getCoercedVariableValues(
       this.context.getSchema(),
       // We have to create a new array here because input argument is not readonly in graphql ~14.6.0
       operation.variableDefinitions ? [...operation.variableDefinitions] : [],
@@ -532,6 +533,31 @@ export default class QueryComplexity {
       queryComplexityMessage(this.options.maximumComplexity, this.complexity)
     );
   }
+}
+
+/**
+ * GraphQL v17 changed getVariableValues() to return { variableValues }
+ * instead of { coerced }. This helper supports both shapes.
+ */
+function getCoercedVariableValues(
+  schema: GraphQLSchema,
+  variableDefinitions: readonly VariableDefinitionNode[],
+  inputs: Record<string, any>
+): { coerced: Record<string, any>; errors?: ReadonlyArray<GraphQLError> } {
+  const result = getVariableValues(
+    schema,
+    variableDefinitions ?? [],
+    inputs
+  ) as {
+    coerced?: Record<string, any>;
+    variableValues?: { coerced: Record<string, any> };
+    errors?: ReadonlyArray<GraphQLError>;
+  };
+
+  return {
+    coerced: result.variableValues?.coerced ?? result.coerced ?? {},
+    errors: result.errors,
+  };
 }
 
 /**
