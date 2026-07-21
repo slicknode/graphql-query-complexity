@@ -4,16 +4,5 @@ cat >dist/test/esm/package.json <<!EOF
 }
 !EOF
 
-file_path="dist/test/esm/QueryComplexity.js"
-find_path="dist/test/esm"
-
-# Detect the operating system and use the appropriate sed command
-if [[ "$OSTYPE" == "darwin"* ]]; then
-  # macOS (BSD sed)
-  sed -i '' 's/from '\''graphql\/execution\/values'\'';/from '\''graphql\/execution\/values.mjs'\'';/' "$file_path"
-  find "$find_path" -type f -name "*.js" -exec sed -i '' 's/from '\''graphql'\'';/from '\''graphql\/index.mjs'\'';/' {} +
-else
-  # Linux (GNU sed)
-  sed -i 's/from '\''graphql\/execution\/values'\'';/from '\''graphql\/execution\/values.mjs'\'';/' "$file_path"
-  find "$find_path" -type f -name "*.js" -exec sed -i 's/from '\''graphql'\'';/from '\''graphql\/index.mjs'\'';/' {} +
-fi
+# No import specifiers need rewriting: every graphql import resolves through
+# the bare "graphql" package root (see fix-hybrid-module.sh for details).

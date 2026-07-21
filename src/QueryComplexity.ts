@@ -8,9 +8,6 @@ import {
   getArgumentValues,
   getDirectiveValues,
   getVariableValues,
-} from 'graphql/execution/values';
-
-import {
   ValidationContext,
   FragmentDefinitionNode,
   OperationDefinitionNode,
@@ -33,7 +30,6 @@ import {
   GraphQLUnionType,
   GraphQLObjectType,
   GraphQLInterfaceType,
-  Kind,
   getNamedType,
   GraphQLError,
   SchemaMetaFieldDef,
@@ -188,7 +184,7 @@ export default class QueryComplexity {
 
     // Get variable values from variables that are passed from options, merged
     // with default values defined in the operation
-    const { coerced, errors } = getCoercedVariableValues(
+    const { variableValues, errors } = getOperationVariableValues(
       this.context.getSchema(),
       // We have to create a new array here because input argument is not readonly in graphql ~14.6.0
       operation.variableDefinitions ? [...operation.variableDefinitions] : [],
@@ -199,7 +195,7 @@ export default class QueryComplexity {
       errors.forEach((error) => this.context.reportError(error));
       return;
     }
-    this.variableValues = coerced;
+    this.variableValues = variableValues;
 
     switch (operation.operation) {
       case 'query':
@@ -304,7 +300,7 @@ export default class QueryComplexity {
                   const values = getDirectiveValues(
                     this.includeDirectiveDef,
                     childNode,
-                    this.variableValues || {}
+                    getExecutionVariableValues(this.variableValues)
                   );
                   if (typeof values.if === 'boolean') {
                     includeNode = values.if;
@@ -315,7 +311,7 @@ export default class QueryComplexity {
                   const values = getDirectiveValues(
                     this.skipDirectiveDef,
                     childNode,
-                    this.variableValues || {}
+                    getExecutionVariableValues(this.variableValues)
                   );
                   if (typeof values.if === 'boolean') {
                     skipNode = values.if;
@@ -330,7 +326,7 @@ export default class QueryComplexity {
             }
 
             switch (childNode.kind) {
-              case Kind.FIELD: {
+              case 'Field': {
                 let field = null;
 
                 switch (childNode.name.value) {
@@ -360,7 +356,7 @@ export default class QueryComplexity {
                   args = getArgumentValues(
                     field,
                     childNode,
-                    this.variableValues || {}
+                    getExecutionVariableValues(this.variableValues)
                   );
                 } catch (e) {
                   this.context.reportError(e);
@@ -415,7 +411,7 @@ export default class QueryComplexity {
                 }
                 break;
               }
-              case Kind.FRAGMENT_SPREAD: {
+              case 'FragmentSpread': {
                 const fragmentName = childNode.name.value;
                 const fragment = this.context.getFragment(fragmentName);
                 // Unknown fragment, should be caught by other validation rules
@@ -463,7 +459,7 @@ export default class QueryComplexity {
                 }
                 break;
               }
-              case Kind.INLINE_FRAGMENT: {
+              case 'InlineFragment': {
                 let inlineFragmentType: GraphQLNamedType = typeDef;
                 if (childNode.typeCondition && childNode.typeCondition.name) {
                   inlineFragmentType = this.context
@@ -500,8 +496,17 @@ export default class QueryComplexity {
                 break;
               }
               default: {
+                // Unreachable: all selection kinds (Field, FragmentSpread,
+                // InlineFragment) are handled above. The cast keeps this
+                // compatible across graphql versions whose AST `kind` typings
+                // differ (enum vs string literal), which affect how the switch
+                // narrows the node type in this branch.
                 innerComplexities = addComplexities(
-                  this.nodeComplexity(childNode, typeDef, activeFragments),
+                  this.nodeComplexity(
+                    childNode as FieldNode,
+                    typeDef,
+                    activeFragments
+                  ),
                   complexities,
                   possibleTypeNames
                 );
@@ -537,27 +542,43 @@ export default class QueryComplexity {
 
 /**
  * GraphQL v17 changed getVariableValues() to return { variableValues }
- * instead of { coerced }. This helper supports both shapes.
+ * (an object with a `coerced` map) instead of a `{ coerced }` map directly.
+ * This helper normalizes both shapes to the container the running graphql
+ * version expects, without referencing any version-specific graphql types
+ * (which would leak into this package's published type definitions).
  */
-function getCoercedVariableValues(
+function getOperationVariableValues(
   schema: GraphQLSchema,
   variableDefinitions: readonly VariableDefinitionNode[],
   inputs: Record<string, any>
-): { coerced: Record<string, any>; errors?: ReadonlyArray<GraphQLError> } {
-  const result = getVariableValues(
-    schema,
-    variableDefinitions ?? [],
-    inputs
-  ) as {
+): {
+  variableValues: Record<string, any>;
+  errors?: ReadonlyArray<GraphQLError>;
+} {
+  const result = getVariableValues(schema, variableDefinitions, inputs) as {
     coerced?: Record<string, any>;
-    variableValues?: { coerced: Record<string, any> };
+    variableValues?: Record<string, any>;
     errors?: ReadonlyArray<GraphQLError>;
   };
 
   return {
-    coerced: result.variableValues?.coerced ?? result.coerced ?? {},
+    variableValues: result.variableValues ?? result.coerced ?? {},
     errors: result.errors,
   };
+}
+
+/**
+ * Returns the variable values in the form expected by getArgumentValues /
+ * getDirectiveValues. graphql >= 17 receives the `{ coerced, sources }`
+ * container as-is; graphql <= 16 receives the plain coerced map. An empty map
+ * (no variables) is passed as undefined for both.
+ */
+function getExecutionVariableValues(variableValues: Record<string, any>): any {
+  if (!variableValues || Object.keys(variableValues).length === 0) {
+    return undefined;
+  }
+
+  return variableValues;
 }
 
 /**
