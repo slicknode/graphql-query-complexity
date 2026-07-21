@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [20, 22, 24, 26]
+        node-version: [22, 24, 26]
         graphql-version: ['~16.6', '~16', '~17.0']
     steps:
       - name: Checkout repository
@@ -57,7 +57,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [20, 22, 24, 26]
+        node-version: [22, 24, 26]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
