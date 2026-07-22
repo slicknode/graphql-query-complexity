@@ -568,10 +568,9 @@ function getOperationVariableValues(
 }
 
 /**
- * Returns the variable values in the form expected by getArgumentValues /
- * getDirectiveValues. graphql >= 17 receives the `{ coerced, sources }`
- * container as-is; graphql <= 16 receives the plain coerced map. An empty map
- * (no variables) is passed as undefined for both.
+ * Forwards the version-correct variable values (already shaped by
+ * getOperationVariableValues) to getArgumentValues / getDirectiveValues
+ * unchanged, mapping only the empty case to `undefined`.
  */
 function getExecutionVariableValues(variableValues: Record<string, any>): any {
   if (!variableValues || Object.keys(variableValues).length === 0) {
