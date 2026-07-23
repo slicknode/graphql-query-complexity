@@ -65,6 +65,32 @@ describe('QueryComplexity analysis', () => {
     expect(complexity).to.equal(0);
   });
 
+  it('should respect @include(if: $show) with explicit variable value', () => {
+    const ast = parse(`
+      query Foo ($show: Boolean!) {
+        variableScalar(count: 10) @include(if: $show)
+      }
+    `);
+
+    expect(
+      getComplexity({
+        estimators: [simpleEstimator({ defaultComplexity: 1 })],
+        schema,
+        query: ast,
+        variables: { show: true },
+      })
+    ).to.equal(1);
+
+    expect(
+      getComplexity({
+        estimators: [simpleEstimator({ defaultComplexity: 1 })],
+        schema,
+        query: ast,
+        variables: { show: false },
+      })
+    ).to.equal(0);
+  });
+
   it('should respect @include(if: false)', () => {
     const ast = parse(`
       query {
@@ -494,8 +520,8 @@ describe('QueryComplexity analysis', () => {
     });
     visit(ast, visitWithTypeInfo(typeInfo, visitor));
     expect(context.getErrors().length).to.equal(1);
-    expect(context.getErrors()[0].message).to.equal(
-      'Argument "count" of required type "Int!" was not provided.'
+    expect(context.getErrors()[0].message).to.match(
+      /^Argument "(?:count|Query\.requiredArgs\(count:\))" of required type "Int!" was not provided\.$/
     );
   });
 
